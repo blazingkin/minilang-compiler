@@ -1,1 +1,21 @@
-print("test")
+import JSON
+import FileSystem
+
+:main
+    program = open({arguments}[0]).read_all()
+    json_to_ast(program)
+end
+
+:json_to_ast(json)
+    parsed = parse_json(json)
+    types = parsed["types"]
+    functions = parsed["functions"]
+    declarations = parsed["declarations"]
+    print("Types")
+    print(types)
+    print("Functions")
+    print(functions)
+    print("Declarations")
+    print(declarations)
+end
+
