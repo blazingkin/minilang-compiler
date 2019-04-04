@@ -1,5 +1,7 @@
 import JSON
 import FileSystem
+require declaration
+require type
 
 :main
     program = open({arguments}[0]).read_all()
@@ -8,9 +10,14 @@ end
 
 :json_to_ast(json)
     parsed = parse_json(json)
-    types = parsed["types"]
+    print(parsed["types"])
+    types = []
+    parsed_types = parsed["types"]
+    for i = 0; i < parsed_types.length(); i++
+        types.add!(parse_type(parsed_types[i]))
+    end
     functions = parsed["functions"]
-    declarations = parsed["declarations"]
+    declarations = parsed["declarations"].map!(parse_declaration)
     print("Types")
     print(types)
     print("Functions")

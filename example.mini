@@ -2,7 +2,12 @@
 # Milestone #1 Benchmarks
 # keeps adding two numbers' factorials  until -1 is encountered
 #
-int lmao;
+struct A {
+    int a;
+    int b;
+    int c;
+};
+
 
 # adds both inputs
 fun sum (int a, int b) int

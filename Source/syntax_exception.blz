@@ -1,0 +1,6 @@
+
+constructor SyntaxException(message)
+    :show
+        message
+    end
+end

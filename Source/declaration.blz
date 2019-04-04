@@ -1,0 +1,19 @@
+require syntax_exception
+
+constructor Declaration(line, id, type)
+    if type == "int"
+    else if type == "bool"
+    else if type.starts_with("struct ")
+    else
+        throw SyntaxException("Invalid type")
+    end
+
+    :show
+        "<Declaration "+id + " " + type + ">"
+    end
+
+end
+
+:parse_declaration(json)
+    Declaration(json["line"], json["id"], json["type"])
+end
