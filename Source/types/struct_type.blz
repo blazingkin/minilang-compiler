@@ -1,0 +1,13 @@
+require ../declaration
+
+constructor StructType(line, id, fields)
+
+    :show
+        "<StructType "+id+" " + fields + ">"
+    end
+
+end
+
+:parse_type(json)
+    StructType(json["line"], json["id"], json["fields"].map!(parse_declaration))
+end

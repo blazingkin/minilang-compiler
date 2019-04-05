@@ -1,7 +1,7 @@
 import JSON
 import FileSystem
 require declaration
-require type
+require types/struct_type
 
 :main
     program = open({arguments}[0]).read_all()
