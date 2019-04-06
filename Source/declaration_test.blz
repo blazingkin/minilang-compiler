@@ -1,0 +1,6 @@
+import Test
+
+
+:test_something_is_something
+    expect(1 + 1).is(2)
+end

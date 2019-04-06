@@ -1,0 +1,13 @@
+require ast_factory
+
+constructor IdentifierNode(id, line)
+
+    :show
+        id
+    end
+
+end
+
+:parse_identifier_node(json)
+    IdentifierNode!(json["id"], json["line"])
+end

@@ -1,0 +1,13 @@
+require ast_factory
+
+constructor NumberNode(number, line)
+
+    :show
+        "<Number " + number + ">"
+    end
+
+end
+
+:parse_number_node(json)
+    NumberNode!(json["value"], json["line"])
+end

@@ -2,6 +2,7 @@ import JSON
 import FileSystem
 require declaration
 require types/struct_type
+require function
 
 :main
     program = open({arguments}[0]).read_all()
@@ -10,19 +11,14 @@ end
 
 :json_to_ast(json)
     parsed = parse_json(json)
-    print(parsed["types"])
-    types = []
-    parsed_types = parsed["types"]
-    for i = 0; i < parsed_types.length(); i++
-        types.add!(parse_type(parsed_types[i]))
-    end
-    functions = parsed["functions"]
-    declarations = parsed["declarations"].map!(parse_declaration)
-    print("Types")
-    print(types)
-    print("Functions")
+    types = parsed["types"].map!(parse_type)
+    print(parsed["functions"])
+    functions = parsed["functions"].map!(parse_function)
     print(functions)
-    print("Declarations")
-    print(declarations)
+    declarations = parsed["declarations"].map!(parse_declaration)
+    typecheck(types, functions, declarations)
 end
 
+:typecheck(types, functions, declarations)
+    
+end

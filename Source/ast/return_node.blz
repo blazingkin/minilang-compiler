@@ -1,0 +1,13 @@
+require ast_factory
+
+constructor ReturnNode(expression, line)
+
+    :show
+        "<Return " + expression + " " + line + ">"
+    end
+
+end
+
+:parse_return_node(json)
+    ReturnNode!(create_node!(json["exp"]), json["line"])
+end

@@ -1,0 +1,13 @@
+require ast_factory
+
+constructor BlockNode(subnodes)
+
+    :show
+        "<Block " + subnodes.map(x -> x + "\n") + ">"
+    end
+
+end
+
+:parse_block_node(subnodes)
+    BlockNode(subnodes.map!(create_node))
+end

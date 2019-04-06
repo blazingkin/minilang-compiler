@@ -1,4 +1,20 @@
+require ast/block_node
+require declaration
 
-constructor Function
+constructor Function(line, id, return_type, body, parameters, declarations)
 
+    :show
+        "<Function " + id + " " + line + " " + return_type + "\n\t" + parameters + " " + declarations  + "\n\t" + body  + ">"
+    end
+
+end
+
+:parse_function(json)
+    line = json["line"]
+    id = json["id"]
+    return_type = json["return_type"]
+    body = parse_block_node(json["body"])
+    parameters = json["parameters"].map!(parse_declaration)
+    declarations = json["declarations"].map!(parse_declaration)
+    Function!(line, id, return_type, body, parameters, declarations)
 end

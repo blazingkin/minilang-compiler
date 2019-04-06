@@ -1,0 +1,29 @@
+require ../syntax_exception
+require return_node
+require number_node
+require binary_node
+require identifier_node
+
+:create_node(json)
+    if json.has_key?("stmt")
+        type = json["stmt"]
+    else if json.has_key?("exp")
+        type = json["exp"]
+    else
+        throw SyntaxException("")
+    end
+
+    if type == "binary"
+        parse_binary_node!(json)
+    else if type == "id"
+        parse_identifier_node!(json)
+    else if type == "if"
+
+    else if type == "invocation"
+
+    else if type == "num"
+        parse_number_node!(json)
+    else if type == "return"
+        parse_return_node!(json)
+    end
+end

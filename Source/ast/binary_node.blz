@@ -1,0 +1,15 @@
+require ast_factory
+
+
+constructor BinaryNode(operator, left, right, line)
+    :show
+        "<" + operator + " " + left + " " + right + ">"
+    end
+
+end
+
+:parse_binary_node(json)
+    lft = create_node!(json["lft"])
+    right = create_node!(json["rht"])
+    BinaryNode!(json["operator"], lft, right, json["line"])
+end
