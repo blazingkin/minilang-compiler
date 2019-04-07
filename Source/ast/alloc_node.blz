@@ -1,0 +1,12 @@
+
+constructor AllocNode(id, line)
+
+    :show
+        "new " + id
+    end
+
+end
+
+:parse_alloc_node(json)
+    AllocNode!(json["id"], json["line"])
+end

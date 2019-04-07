@@ -11,6 +11,9 @@ require unary_node
 require read_node
 require while_node
 require print_node
+require dot_node
+require alloc_node
+require delete_node
 
 :create_node(json)
     if json.has_key?("stmt")
@@ -39,10 +42,16 @@ require print_node
         parse_unary_node!(json)
     else if type == "block"
         parse_block_node!(json["list"])
+    else if type == "dot"
+        parse_dot_node!(json)
     else if type == "read"
         parse_read_node!(json)
     else if type == "while"
         parse_while_node!(json)
+    else if type == "new"
+        parse_alloc_node!(json)
+    else if type == "delete"
+        parse_delete_node!(json)
     else if type == "print"
         parse_print_node!(json)
     else

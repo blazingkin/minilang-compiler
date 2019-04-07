@@ -1,0 +1,13 @@
+require ast_factory
+
+constructor DeleteNode(expr, line)
+
+    :show
+        "delete " + expr
+    end
+
+end
+
+:parse_delete_node(json)
+    DeleteNode!(create_node!(json["exp"]), json["line"])
+end

@@ -1,0 +1,13 @@
+require ast_factory
+
+constructor DotNode(left, id, line)
+
+    :show
+        left + "." + id
+    end
+
+end
+
+:parse_dot_node(json)
+    DotNode!(create_node!(json["left"]), json["id"], json["line"])
+end

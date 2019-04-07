@@ -1,43 +1,92 @@
-#This program will hopefully break your compiler
+# Milestone 1: General Functionality and Optimizations Benchmark
 
-int GLOBAL, count;
+struct IntHolder{
+   int num;
+};
 
-#comment in the middle of code!
-fun fun2 (int x, int y) int {
-   if (x == 0) {
-      return y;
-   } else {
-      return fun2(x - 1, y);
-   }
+int interval, end;
+
+# A function to test recursion
+fun multBy4xTimes(struct IntHolder num, int timesLeft) int
+{
+  if(timesLeft <= 0){
+     return num.num;
+  }
+
+  # This should be turned into shifts by the compiler
+  num.num = 4 * num.num; 
+  multBy4xTimes(num, timesLeft-1);
+
+  return num.num;
 }
 
-fun fun1 (int x, int y, int z) int {
-   int retVal;
-   retVal = 5 + 6 - x * 2 + 4 / y + z;
+fun divideBy8(struct IntHolder num) void
+{
+  # This could also be turned into shifts
+  num.num = num.num / 2; 
+  num.num = num.num / 2; 
+  num.num = num.num / 2; 
+  delete num.badf;
+}
 
-   if (retVal > y) {
-      return fun2(retVal, x);
-   } else { 
-      if (5 < 6 && retVal <= y) {
-         return fun2(retVal, y);
-      }
-   }
+
+fun main() int
+{
+   int start, countOuter, countInner, calc;
+   int tempAnswer, tempInterval;
+   struct IntHolder x;
    
-   return retVal;
-}
+   # Perhaps this variable could be analyzed and found to have no purpose.
+   bool uselessVar, uselessVar2;
 
-fun main () int {
-   int i;
+   x = new IntHolder;
+   
+   end = 1000000;
 
-   i = 0;
-   i = read;
 
-   while ( i < 10000 ) {
-      print fun1(3, i, 5) endl;
+   start = read;
+   interval = read;
 
-      i = i + 1;
+   # Make sure the read worked correctly
+   print start endl;
+   print interval endl;
 
+   countOuter = 0;
+   countInner = 0;
+   calc = 0;
+
+   # Test of inner loops
+   while(countOuter < 50){
+
+      countInner = 0;
+      while(countInner <= end){
+         # This should be turned into a constant load.
+         calc = 1*2*3*4*5*6*7*8*9*10*11;
+
+         countInner = countInner + 1;
+         x.num = countInner;
+         tempAnswer = x.num;
+
+         # Function call
+         multBy4xTimes(x,2);
+         divideBy8(x);
+
+         tempInterval = interval-1;
+         uselessVar = tempInterval <= 0;
+
+         if(tempInterval <= 0){
+            tempInterval = 1;
+         }
+
+         countInner = countInner + tempInterval;
+      }
+
+      countOuter = countOuter + 1;
    }
+
+   print countInner endl;
+   print calc endl;
 
    return 0;
 }
+
