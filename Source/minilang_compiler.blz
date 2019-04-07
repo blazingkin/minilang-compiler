@@ -12,7 +12,6 @@ end
 :json_to_ast(json)
     parsed = parse_json(json)
     types = parsed["types"].map!(parse_type)
-    print(parsed["functions"])
     functions = parsed["functions"].map!(parse_function)
     print(functions)
     declarations = parsed["declarations"].map!(parse_declaration)

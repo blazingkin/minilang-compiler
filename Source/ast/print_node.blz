@@ -1,0 +1,13 @@
+require ast_factory
+
+constructor PrintNode(exp, endl, line)
+
+    :show
+        "<Print " + exp + " \\n>"
+    end
+
+end
+
+:parse_print_node(json)
+    PrintNode!(create_node!(json["exp"]), json["endl"], json["line"])
+end

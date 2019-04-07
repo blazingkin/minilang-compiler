@@ -1,0 +1,13 @@
+require ast_factory
+
+constructor WhileNode(guard, block, line)
+
+    :show
+        "<While " + guard + " then " + block + ">"
+    end
+
+end
+
+:parse_while_node(json)
+    WhileNode!(create_node!(json["guard"]), create_node!(json["body"]), json["line"])
+end

@@ -1,0 +1,14 @@
+require ast_factory
+
+constructor InvocationNode(args, id, line)
+
+    :show
+        "<Invoke " + id + " with args " + args + ">"
+    end
+
+end
+
+:parse_invocation_node(json)
+    args = json["args"].map!(create_node)
+    InvocationNode!(args, json["id"], json["line"])
+end

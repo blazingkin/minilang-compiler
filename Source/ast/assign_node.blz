@@ -1,0 +1,18 @@
+require ast_factory
+require lvalue
+
+constructor AssignNode(target, right, line)
+
+    :show
+        "<Assign " + target + " to " + right + ">"
+    end
+
+end
+
+:parse_assign_node(json)
+    target = parse_lvalue(json["target"])
+    right = create_node!(json["source"])
+    
+    line = json["line"]
+    AssignNode(target, right, line)
+end

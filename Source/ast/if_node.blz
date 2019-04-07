@@ -1,0 +1,27 @@
+require ast_factory
+
+constructor IfNode(cond, main, line, els)
+
+    has_else? = els != {blz.nil}
+
+    :show
+        if has_else?
+            "<If " + cond + "\n\tthen " + main + "\n\telse " + els +">"
+        else
+            "<If " + cond + "\n\tthen " + main + ">"
+        end
+    end
+
+
+end
+
+:parse_if_node(json)
+    cond = create_node!(json["guard"])
+    main = create_node!(json["then"])
+    if json.has_key?("else")
+        els = create_node!(json["else"])
+        IfNode!(cond, main, json["line"], els)
+    else
+        IfNode!(cond, main, json["line"])
+    end
+end

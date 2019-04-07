@@ -1,0 +1,22 @@
+
+constructor LValue(id, line, left)
+
+    terminal = (left == {blz.nil})
+
+    :show
+        if terminal
+            id
+        else
+            id + "." + left
+        end
+    end
+
+end
+
+:parse_lvalue(json)
+    if json.has_key?("left")
+        LValue(json["id"], json["line"], parse_lvalue(json["left"]))
+    else
+        LValue(json["id"], json["line"])
+    end
+end

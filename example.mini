@@ -1,54 +1,43 @@
-#
-# Milestone #1 Benchmarks
-# keeps adding two numbers' factorials  until -1 is encountered
-#
-struct A {
-    int a;
-    int b;
-    int c;
-};
+#This program will hopefully break your compiler
 
+int GLOBAL, count;
 
-# adds both inputs
-fun sum (int a, int b) int
-{
-    return (a + b);
-
+#comment in the middle of code!
+fun fun2 (int x, int y) int {
+   if (x == 0) {
+      return y;
+   } else {
+      return fun2(x - 1, y);
+   }
 }
 
+fun fun1 (int x, int y, int z) int {
+   int retVal;
+   retVal = 5 + 6 - x * 2 + 4 / y + z;
 
-# get factorial of positive int
-#fun fact (int n) int
-#{
-#    int t;
-#    if (n == 1 || n == 0) {
-#      return 1;
-#    }
-#    if (n <= 1)
-#    {
-#        return fact(-1 * n);
-#    }
-#    t = n * fact(n - 1);
-#    return t;
-#}
+   if (retVal > y) {
+      return fun2(retVal, x);
+   } else { 
+      if (5 < 6 && retVal <= y) {
+         return fun2(retVal, y);
+      }
+   }
+   
+   return retVal;
+}
 
-fun main () int 
-{
-    int num1;
-#    int num2;
-#    int flag;
-#    flag = 0;
+fun main () int {
+   int i;
 
-#    while (flag != -1)
-#    {
-#        num1 = read;
-#        num2 = read;
-#        num1 = (fact (num1));
-#        num2 = (fact (num2));
-        
-#        print (sum (num1, num2)) endl;
-#        flag = read;
-#    }
+   i = 0;
+   i = read;
+
+   while ( i < 10000 ) {
+      print fun1(3, i, 5) endl;
+
+      i = i + 1;
+
+   }
 
    return 0;
 }

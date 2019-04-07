@@ -1,0 +1,14 @@
+require ast_factory
+
+constructor UnaryNode(op, left, line)
+
+    :show
+        "<" + op + " " + left + ">"
+    end
+
+end
+
+:parse_unary_node(json)
+    left = create_node!(json["operand"])
+    UnaryNode!(json["operator"], left, json["line"])
+end

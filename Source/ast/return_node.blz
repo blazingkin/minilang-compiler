@@ -3,7 +3,7 @@ require ast_factory
 constructor ReturnNode(expression, line)
 
     :show
-        "<Return " + expression + " " + line + ">"
+        "<Return " + expression + ">"
     end
 
 end
