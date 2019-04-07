@@ -1,0 +1,34 @@
+require type_error
+# Handle primitive types
+# - int
+# - bool
+# - null
+# - error
+
+constructor PrimitiveType(typ)
+
+    :==(other)
+        other.type == "PrimitiveType" && this.typ == other.typ
+    end
+
+    :can_become(other)
+        this == other || typ == "error" || other.typ == "error"
+    end
+
+end
+
+
+prim_types = {}
+# Add all of the types to the map
+prim_types["int"] = PrimitiveType("int")
+prim_types["bool"] = PrimitiveType("bool")
+prim_types["null"] = PrimitiveType("null")
+prim_types["error"] = PrimitiveType("error")
+
+:primitive_type(type)
+    if prim_types.has_key?(type)
+        prim_types[type]
+    else
+        throw TypeError(type + " is not a primitive type")
+    end
+end

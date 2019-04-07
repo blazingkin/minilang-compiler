@@ -1,0 +1,15 @@
+import Test
+require number_node
+
+:test_parse_number_node
+    obj = {}
+    obj["line"] = 30
+    obj["value"] = 20
+    parsed = parse_number_node(obj)
+    expect(parsed.number).is(20)
+end
+
+:test_number_should_be_int_type
+    num = NumberNode(30, 10)
+    expect(num.typecheck().typ).is("int")
+end

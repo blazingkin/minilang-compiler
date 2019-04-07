@@ -1,9 +1,14 @@
 require ast_factory
+require ../types/primitive_type
 
 constructor NumberNode(number, line)
 
     :show
         "<Number " + number + ">"
+    end
+
+    :typecheck(idMap, structMap)
+        primitive_type("int")
     end
 
 end

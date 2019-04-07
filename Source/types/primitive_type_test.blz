@@ -1,0 +1,17 @@
+import Test
+require primitive_type
+require type_error
+
+:test_type_should_equal_itself
+    expect(primitive_type("int")).is(primitive_type("int"))
+end
+
+:test_error_type_should_become_any
+    expect(primitive_type("error").can_become(primitive_type("int"))).is_true()
+    expect(primitive_type("int").can_become(primitive_type("error"))).is_true()
+end
+
+:test_primitive_type_should_throw_error_for_nonvalid_type
+    func = (x -> primitive_type("asdf"))
+    expect(func).to_raise(TypeError("asdf is not a primitive type"))
+end

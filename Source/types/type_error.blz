@@ -1,0 +1,13 @@
+
+
+constructor TypeError(message)
+
+    :show
+        message
+    end
+
+    :==(other)
+        message == other.message
+    end
+
+end
