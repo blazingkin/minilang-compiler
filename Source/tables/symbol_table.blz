@@ -1,0 +1,23 @@
+require symbol_table_info
+
+symbol_names = []
+symbol_info = []
+
+constructor SymbolTable
+
+    :getInfo (name)
+        for i = 0; i < symbol_names.length; i++;
+            if symbol_names[i] == name
+                return symbol_info [i]
+            end
+        end
+        return null;
+    end
+
+    :addInfo (name, info)
+        symbol_names [symbol_names.length()] = name
+        symbol_info [symbol_info.length()] = info
+    end
+        
+
+end
