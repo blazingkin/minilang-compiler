@@ -1,13 +1,34 @@
 require ../declaration
+require type_error
+
+struct_types = {}
 
 constructor StructType(line, id, fields)
+
+    struct_types[id] = this
 
     :show
         "<StructType "+id+" " + fields + ">"
     end
 
+    :==(other)
+        other.type == "StructType" && id == other.id
+    end
+
+    :can_become(other)
+        this == other
+    end
+
 end
 
-:parse_type(json)
+:get_struct_type(name)
+    if struct_types.has_key?(name)
+        struct_types[name]
+    else
+        throw TypeError("Invalid type "+name)
+    end
+end
+
+:parse_struct_type(json)
     StructType(json["line"], json["id"], json["fields"].map!(parse_declaration))
 end

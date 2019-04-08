@@ -1,0 +1,9 @@
+import Test
+require bool_node
+require ../types/primitive_type
+
+:test_typecheck_bool
+    empty = {}
+    node = BoolNode(true, 3)
+    expect(node.typecheck(empty, empty)).is(primitive_type("bool"))
+end

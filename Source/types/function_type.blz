@@ -1,0 +1,40 @@
+require type_error
+
+constructor FunctionType(inputs, output)
+
+    if inputs.type != "Array"
+        throw TypeError("Function type was given non array as inputs")
+    end
+
+    if output == {blz.nil}
+        throw TypeError("Function type not given an output")
+    end
+
+    :show
+        inputs + " -> " + output
+    end
+
+    :==(other)
+        if other.type != "FunctionType" 
+            return false
+        end
+        if inputs.length!() != other.inputs.length!()
+            return false
+        end
+        if output != other.output
+            return false
+        end
+        for i = 0; i < inputs.length!(); i++
+            if inputs[i] != other.inputs[i]
+                return false
+            end
+        end
+        true
+    end
+
+    :to_become(other)
+        this == other
+    end
+
+
+end

@@ -1,0 +1,17 @@
+require ../types/primitive_type
+
+constructor BoolNode(is_true, line)
+
+    :show
+        is_true
+    end
+
+    :typecheck(id_map, struct_map)
+        primitive_type("bool")
+    end
+
+end
+
+:parse_bool_node(json, is_true)
+    BoolNode(is_true, json["line"])
+end

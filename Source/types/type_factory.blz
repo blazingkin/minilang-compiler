@@ -1,0 +1,10 @@
+require primitive_type
+require struct_type
+
+:parse_type(type)
+    if type == "int" || type == "bool" || type == "void"
+        primitive_type(type)
+    else
+        get_struct_type(type)
+    end
+end

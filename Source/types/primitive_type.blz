@@ -15,6 +15,10 @@ constructor PrimitiveType(typ)
         this == other || typ == "error" || other.typ == "error"
     end
 
+    :show
+        typ
+    end
+
 end
 
 
@@ -24,6 +28,7 @@ prim_types["int"] = PrimitiveType("int")
 prim_types["bool"] = PrimitiveType("bool")
 prim_types["null"] = PrimitiveType("null")
 prim_types["error"] = PrimitiveType("error")
+prim_types["void"] = PrimitiveType("void")
 
 :primitive_type(type)
     if prim_types.has_key?(type)

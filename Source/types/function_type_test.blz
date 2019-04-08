@@ -1,0 +1,36 @@
+import Test
+require function_type
+require primitive_type
+
+int_type = primitive_type("int")
+bool_type = primitive_type("bool")
+
+:test_function_type_equality
+    a = FunctionType([int_type, int_type], int_type)
+    b = FunctionType([int_type, int_type], int_type)
+    expect(a).is(b)
+    expect(b).is(a)
+end
+
+:test_function_type_equality_wrong_arity
+    a = FunctionType([int_type], int_type)
+    b = FunctionType([int_type, int_type], int_type)
+    expect(a).is_not(b)
+    expect(b).is_not(a)
+end
+
+:test_function_type_equality_wrong_type
+    a = FunctionType([int_type, bool_type], int_type)
+    b = FunctionType([int_type, int_type], int_type)
+    expect(a).is_not(b)
+    expect(b).is_not(a)
+end
+
+:test_function_type_equality_wrong_output
+    a = FunctionType([int_type, int_type], int_type)
+    b = FunctionType([int_type, int_type], bool_type)
+    expect(a).is_not(b)
+    expect(b).is_not(a)
+end
+
+

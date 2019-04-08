@@ -1,13 +1,15 @@
 require syntax_exception
+require types/primitive_type
+require types/type_factory
 
-constructor Declaration(line, id, type)
+constructor Declaration(line, id, typ)
 
     :show
-        "<Declaration "+id + " " + type + ">"
+        "<Declaration "+id + " " + typ + ">"
     end
 
 end
 
 :parse_declaration(json)
-    Declaration(json["line"], json["id"], json["type"])
+    Declaration(json["line"], json["id"], parse_type(json["type"]))
 end

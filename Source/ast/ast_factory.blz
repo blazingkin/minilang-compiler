@@ -14,6 +14,7 @@ require print_node
 require dot_node
 require alloc_node
 require delete_node
+require bool_node
 
 :create_node(json)
     if json.has_key?("stmt")
@@ -54,6 +55,10 @@ require delete_node
         parse_delete_node!(json)
     else if type == "print"
         parse_print_node!(json)
+    else if type == "true"
+        parse_bool_node(json, true)
+    else if type == "false"
+        parse_bool_node(json, false)
     else
         print(json)
         throw SyntaxException("Unknown type " + type)

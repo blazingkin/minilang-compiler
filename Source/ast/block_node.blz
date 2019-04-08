@@ -1,9 +1,14 @@
 require ast_factory
+require ../types/primitive_type
 
 constructor BlockNode(subnodes)
 
     :show
         "<Block " + subnodes.map(x -> x + "\n") + ">"
+    end
+
+    :typecheck(id_map, struct_map)
+        primitive_type("int")
     end
 
 end

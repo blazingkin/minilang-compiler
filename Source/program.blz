@@ -1,4 +1,26 @@
 
-constructor Program(types, declarations, functions)
+constructor Program(types, functions, declarations)
+
+    :typecheck
+        # add the structs
+        struct_map = {}
+        for i = 0; i < types.length!(); i++
+            struct_map[types[i].id] = types[i]
+        end
+
+        # add all of the global ids
+        id_map = {}
+        for i = 0; i < functions.length!(); i++
+            id_map[functions[i].id] = functions[i].typ
+        end
+        for i = 0; i < declarations.length!(); i++
+            id_map[declarations[i].id] = declarations[i].typ
+        end
+
+        # Type check each of the functions
+        # Intentionally do not pass by reference
+        # We want a copy of the id and struct maps
+        functions.each!(f -> f.typecheck(id_map, struct_map))
+    end
     
 end

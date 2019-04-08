@@ -1,13 +1,32 @@
 require ast_factory
+require ../types/primitive_type
 
-constructor ReturnNode(expression, line)
+constructor ReturnNode(line, expression)
+
+    void_return? = (expression == {blz.nil})
 
     :show
-        "<Return " + expression + ">"
+        if void_return?
+            "<Return>"
+        else
+            "<Return " + expression + ">"
+        end
+    end
+
+    :typecheck(id_map, struct_map)
+        if void_return?
+            primitive_type("void")
+        else
+            expression.typecheck!(id_map, struct_map)
+        end
     end
 
 end
 
 :parse_return_node(json)
-    ReturnNode!(create_node!(json["exp"]), json["line"])
+    if json.has_key?("exp")
+        ReturnNode!(json["line"], create_node!(json["exp"]))
+    else
+        ReturnNode!(json["line"])
+    end
 end
