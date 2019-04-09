@@ -5,14 +5,20 @@ require type_error
 # - null
 # - error
 
+errors_occurred = 0
+
+:type_errors
+    errors_occurred
+end
+
 constructor PrimitiveType(typ)
 
     :==(other)
         other.type == "PrimitiveType" && this.typ == other.typ
     end
 
-    :can_become(other)
-        this == other || typ == "error" || other.typ == "error"
+    :can_not_become(other)
+        this != other && typ != "error" && other.typ != "error"
     end
 
     :show
@@ -32,6 +38,9 @@ prim_types["void"] = PrimitiveType("void")
 
 :primitive_type(type)
     if prim_types.has_key?(type)
+        if type == "error"
+            errors_occurred++
+        end
         prim_types[type]
     else
         throw TypeError(type + " is not a primitive type")

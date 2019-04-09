@@ -7,8 +7,8 @@ require type_error
 end
 
 :test_error_type_should_become_any
-    expect(primitive_type("error").can_become(primitive_type("int"))).is_true()
-    expect(primitive_type("int").can_become(primitive_type("error"))).is_true()
+    expect(primitive_type("error").can_not_become(primitive_type("int"))).is_false()
+    expect(primitive_type("int").can_not_become(primitive_type("error"))).is_false()
 end
 
 :test_primitive_type_should_throw_error_for_nonvalid_type

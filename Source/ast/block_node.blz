@@ -7,8 +7,10 @@ constructor BlockNode(subnodes)
         "<Block " + subnodes.map(x -> x + "\n") + ">"
     end
 
-    :typecheck(id_map, struct_map)
-        primitive_type("int")
+    :typecheck(symbol_table, struct_map)
+        for i = 0; i < subnodes.length!(); i++
+            subnodes[i].typecheck(symbol_table, struct_map)
+        end
     end
 
 end

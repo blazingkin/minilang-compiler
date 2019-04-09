@@ -3,6 +3,7 @@ require declaration
 require types/function_type
 require types/type_factory
 require types/type_error
+require tables/symbol_table
 
 constructor Function(line, id, return_type, body, parameters, declarations)
 
@@ -21,8 +22,9 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         for i = 0; i < declarations.length!(); i++
             id_map[declarations[i].id] = declarations[i].typ
         end
-        result = body.typecheck(id_map, struct_map)
-        if result.can_become(return_type) == false
+        symbol_table = SymbolTable!(id_map, typ)
+        result = body.typecheck(symbol_table, struct_map)
+        if result.can_not_become(return_type)
             throw TypeError("Incorrect type for function "+id + "\nExpected "+return_type+" but got "+result)
         end
     end

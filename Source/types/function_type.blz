@@ -32,8 +32,8 @@ constructor FunctionType(inputs, output)
         true
     end
 
-    :to_become(other)
-        this == other
+    :can_not_become(other)
+        this != other
     end
 
 

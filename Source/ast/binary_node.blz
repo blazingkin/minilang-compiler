@@ -1,9 +1,31 @@
 require ast_factory
-
+require ../types/primitive_type
 
 constructor BinaryNode(operator, left, right, line)
     :show
         "<" + operator + " " + left + " " + right + ">"
+    end
+
+    :check_both_types(l, r, typ)
+            if l.can_not_become(typ)
+                print("Type error on line "+line+" left side of " + operator + " was not a(n) "+typ)
+                return primitive_type("error")
+            else if r.can_not_become(typ)
+                print("Type error on line "+line+" right side of " + operator + " was not a(n) "+typ)
+                return primitive_type("error")
+            end
+            return typ
+    end
+
+    :typecheck(symbol_table, struct_map)
+        left_type = left.typecheck(symbol_table, struct_map)
+        right_type = right.typecheck(symbol_table, struct_map)
+        if operator == "+" || operator == "*" || operator == "-" || operator == "/" || operator == "<=" || operator == "<" || operator == ">" || operator == ">="
+            return check_both_types(left_type, right_type, primitive_type("int"))
+        else if operator == "||" || operator == "&&"
+            return check_both_types(left_type, right_type, primitive_type("bool"))
+        end 
+
     end
 
 end

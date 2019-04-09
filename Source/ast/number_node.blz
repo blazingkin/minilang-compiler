@@ -7,7 +7,7 @@ constructor NumberNode(number, line)
         "<Number " + number + ">"
     end
 
-    :typecheck(idMap, structMap)
+    :typecheck(id_map, struct_map)
         primitive_type("int")
     end
 

@@ -1,4 +1,4 @@
-
+require types/primitive_type
 constructor Program(types, functions, declarations)
 
     :typecheck
@@ -20,7 +20,14 @@ constructor Program(types, functions, declarations)
         # Type check each of the functions
         # Intentionally do not pass by reference
         # We want a copy of the id and struct maps
-        functions.each!(f -> f.typecheck(id_map, struct_map))
+        for i = 0; i < functions.length!(); i++
+            functions[i].typecheck(id_map, struct_map)
+        end
+
+        if type_errors() > 0
+            print(type_errors() + " error(s) have occurred!")
+            exit(1)
+        end
     end
     
 end

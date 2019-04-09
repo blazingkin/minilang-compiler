@@ -4,7 +4,6 @@ struct IntHolder{
    int num;
 };
 
-fun main() int {
-    return true;
-    return false;
+fun main() bool {
+    return 2 + (true || false) && (true || false);
 }

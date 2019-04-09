@@ -15,8 +15,8 @@ constructor StructType(line, id, fields)
         other.type == "StructType" && id == other.id
     end
 
-    :can_become(other)
-        this == other
+    :can_not_become(other)
+        this != other
     end
 
 end
