@@ -4,6 +4,7 @@ require types/function_type
 require types/type_factory
 require types/type_error
 require tables/symbol_table
+require syntax_exception
 
 constructor Function(line, id, return_type, body, parameters, declarations)
 
@@ -24,8 +25,28 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         end
         symbol_table = SymbolTable!(id_map, typ)
         result = body.typecheck(symbol_table, struct_map)
+        return_equivalence? (body)
     end
 
+end
+
+:return_equivalence? (node)
+    if node.type == "ReturnNode"
+        return true
+    else if node.type == "IfNode"
+        return return_equivalence? (node.main) && return_equivalence? (node.els)
+    else if node.type == "BlockNode"
+        statements = node.subnodes
+        for i = 0; i < statements.length! (); i++
+            if return_equivalence? (statements [i])
+                if i != statements.length! () - 1
+                    throw SyntaxException ("Dead Code")
+                end
+                return true
+            end
+        end
+    end
+    false
 end
 
 :parse_function(json)
