@@ -3,6 +3,7 @@ require declaration
 require types/function_type
 require types/type_factory
 require types/type_error
+require types/primitive_type
 require tables/symbol_table
 require syntax_exception
 
@@ -24,8 +25,11 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             id_map[declarations[i].id] = declarations[i].typ
         end
         symbol_table = SymbolTable!(id_map, typ)
+        if return_type != primitive_type("void") && return_equivalence? (body).negate()
+            print("Function "+id+" is not void and does not return in all cases!")
+            primitive_type("error")
+        end
         result = body.typecheck(symbol_table, struct_map)
-        return_equivalence? (body)
     end
 
 end
@@ -40,7 +44,8 @@ end
         for i = 0; i < statements.length! (); i++
             if return_equivalence? (statements [i])
                 if i != statements.length! () - 1
-                    throw SyntaxException ("Dead Code")
+                    print("Dead code in block starting on line " + statements[i].line)
+                    primitive_type("error")
                 end
                 return true
             end

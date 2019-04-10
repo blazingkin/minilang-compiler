@@ -19,8 +19,13 @@ fun main() int {
    struct IntIntIntIntHolder x;
    int num;
    if (x == null){
-      
+      return 3;
+      num = 2 + 2;
+   }else{
    }
    x.f.f.f.num = x.f.f.f.num;
-   return num;
+}
+
+fun other() void {
+
 }
