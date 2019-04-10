@@ -1,4 +1,5 @@
 require ast_factory
+require ../types/primitive_type
 
 constructor IdentifierNode(id, line)
 
@@ -7,7 +8,12 @@ constructor IdentifierNode(id, line)
     end
 
     :typecheck (symbol_table, struct_map)
-        return symbol_table.symbols[id]
+        if symbol_table.symbols.keys().contains?(id)
+            symbol_table.symbols.get(id)
+        else
+            print("Identifier "+id+" not bound to a type")
+            primitive_type("error")
+        end
     end
 
 end

@@ -24,7 +24,6 @@ constructor InvocationNode(args, id, line)
             return primitive_type ("error")
         end
 
-        valid_args = true
         for i = 0; i < args_types.length! (); i++
             if id_type.inputs [i].typ != args_types
                 print ("Type error on line: " + line + " Expected arguments to match form " + id_type.inputs + " but found " + args_types + " instead.")

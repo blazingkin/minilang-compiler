@@ -1,6 +1,10 @@
 
 constructor ReadNode(line)
 
+    :typecheck(symbol_table, struct_map)
+
+    end
+
 end
 
 :parse_read_node(json)

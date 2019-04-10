@@ -1,9 +1,29 @@
 require ast_factory
+require ../types/primitive_type
 
 constructor UnaryNode(op, left, line)
 
     :show
         "<" + op + " " + left + ">"
+    end
+
+    :typecheck(symbol_table, struct_map)
+        left_type = left.typecheck(symbol_table, struct_map)
+        if op == "-"
+            if left_type.can_not_become(primitive_type("int"))
+                print("Type error on line " + line +": Unary minus expects an int, got " + left_type + " instead")
+                return primitive_type("error")
+            else
+                return primitive_type("int")
+            end
+        else if op == "!"
+            if left_type.can_not_become(primitive_type("bool"))
+                print("Type error on line " + line +": Unary negation expects bool, got " + left_type + " instead")
+                return primitive_type("error")
+            else
+                return primitive_type("bool")
+            end
+        end
     end
 
 end

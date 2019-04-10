@@ -8,16 +8,11 @@ constructor WhileNode(guard, block, line)
     end
 
     :typecheck (symbol_table, struct_map)
-        guard_type = guard.typecheck (symbol_table, struct_map)
-        block_type = block.typecheck (symbol_table, struct_map)
-
-        if guard_type == primitive_type ("error")
-            print ("Type error on line: " + line + " Expected boolean expression as a conditional but found an error instead.")
-            return primitive_type ("error")
-        end
+        guard_type = guard.typecheck!(symbol_table, struct_map)
+        block_type = block.typecheck!(symbol_table, struct_map)
 
         if guard_type.can_not_become (primitive_type ("bool"))
-            print ("Type error on line: " + line + " Expected boolean expression as a conditional but found a(n) " + exp_type + " instead.")
+            print ("Type error on line: " + line + " Expected boolean expression as a conditional but found a(n) " + guard_type + " instead.")
             return primitive_type ("error")
         end
     end

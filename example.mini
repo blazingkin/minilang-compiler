@@ -4,8 +4,20 @@ struct IntHolder{
    int num;
 };
 
-fun main() bool {
-   if (1){
-      return true;
-   }
+struct IntIntHolder {
+   struct IntHolder f;
+};
+
+struct IntIntIntHolder {
+   struct IntIntHolder f;
+};
+struct IntIntIntIntHolder {
+   struct IntIntIntHolder f;
+};
+
+fun main() int {
+   struct IntIntIntIntHolder x;
+   int num;
+   x.f.f.f.num = x.f.f.f.num;
+   return num;
 }

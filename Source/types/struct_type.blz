@@ -8,7 +8,7 @@ constructor StructType(line, id, fields)
     struct_types[id] = this
 
     :show
-        "<StructType "+id+" " + fields + ">"
+        "<StructType "+id+">"
     end
 
     :==(other)
@@ -17,6 +17,15 @@ constructor StructType(line, id, fields)
 
     :can_not_become(other)
         this != other
+    end
+
+    :get_field(name)
+        for i = 0; i < fields.length!(); i++
+            if fields[i].id == name
+                return fields[i]
+            end
+        end
+        return {blz.nil}
     end
 
 end

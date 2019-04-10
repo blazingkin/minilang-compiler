@@ -1,3 +1,4 @@
+require ../types/primitive_type
 
 constructor LValue(id, line, left)
 
@@ -8,6 +9,25 @@ constructor LValue(id, line, left)
             id
         else
             id + "." + left
+        end
+    end
+    
+    :typecheck(symbol_table, struct_map)
+        if terminal
+            if symbol_table.symbols.keys().contains?(id)
+                symbol_table.symbols.get(id)
+            else
+                print("Type error on line " + line + " could not find type for symbol " + id)
+                primitive_type("error")
+            end
+        else
+            left_type = left.typecheck(symbol_table, struct_map)
+            if left_type.get_field(id) != {blz.nil}
+                return left_type.get_field(id).typ
+            else
+                print("Type error on line: " + line + " struct " + left_type.id + " did not contain field with id "+ id)
+                return primitive_type("error")
+            end
         end
     end
 

@@ -24,9 +24,6 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         end
         symbol_table = SymbolTable!(id_map, typ)
         result = body.typecheck(symbol_table, struct_map)
-        if result.can_not_become(return_type)
-            throw TypeError("Incorrect type for function "+id + "\nExpected "+return_type+" but got "+result)
-        end
     end
 
 end

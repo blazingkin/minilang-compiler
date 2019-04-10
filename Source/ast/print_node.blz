@@ -6,6 +6,10 @@ constructor PrintNode(exp, endl, line)
         "<Print " + exp + " \\n>"
     end
 
+    :typecheck(symbol_table, struct_map)
+
+    end
+
 end
 
 :parse_print_node(json)

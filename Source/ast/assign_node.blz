@@ -1,10 +1,21 @@
 require ast_factory
 require lvalue
+require ../types/primitive_type
 
 constructor AssignNode(target, right, line)
 
     :show
         "<Assign " + target + " to " + right + ">"
+    end
+
+    :typecheck(symbol_table, struct_map)
+        target_type = target.typecheck(symbol_table, struct_map)
+        right_type = right.typecheck(symbol_table, struct_map)
+        if right_type.can_not_become(target_type)
+            print("Type error on line " + line +": right side of assignment is " + right_type + " expected " + target_type +" instead")
+            return primitive_type("error")
+        end
+        target_type
     end
 
 end

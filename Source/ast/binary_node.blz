@@ -24,6 +24,23 @@ constructor BinaryNode(operator, left, right, line)
             return check_both_types(left_type, right_type, primitive_type("int"))
         else if operator == "||" || operator == "&&"
             return check_both_types(left_type, right_type, primitive_type("bool"))
+        else if operator == "==" || operator == "!="
+            if left_type.can_not_become(right_type)
+                print("Type error on line "+line+" left side of comparison was " + left_type + " while right side was " + right_type)
+                return primitive_type("error")
+            else
+                return primitive_type("bool")
+            end
+        else if operator == "<=" || operator == ">=" || operator == "<" || operator == ">"
+            if left_type.can_not_become(primitive_type("int"))
+                print("Type error on line "+line+" left side of " + operator + " was not an int")
+                return primitive_type("error")
+            else if right_type.can_not_become(primitive_type("int"))
+                print("Type error on line "+line+" right side of " + operator + " was not an int")
+                return primitive_type("error")
+            else
+                return primitive_type("bool")
+            end
         end 
 
     end
