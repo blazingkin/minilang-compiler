@@ -1,9 +1,24 @@
 require ast_factory
+require ../types/primitive_type
 
 constructor DotNode(left, id, line)
 
     :show
         left + "." + id
+    end
+
+    :typecheck (symbol_table, struct_map)
+        left_type = left.typecheck (symbol_table, struct_map)
+
+        if left_type == primitive_type ("error")
+            print ("Type error on line: " + line + " Expected a struct to the left but found an error instead.")
+            return primitive_type ("error")
+        end
+
+        if left_type.type != "StructType"
+            print ("Type error on line: " + line + " Expected a struct to the left but found a(n) " + left_type + "instead.")
+            return primitve_type ("error")
+        end
     end
 
 end

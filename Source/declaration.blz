@@ -8,6 +8,10 @@ constructor Declaration(line, id, typ)
         "<Declaration "+id + " " + typ + ">"
     end
 
+    :== (other)
+        return other.id == id && other.typ == typ
+    end
+
 end
 
 :parse_declaration(json)

@@ -6,6 +6,10 @@ constructor IdentifierNode(id, line)
         id
     end
 
+    :typecheck (symbol_table, struct_map)
+        return symbol_table.symbols[id]
+    end
+
 end
 
 :parse_identifier_node(json)

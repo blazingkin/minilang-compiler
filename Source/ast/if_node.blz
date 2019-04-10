@@ -21,13 +21,13 @@ constructor IfNode(cond, main, line, els)
         end
 
         if cond_type == primitive_type ("error")
-            print("Type error on line: " + line + " Expected boolean expression as a conditional but found an error instead.")
-            return primitive_type("error")
+            print ("Type error on line: " + line + " Expected boolean expression as a conditional but found an error instead.")
+            return primitive_type ("error")
         end
 
         if cond_type.can_not_become (primitive_type("bool"))
-            print("Type error on line: " + line + " Expected boolean expression as a conditional but found a(n) " + exp_type + " instead.")
-            return primitive_type("error")
+            print ("Type error on line: " + line + " Expected boolean expression as a conditional but found a(n) " + exp_type + " instead.")
+            return primitive_type ("error")
         end
     end
 

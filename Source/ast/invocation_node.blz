@@ -1,9 +1,37 @@
 require ast_factory
+require ../types/primitive_type
 
 constructor InvocationNode(args, id, line)
 
     :show
         "<Invoke " + id + " with args " + args + ">"
+    end
+
+    :typecheck (symbol_table, struct_map)
+        id_type = id.typecheck (symbol_table, struct_map)
+        args_types = []
+        for i = 0; i < args.length! (); i ++
+            args_types [i] = args [i].typecheck (symbol_table, struct_map)
+        end
+
+        if id_type.type != "FunctionType"
+            print ("Type error on line: " + line + " Expected a function but found a(n) " + id_type + " instead.")
+            return primitive_type ("error")
+        end
+
+        if id_type.inputs.length! () != args_types.length! ()
+            print ("Arity error on line: " + line + " Expected " + id_type.inputs.length! () + " arguments but found " + args_types.length! () + " instead.")
+            return primitive_type ("error")
+        end
+
+        valid_args = true
+        for i = 0; i < args_types.length! (); i++
+            if id_type.inputs [i].typ != args_types
+                print ("Type error on line: " + line + " Expected arguments to match form " + id_type.inputs + " but found " + args_types + " instead.")
+                return primitive_type ("error")
+            end
+        end
+
     end
 
 end
