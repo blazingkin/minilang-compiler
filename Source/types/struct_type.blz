@@ -1,5 +1,6 @@
 require ../declaration
 require type_error
+require primitive_type
 
 struct_types = {}
 
@@ -16,7 +17,7 @@ constructor StructType(line, id, fields)
     end
 
     :can_not_become(other)
-        this != other
+        this != other && other != primitive_type("null")
     end
 
     :get_field(name)

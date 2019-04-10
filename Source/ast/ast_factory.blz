@@ -15,6 +15,7 @@ require dot_node
 require alloc_node
 require delete_node
 require bool_node
+require null_node
 
 :create_node(json)
     if json.has_key?("stmt")
@@ -41,6 +42,8 @@ require bool_node
         parse_return_node!(json)
     else if type == "unary"
         parse_unary_node!(json)
+    else if type == "null"
+        parse_null_node!(json)
     else if type == "block"
         parse_block_node!(json["list"])
     else if type == "dot"

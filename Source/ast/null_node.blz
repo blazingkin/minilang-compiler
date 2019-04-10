@@ -1,0 +1,17 @@
+require ../types/primitive_type
+
+constructor NullNode(line)
+
+    :show
+        "null"
+    end
+
+    :typecheck(symbol_table, struct_map)
+        primitive_type("null")
+    end
+
+end
+
+:parse_null_node(json)
+    NullNode(json["line"])
+end

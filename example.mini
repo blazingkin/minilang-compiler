@@ -18,6 +18,9 @@ struct IntIntIntIntHolder {
 fun main() int {
    struct IntIntIntIntHolder x;
    int num;
+   if (x == null){
+      
+   }
    x.f.f.f.num = x.f.f.f.num;
    return num;
 }

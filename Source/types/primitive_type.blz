@@ -18,6 +18,9 @@ constructor PrimitiveType(typ)
     end
 
     :can_not_become(other)
+        if typ == "null" && other.type == "StructType"
+            return false
+        end
         this != other && typ != "error" && other.typ != "error"
     end
 
