@@ -1,6 +1,6 @@
 #!/bin/bash
 export CLASSPATH="$CLASSPATH:./parser"
-java MiniCompiler example.mini > compiled.json
+java MiniCompiler $1 > compiled.json
 if [ $? -eq 0 ];
 then
     blz Source/minilang_compiler.blz compiled.json

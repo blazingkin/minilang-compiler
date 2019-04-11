@@ -1,8 +1,9 @@
+require ../types/primitive_type
 
 constructor ReadNode(line)
 
     :typecheck(symbol_table, struct_map)
-
+        primitive_type("int")
     end
 
 end
