@@ -1,12 +1,12 @@
 require ../declaration
 require type_error
 require primitive_type
-
-struct_types = {}
+require type_factory
 
 constructor StructType(line, id, fields)
 
-    struct_types[id] = this
+    add_struct_type(this)
+    fields = fields.map!(parse_declaration)
 
     :show
         "<StructType "+id+">"
@@ -31,14 +31,6 @@ constructor StructType(line, id, fields)
 
 end
 
-:get_struct_type(name)
-    if struct_types.has_key?(name)
-        struct_types[name]
-    else
-        throw TypeError("Invalid type "+name)
-    end
-end
-
 :parse_struct_type(json)
-    StructType(json["line"], json["id"], json["fields"].map!(parse_declaration))
+    StructType(json["line"], json["id"], json["fields"])
 end

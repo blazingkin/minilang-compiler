@@ -14,7 +14,11 @@ constructor ReturnNode(line, expression)
     end
 
     :typecheck(symbol_table, struct_map)
-        exp_type = expression.typecheck(symbol_table, struct_map)
+        if void_return?
+            exp_type = primitive_type("void")
+        else
+            exp_type = expression.typecheck(symbol_table, struct_map)
+        end
         if exp_type.can_not_become(symbol_table.function_type.output)
             print("Type error on line: " + line + " Expected function to return type " + symbol_table.function_type.output + " but returned "+exp_type)
             return primitive_type("error")

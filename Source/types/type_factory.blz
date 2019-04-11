@@ -8,3 +8,18 @@ require struct_type
         get_struct_type(type)
     end
 end
+
+struct_types = []
+:add_struct_type(type)
+    struct_types.add!(type)
+end
+
+:get_struct_type(name)
+    for i = 0; i < struct_types.length!(); i++
+        if struct_types[i].id == name
+            return struct_types[i]
+        end
+    end
+    print("Invalid type " + name)
+    return primitive_type("error")
+end

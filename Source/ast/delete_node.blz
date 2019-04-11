@@ -1,9 +1,14 @@
 require ast_factory
+require ../types/primitive_type
 
 constructor DeleteNode(expr, line)
 
     :show
         "delete " + expr
+    end
+
+    :typecheck(symbol_table, struct_map)
+        primitive_type("void")
     end
 
 end

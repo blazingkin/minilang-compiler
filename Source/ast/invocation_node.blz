@@ -1,8 +1,9 @@
 require ast_factory
 require ../types/primitive_type
+require identifier_node
 
 constructor InvocationNode(args, id, line)
-
+    id = IdentifierNode(id, line)
     :show
         "<Invoke " + id + " with args " + args + ">"
     end
@@ -25,11 +26,13 @@ constructor InvocationNode(args, id, line)
         end
 
         for i = 0; i < args_types.length! (); i++
-            if id_type.inputs [i].typ != args_types
+            if (id_type.inputs [i]).can_not_become(args_types[i])
                 print ("Type error on line: " + line + " Expected arguments to match form " + id_type.inputs + " but found " + args_types + " instead.")
                 return primitive_type ("error")
             end
         end
+
+        return id_type.output
 
     end
 

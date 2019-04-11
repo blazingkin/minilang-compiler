@@ -1,8 +1,18 @@
+require ../types/primitive_type
 
 constructor AllocNode(id, line)
 
     :show
         "new " + id
+    end
+
+    :typecheck(symbol_table, struct_map)
+        if struct_map.keys().contains?(id)
+            struct_map[id]
+        else
+            print("Type error on line "+line+": "+id+" is not a valid type")
+            primitive_type("error")
+        end
     end
 
 end
