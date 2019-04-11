@@ -8,7 +8,12 @@ constructor DeleteNode(expr, line)
     end
 
     :typecheck(symbol_table, struct_map)
-        primitive_type("void")
+        typ = expr.typecheck(symbol_table, struct_map)
+        if typ.type != "StructType"
+            print("Type error on line "+line+": Delete tried to delete non structure")
+            return primitive_type("error")
+        end
+        typ
     end
 
 end
