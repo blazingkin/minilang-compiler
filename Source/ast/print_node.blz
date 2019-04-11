@@ -7,7 +7,7 @@ constructor PrintNode(exp, endl, line)
     end
 
     :typecheck(symbol_table, struct_map)
-
+        exp.typecheck(symbol_table, struct_map)
     end
 
 end
