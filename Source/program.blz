@@ -24,6 +24,22 @@ constructor Program(types, functions, declarations)
             functions[i].typecheck(id_map, struct_map)
         end
 
+        potential_main_functions = functions.filter(x -> x.id == "main")
+        if potential_main_functions.length!() != 1
+            print("Invalid number of main functions!")
+            primitive_type("error")
+        else
+            if potential_main_functions[0].return_type.can_not_become(primitive_type("int"))
+                print("Expected main function to return int")
+                primitive_type("error")
+            end
+            if potential_main_functions[0].parameters.length!() != 0
+                print("Expected main function to take no parameters")
+                primitive_type("error")
+            end
+        end
+
+
         if type_errors() > 0
             print(type_errors() + " error(s) have occurred!")
             exit(1)
