@@ -1,29 +1,43 @@
 constructor CFGNode ()
 
     predecessors = []
-    t_successor = CFGNode ()
-    f_successor = CFGNode ()
+
+    true_successor = {blz.nil}
+    false_successor = {blz.nil}
+
     successor = []
     statements = []
 
-    :add_predecessor (n)
-        predecessors [predecessors.length ()] = n
+    :is_conditional?
+        true_successor != {blz.nil} || false_successor != {blz.nil}
     end
 
-    :set_t_successor (n)
-        t_successor = n
+    :add_predecessor (node)
+        # Only add it if it does not already exist
+        if predecessors.contains?!(node).negate()
+            predecessors.add!(node)
+        else
+            predecessors
+        end
     end
 
-    :set_f_successor (n)
-        f_successor = n
+    :set_true_successor (node)
+        node.add_predecessor!(this)
+        true_successor = node
     end
 
-    :add_successor (n)
-        successor [successor.length ()] = n
+    :set_false_successor (node)
+        node.add_predecessor!(this)
+        false_successor = node
     end
 
-    :add_statement (s)
-        statements [statements.length ()] = s
+    :add_successor (node)
+        node.add_predecessor!(this)
+        successor.add!(node)
+    end
+
+    :add_statement (statement)
+        statements.add!(statement)
     end
 
 end

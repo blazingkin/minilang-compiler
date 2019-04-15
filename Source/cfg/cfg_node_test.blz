@@ -1,0 +1,12 @@
+import Test
+require cfg_node
+
+:test_cfg_is_conditional
+    node = CFGNode()
+    expect(node.is_conditional?()).is(false)
+    node_two = CFGNode()
+    node.add_successor!(node_two)
+    expect(node.is_conditional?().is(false))
+    node_two.set_true_successor(node)
+    expect(node_two.is_conditional?()).is(true)
+end
