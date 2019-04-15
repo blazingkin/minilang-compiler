@@ -17,7 +17,7 @@ require delete_node
 require bool_node
 require null_node
 
-:create_node(json)
+:internal_create_node(json)
     if json.has_key?("stmt")
         type = json["stmt"]
     else if json.has_key?("exp")
@@ -66,4 +66,17 @@ require null_node
         print(json)
         throw SyntaxException("Unknown type " + type)
     end
+end
+
+:create_node(json)
+    node = internal_create_node!(json)
+    is_stmt = json.has_key?("stmt")
+    if is_stmt
+        node.statement? = true
+        node.expression? = false
+    else
+        node.statement? = false
+        node.expression? = true
+    end
+    node
 end
