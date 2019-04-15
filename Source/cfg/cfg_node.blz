@@ -8,13 +8,17 @@ constructor CFGNode ()
     successor = []
     statements = []
 
+    :copy
+        this
+    end
+
     :is_conditional?
         true_successor != {blz.nil} || false_successor != {blz.nil}
     end
 
     :add_predecessor (node)
         # Only add it if it does not already exist
-        if predecessors.contains?!(node).negate()
+        if predecessors.contains?(node).negate()
             predecessors.add!(node)
         else
             predecessors
@@ -22,17 +26,17 @@ constructor CFGNode ()
     end
 
     :set_true_successor (node)
-        node.add_predecessor!(this)
+        node.add_predecessor(this)
         true_successor = node
     end
 
     :set_false_successor (node)
-        node.add_predecessor!(this)
+        node.add_predecessor(this)
         false_successor = node
     end
 
     :add_successor (node)
-        node.add_predecessor!(this)
+        node.add_predecessor(this)
         successor.add!(node)
     end
 
