@@ -30,7 +30,7 @@ constructor IfNode(cond, main, line, els)
         #set condition on n
         main_node = CFGNode ()
         main.translate (main_node)
-        node.set_true_successor (main_node
+        node.set_true_successor (main_node)
 
         if has_else?
             els_node = CFGNode ()
