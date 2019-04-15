@@ -26,7 +26,7 @@ constructor IfNode(cond, main, line, els)
         end
     end
 
-    :translate(node, return_node)
+    :translate(current_node, return_node)
         #set condition on n
         main_node = CFGNode ()
         node.set_true_successor (main_node)
