@@ -14,7 +14,7 @@ constructor IfNode(cond, main, line, els)
         end
     end
 
-    :typecheck (symbol_table, struct_map)
+    :typecheck(symbol_table, struct_map)
         cond_type = cond.typecheck (symbol_table, struct_map)
         main_type = main.typecheck (symbol_table, struct_map)
         if has_else?
@@ -26,7 +26,7 @@ constructor IfNode(cond, main, line, els)
         end
     end
 
-    :translate (node, return_node)
+    :translate(node, return_node)
         #set condition on n
         main_node = CFGNode ()
         node.set_true_successor (main_node)
@@ -39,14 +39,20 @@ constructor IfNode(cond, main, line, els)
         end
 
         join_node = CFGNode ()
-        main_node_exit.add_successor (join_node)
+        if main_node_exit != return_node
+            main_node_exit.add_successor (join_node)
+        end
 
         if has_else?
-            els_node_exit.add_successor (join_node)
+            if els_node_exit != return_node
+                els_node_exit.add_successor (join_node)
+            end
         else
             node.set_false_successor (join_node)
         end
-
+        if main_node_exit == return_node && els_node_exit == return_node
+            return return_node
+        end
         join_node
 
     end
