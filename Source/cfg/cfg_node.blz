@@ -8,6 +8,10 @@ constructor CFGNode ()
     successor = []
     statements = []
 
+    :copy
+        this
+    end
+
     :is_conditional?
         true_successor != {blz.nil} || false_successor != {blz.nil}
     end
