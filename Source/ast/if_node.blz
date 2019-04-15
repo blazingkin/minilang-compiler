@@ -1,5 +1,6 @@
 require ast_factory
 require ../types/primitive_type
+require ../cfg/cfg_node
 
 constructor IfNode(cond, main, line, els)
 
@@ -23,6 +24,35 @@ constructor IfNode(cond, main, line, els)
             print ("Type error on line: " + line + " Expected boolean expression as a conditional but found a(n) " + cond_type + " instead.")
             return primitive_type ("error")
         end
+    end
+
+    :translate (CFGNode n)
+        //set condition on n
+        t = CFGNode ()
+        t.add_predecessor (n)
+        main.translate (t)
+        n.set_t_successor (t)
+
+        if has_else?
+            f = CFGNode ()
+            f.add_predecessor (n)
+            els.translate (f)
+            n.set_f_successor (f)
+        end
+
+        join = CFGNode ()
+        join.add_predecessor (t)
+        t.add_successor (join)
+
+        if has_else?
+            join.add_predecessor (f)
+            f.add_successor (join)
+        else
+            join.add_predecessor (n)
+        end
+
+        join
+
     end
 
 end
