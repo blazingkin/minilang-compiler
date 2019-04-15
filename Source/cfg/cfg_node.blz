@@ -5,30 +5,25 @@ constructor CFGNode ()
     f_successor = CFGNode ()
     successor = []
     statements = []
-    condition = ""
 
-    :add_predecessor (CFGNode n)
+    :add_predecessor (n)
         predecessors [predecessors.length ()] = n
     end
 
-    :set_t_successor (CFGNode n)
+    :set_t_successor (n)
         t_successor = n
     end
 
-    :set_f_successor (CFGNode n)
+    :set_f_successor (n)
         f_successor = n
     end
 
-    :add_successor (CFGNode n)
+    :add_successor (n)
         successor [successor.length ()] = n
     end
 
-    :add_statement (String s)
+    :add_statement (s)
         statements [statements.length ()] = s
-    end
-
-    :set_condition (String s)
-        condition = s
     end
 
 end
