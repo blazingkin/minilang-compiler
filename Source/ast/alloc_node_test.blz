@@ -1,0 +1,8 @@
+import Test
+require alloc_node
+require ../types/primitive_type
+
+:test_alloc_node_typecheck_invalid_struct
+    node = AllocNode ("a", 1)
+    expect (node.typecheck ({}, {})).is (primitive_type ("error"))
+end
