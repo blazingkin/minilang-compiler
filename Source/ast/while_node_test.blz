@@ -1,0 +1,32 @@
+import Test
+require while_node
+require ../cfg/cfg_node
+require bool_node
+require block_node
+
+:test_while_node_translate_empty_body
+    wn = WhileNode(BoolNode(false), BlockNode([]), 10)
+    current_node = CFGNode()
+    exit_node = CFGNode()
+    returned = wn.translate_stmt(current_node, exit_node)
+
+    # A link should have been made to the conditional node
+    expect(current_node.successor).is_not_nil()
+    expect(current_node.is_conditional?()).is_false()
+
+    # The conditional node should be conditional
+    condition_node = current_node.successor
+    expect(condition_node.is_conditional?()).is_true()
+
+    block = condition_node.true_successor
+    continuation = condition_node.false_successor
+
+    expect(block.successor).is_not_nil()
+    expect(block.successor).is(condition_node)
+    
+    # The condition should fall through to the returned node if the condition is false
+    expect(continuation).is(returned)
+
+    # No exit path should exist
+    expect(exit_node.predecessors.length()).is(0)
+end

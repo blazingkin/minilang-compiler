@@ -7,8 +7,12 @@ constructor CFGNode ()
     true_successor = {blz.nil}
     false_successor = {blz.nil}
 
-    successor = []
+    successor = {blz.nil}
     instructions = []
+
+    :show
+        "Node " + label
+    end
 
     :copy
         this
@@ -37,9 +41,9 @@ constructor CFGNode ()
         false_successor = node
     end
 
-    :add_successor(node)
+    :set_successor(node)
         node.add_predecessor(this)
-        successor.add!(node)
+        successor = node
     end
 
     :add_instruction(instruction)

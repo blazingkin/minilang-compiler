@@ -1,0 +1,52 @@
+import Test
+require if_node
+require ../cfg/cfg_node
+require block_node
+require bool_node
+
+:test_if_translate_stmt_empty_blocks_with_else
+    empty_block = BlockNode([])
+    if_node = IfNode(BoolNode(false), empty_block, 10, empty_block)
+    
+    exit_block = CFGNode()
+    current_block = CFGNode()
+
+    returned = if_node.translate_stmt(current_block, exit_block)
+
+    # it ends with a conditional, so it should be conditional
+    expect(current_block.is_conditional?()).is_true()
+
+    main_branch = current_block.true_successor
+    else_branch = current_block.false_successor
+
+    expect(main_branch.is_conditional?()).is_false()
+    expect(else_branch.is_conditional?()).is_false()
+
+    expect(main_branch.successor).is(returned)
+    expect(else_branch.successor).is(returned)
+
+end
+
+:test_if_translate_stmt_empty_blocks_no_else
+    empty_block = BlockNode([])
+    if_node = IfNode(BoolNode(false), empty_block, 10)
+    
+    exit_block = CFGNode()
+    current_block = CFGNode()
+
+    returned = if_node.translate_stmt(current_block, exit_block)
+
+    # it ends with a conditional, so it should be conditional
+    expect(current_block.is_conditional?()).is_true()
+
+    main_branch = current_block.true_successor
+
+    expect(main_branch.is_conditional?()).is_false()
+
+    expect(main_branch.successor).is(returned)
+
+    # If it is false, it should go directly to the join node
+    expect(current_block.false_successor).is(returned)
+
+end
+

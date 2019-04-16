@@ -5,7 +5,7 @@ require cfg_node
     node = CFGNode()
     expect(node.is_conditional?()).to_be(false)
     node_two = CFGNode()
-    node.add_successor(node_two)
+    node.set_successor(node_two)
     expect(node.is_conditional?()).to_be(false)
     node_two.set_true_successor(node)
     expect(node_two.is_conditional?()).to_be(true)
@@ -14,7 +14,7 @@ end
 :test_cfg_creates_double_links
     parent = CFGNode()
     child = CFGNode()
-    parent.add_successor(child)
+    parent.set_successor(child)
     expect(child.predecessors.length()).is(1)
     expect(child.predecessors[0]).is(parent)
 end
