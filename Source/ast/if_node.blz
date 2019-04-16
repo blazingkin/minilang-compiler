@@ -26,16 +26,16 @@ constructor IfNode(cond, main, line, els)
         end
     end
 
-    :translate(current_node, return_node)
+    :translate_stmt(current_node, return_node)
         #set condition on n
         main_node = CFGNode ()
         node.set_true_successor (main_node)
-        main_node_exit = main.translate (main_node, return_node)
+        main_node_exit = main.translate_stmt (main_node, return_node)
 
         if has_else?
             els_node = CFGNode ()
             node.set_false_successor (els_node)
-            els_node_exit = els.translate (els_node, return_node)
+            els_node_exit = els.translate_stmt (els_node, return_node)
         end
 
         join_node = CFGNode ()
