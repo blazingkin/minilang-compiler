@@ -1,0 +1,11 @@
+import Test
+require ../cfg/cfg_node
+require block_node
+
+:test_block_translate_stmt_empty
+    current_node = CFGNode()
+    exit_node = CFGNode()
+    block_node = BlockNode([])
+
+    expect(block_node.translate_stmt(current_node, exit_node)).is(current_node)
+end

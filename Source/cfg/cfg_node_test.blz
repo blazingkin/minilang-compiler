@@ -10,3 +10,11 @@ require cfg_node
     node_two.set_true_successor(node)
     expect(node_two.is_conditional?()).to_be(true)
 end
+
+:test_cfg_creates_double_links
+    parent = CFGNode()
+    child = CFGNode()
+    parent.add_successor(child)
+    expect(child.predecessors.length()).is(1)
+    expect(child.predecessors[0]).is(parent)
+end

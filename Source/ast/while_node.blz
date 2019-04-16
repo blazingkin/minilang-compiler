@@ -1,5 +1,6 @@
 require ast_factory
 require ../types/primitive_type
+require ../cfg/cfg_node
 
 constructor WhileNode(guard, block, line)
     statement? = true
@@ -16,6 +17,24 @@ constructor WhileNode(guard, block, line)
             print ("Type error on line: " + line + " Expected boolean expression as a conditional but found a(n) " + guard_type + " instead.")
             return primitive_type ("error")
         end
+    end
+
+    :translate_stmt(current_node, exit_node)
+        condition_node = CFGNode()
+        # Add guard instruction to condition_node
+
+        # Link the current node to the condition
+        current_node.add_successor(condition_node)
+        block_node = CFGNode()
+        condition_node.set_true_successor(block_node)
+        continuation_node = CFGNode()
+        condition_node.set_false_successor(condition_node)
+
+        block_exit_node = block.translate_stmt!(block_node, exit_node)
+        if block_exit_node != exit_node
+            block_exit_node.add_successor(continuation_node)
+        end
+        continuation_node
     end
 
 end

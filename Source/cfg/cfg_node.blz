@@ -8,7 +8,7 @@ constructor CFGNode ()
     false_successor = {blz.nil}
 
     successor = []
-    statements = []
+    instructions = []
 
     :copy
         this
@@ -42,8 +42,8 @@ constructor CFGNode ()
         successor.add!(node)
     end
 
-    :add_statement(statement)
-        statements.add!(statement)
+    :add_instruction(instruction)
+        instructions.add!(instruction)
     end
 
 end
