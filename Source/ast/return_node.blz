@@ -2,7 +2,8 @@ require ast_factory
 require ../types/primitive_type
 
 constructor ReturnNode(line, expression)
-
+    statement? = true
+    expression? = false
     void_return? = (expression == {blz.nil})
 
     :show

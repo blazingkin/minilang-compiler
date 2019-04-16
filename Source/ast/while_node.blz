@@ -2,7 +2,8 @@ require ast_factory
 require ../types/primitive_type
 
 constructor WhileNode(guard, block, line)
-
+    statement? = true
+    expression? = false
     :show
         "<While " + guard + " then " + block + ">"
     end

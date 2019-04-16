@@ -3,7 +3,8 @@ require ../types/primitive_type
 require ../cfg/cfg_node
 
 constructor IfNode(cond, main, line, els)
-
+    statement? = true
+    expression? = false
     has_else? = els != {blz.nil}
 
     :show

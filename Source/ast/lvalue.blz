@@ -1,7 +1,8 @@
 require ../types/primitive_type
 
 constructor LValue(id, line, left)
-
+    statement? = false
+    expression? = true
     terminal = (left == {blz.nil})
 
     :show

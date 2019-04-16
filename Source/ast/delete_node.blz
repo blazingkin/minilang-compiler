@@ -2,7 +2,8 @@ require ast_factory
 require ../types/primitive_type
 
 constructor DeleteNode(expr, line)
-
+    statement? = true
+    expression? = false
     :show
         "delete " + expr
     end

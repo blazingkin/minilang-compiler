@@ -2,6 +2,8 @@ require ast_factory
 require ../types/primitive_type
 
 constructor BinaryNode(operator, left, right, line)
+    statement? = false
+    expression? = true
     :show
         "<" + operator + " " + left + " " + right + ">"
     end

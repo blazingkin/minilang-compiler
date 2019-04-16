@@ -1,7 +1,8 @@
 require ../types/primitive_type
 
 constructor BoolNode(is_true, line)
-
+    statement? = false
+    expression? = true
     :show
         is_true
     end

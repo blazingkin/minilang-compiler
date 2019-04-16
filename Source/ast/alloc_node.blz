@@ -1,7 +1,7 @@
 require ../types/primitive_type
 
 constructor AllocNode(id, line)
-
+    statement? = true
     :show
         "new " + id
     end

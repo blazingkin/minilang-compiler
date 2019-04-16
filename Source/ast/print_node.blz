@@ -1,7 +1,8 @@
 require ast_factory
 
 constructor PrintNode(exp, endl, line)
-
+    statement? = true
+    expression? = false
     :show
         "<Print " + exp + " \\n>"
     end

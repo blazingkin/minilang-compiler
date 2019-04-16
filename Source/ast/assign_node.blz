@@ -3,7 +3,8 @@ require lvalue
 require ../types/primitive_type
 
 constructor AssignNode(target, right, line)
-
+    statement? = true
+    expression? = false
     :show
         "<Assign " + target + " to " + right + ">"
     end

@@ -2,7 +2,8 @@ require ast_factory
 require ../types/primitive_type
 
 constructor BlockNode(subnodes)
-
+    statement? = true
+    expression? = false
     :show
         "<Block " + subnodes.map(x -> x + "\n") + ">"
     end

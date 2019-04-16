@@ -3,6 +3,8 @@ require ../types/primitive_type
 require identifier_node
 
 constructor InvocationNode(args, id, line)
+    statement? = true
+    expression? = false
     id = IdentifierNode(id, line)
     :show
         "<Invoke " + id + " with args " + args + ">"

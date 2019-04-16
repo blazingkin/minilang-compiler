@@ -2,7 +2,8 @@ require ast_factory
 require ../types/primitive_type
 
 constructor DotNode(left, id, line)
-
+    statement? = false
+    expression? = true
     :show
         left + "." + id
     end

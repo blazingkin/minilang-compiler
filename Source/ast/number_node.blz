@@ -2,7 +2,8 @@ require ast_factory
 require ../types/primitive_type
 
 constructor NumberNode(number, line)
-
+    statement? = false
+    expression? = true
     :show
         "<Number " + number + ">"
     end
