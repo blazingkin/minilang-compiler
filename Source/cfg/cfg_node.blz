@@ -1,7 +1,9 @@
+node_counter = 1
+
 constructor CFGNode ()
 
     predecessors = []
-
+    label = "L" + (node_counter++)
     true_successor = {blz.nil}
     false_successor = {blz.nil}
 

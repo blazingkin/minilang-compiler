@@ -13,6 +13,18 @@ constructor BlockNode(subnodes)
         end
     end
 
+    :translate_stmt(current_node, exit_node)
+        for i = 0; i < subnodes.length!(); i++
+            if subnodes[i].statement?
+                current_node = subnodes[i].translate_stmt(current_node, exit_node)
+                if current_node == exit_node
+                    return exit_node
+                end
+            end
+        end
+        current_node
+    end
+
 end
 
 :parse_block_node(subnodes)

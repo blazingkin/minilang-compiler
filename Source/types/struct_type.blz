@@ -29,6 +29,10 @@ constructor StructType(line, id, fields)
         return {blz.nil}
     end
 
+    :emit_llvm
+        ""
+    end
+
 end
 
 :parse_struct_type(json)
