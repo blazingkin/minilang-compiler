@@ -24,6 +24,7 @@ constructor BinaryNode(operator, left, right, line)
     :typecheck(symbol_table, struct_map)
         left_type = left.typecheck(symbol_table, struct_map)
         right_type = right.typecheck(symbol_table, struct_map)
+
         if operator == "+" || operator == "*" || operator == "-" || operator == "/"
             return check_both_types(left_type, right_type, primitive_type("int"))
         else if operator == "||" || operator == "&&"
