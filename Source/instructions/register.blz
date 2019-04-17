@@ -1,0 +1,14 @@
+
+v_register_counter = 0
+constructor VirtualRegister(content_type)
+    number = v_register_counter++
+
+    :copy
+        this
+    end
+
+    :emit_llvm
+        "%" + number
+    end
+
+end

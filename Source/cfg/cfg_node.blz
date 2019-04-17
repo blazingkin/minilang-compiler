@@ -1,17 +1,21 @@
+require ../instructions/register
+require ../instructions/instruction
 node_counter = 1
 
 constructor CFGNode ()
 
     predecessors = []
-    label = "L" + (node_counter++)
+    label = (node_counter++)
+    text_label = "L" + label
     true_successor = {blz.nil}
     false_successor = {blz.nil}
+    conditional_register = VirtualRegister()
 
     successor = {blz.nil}
     instructions = []
 
     :show
-        "Node " + label
+        "Node " + text_label
     end
 
     :copy
@@ -48,6 +52,22 @@ constructor CFGNode ()
 
     :add_instruction(instruction)
         instructions.add!(instruction)
+    end
+
+    :emit_instructions
+        emit_instr = [Instruction("Label", label)]
+        emit_instr.concatenate!(instructions)
+        if is_conditional?()
+            emit_instr.add!(Instruction("Branch", [conditional_register], [true_successor.label, false_successor.label]))
+        else
+            emit_instr.add!(Instruction("Branch", [], [successor.label]))
+        end
+        emit_instr
+    end
+
+    :emit_llvm
+        append_newlines = (x,y -> x + "\n" + y)
+        emit_instructions.map(x -> x.emit_llvm()).fold_left("", append_newlines)
     end
 
 end

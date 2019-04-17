@@ -15,6 +15,10 @@ constructor AllocNode(id, line)
         end
     end
 
+    :translate_stmt(current_block, exit_block)
+        
+    end
+
 end
 
 :parse_alloc_node(json)

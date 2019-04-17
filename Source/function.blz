@@ -59,7 +59,8 @@ end
     id = json["id"]
     return_type = parse_type(json["return_type"])
     body = parse_block_node(json["body"])
-    parameters = json["parameters"].map!(parse_declaration)
-    declarations = json["declarations"].map!(parse_declaration)
+    parse_param = (x -> parse_declaration(x, "stack"))
+    parameters = json["parameters"].map!(parse_param)
+    declarations = json["declarations"].map!(parse_param)
     Function!(line, id, return_type, body, parameters, declarations)
 end

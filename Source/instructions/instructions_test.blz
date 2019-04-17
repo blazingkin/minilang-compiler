@@ -1,0 +1,28 @@
+import Test
+require instruction
+
+constructor MockNode()
+
+end
+
+constructor MockRegister(number)
+
+    :emit_llvm
+        "%" + number
+    end
+end
+
+:test_emit_label_llvm
+    llvm = Instruction("Label", 3).emit_llvm()
+    expect(llvm).is("; <label>:3:")
+end
+
+:test_emit_branch_instruction_llvm_unconditional
+    llvm = Instruction("Branch", [], [7]).emit_llvm()
+    expect(llvm).is("br label %7")
+end
+
+:test_emit_branch_instruction_llvm_conditional
+    llvm = Instruction("Branch", [MockRegister(10)], [3, 11]).emit_llvm()
+    expect(llvm).is("br i1 %10, label %3, label %11")
+end

@@ -1,0 +1,31 @@
+
+constructor InstructionError(message)
+    :show
+        message
+    end
+end
+
+constructor Instruction(instruction_type, sources, destinations)
+
+    :show
+        "<" + instruction_type + " from " + sources + " to " + destinations + ">"
+    end
+
+    :emit_llvm
+        # "Label", label_name
+        if instruction_type == "Label"
+            return "; <label>:" + sources + ":"
+        else if instruction_type == "Branch"
+            if sources == []
+                # Unconditional branch
+                return "br label %" + destinations[0]
+            else
+                # Conditional branch
+                return "br i1 " + sources[0].emit_llvm() + ", label %" + destinations[0] + ", label %" + destinations[1]
+            end
+        else
+            throw InstructionError("Unknown instruction type " + instruction_type)
+        end
+    end
+
+end

@@ -15,7 +15,8 @@ end
     parsed = parse_json(json)
     types = parsed["types"].map!(parse_struct_type)
     functions = parsed["functions"].map!(parse_function)
-    declarations = parsed["declarations"].map!(parse_declaration)
+    parse_global = (x -> parse_declaration(x, "global"))
+    declarations = parsed["declarations"].map!(parse_global)
     Program(types, functions, declarations)
 end
 

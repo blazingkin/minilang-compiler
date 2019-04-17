@@ -27,6 +27,12 @@ constructor ReturnNode(line, expression)
         exp_type
     end
 
+    :translate_stmt(current_block, exit_block)
+        # generate return code
+        current_block.set_successor(exit_block)
+        exit_block
+    end
+
 end
 
 :parse_return_node(json)
