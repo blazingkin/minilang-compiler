@@ -11,6 +11,10 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         "<" + instruction_type + " from " + sources + " to " + destinations + ">"
     end
 
+    :copy
+        this
+    end
+
     :emit_llvm
         # "Label", label_name
         if instruction_type == "Label"
@@ -23,6 +27,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
                 # Conditional branch
                 return "br i1 " + sources[0].emit_llvm() + ", label %" + destinations[0] + ", label %" + destinations[1]
             end
+<<<<<<< HEAD
         else if instruction_type == "add" || instruction_type == "mul" || instruction_type == "sdiv" || instruction_type == "sub" || instruction_type == "and" || instruction_type == "or" || instruction_type == "xor"
             # Arithmatic and Boolean instructions
             return destinations [0].emit_llvm () + " = " + instruction_type + " " + typ + " " + sources [0].emit_llvm () + " " + sources [1].emit_llvm ()
@@ -48,6 +53,13 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             end
         else if instruction_type == "GetElement"
             return destinations [0].emit_llvm() + " = getelementptr " + typ + "* " + sources [0].emit_llvm() + ", i1 0, i32 " + sources [1]
+        # Needs to be resoved
+        else if instruction_type == "NegateInteger"
+            destinations[0].emit_llvm() + " = sub i32 0, " + sources[1].emit_llvm()
+        else if instruction_type == "NegateBoolean"
+            # Negate by XORing with 1
+            destinations[0].emit_llvm() + " = xor i32 1, " + sources[1].emit_llvm()
+
         else
             throw InstructionError("Unknown instruction type " + instruction_type)
         end

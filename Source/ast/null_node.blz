@@ -11,6 +11,10 @@ constructor NullNode(line)
         primitive_type("null")
     end
 
+    :translate(current_node)
+        0
+    end
+
 end
 
 :parse_null_node(json)

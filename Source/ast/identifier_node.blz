@@ -17,6 +17,10 @@ constructor IdentifierNode(id, line)
         end
     end
 
+    :translate(current_block)
+
+    end
+
 end
 
 :parse_identifier_node(json)
