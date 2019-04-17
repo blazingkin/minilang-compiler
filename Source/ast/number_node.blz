@@ -12,6 +12,10 @@ constructor NumberNode(number, line)
         primitive_type("int")
     end
 
+    :translate(current_block)
+        number
+    end
+
 end
 
 :parse_number_node(json)

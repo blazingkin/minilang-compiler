@@ -1,0 +1,11 @@
+import Test
+require unary_node
+require number_node
+require ../cfg/cfg_node
+
+:test_translate_of_unary_node_with_constant
+    num_node = NumberNode(3)
+    unary_node = UnaryNode("-", num_node)
+    mt_node = CFGNode()
+    expect(unary_node.translate(mt_node)).is(-3)
+end

@@ -47,6 +47,10 @@ constructor BinaryNode(operator, left, right, line)
 
     end
 
+    :translate(current_block)
+
+    end
+
 end
 
 :parse_binary_node(json)
