@@ -36,7 +36,7 @@ constructor UnaryNode(op, left, line)
                 return -1 * left_translate
             else if left_translate.type == "VirtualRegister"
                 result_register = VirtualRegister("i32")
-                current_block.add_instruction(Instruction("NegateInteger", [left_translate], [result_register]))
+                current_block.add_instruction(Instruction("NegateInteger", [left_translate], [result_register], "i32"))
                 return result_register
             end
         else if op == "!"
@@ -50,7 +50,7 @@ constructor UnaryNode(op, left, line)
                 end
             else if left_translate.type == "VirtualRegister"
                 result_register = VirtualRegister("i32")
-                current_block.add_instruction(Instruction("NegateBoolean", [left_translate], [result_register]))
+                current_block.add_instruction(Instruction("NegateBoolean", [left_translate], [result_register], "i32"))
                 return result_register
             end
         end

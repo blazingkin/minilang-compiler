@@ -15,6 +15,14 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         this
     end
 
+    :val_to_llvm(val)
+        if val.type == "Integer"
+            val
+        else
+            val.emit_llvm()
+        end
+    end
+
     :emit_llvm
         # "Label", label_name
         if instruction_type == "Label"
@@ -25,39 +33,35 @@ constructor Instruction(instruction_type, sources, destinations, typ)
                 return "br label %" + destinations[0]
             else
                 # Conditional branch
-                return "br i1 " + sources[0].emit_llvm() + ", label %" + destinations[0] + ", label %" + destinations[1]
+                return "br i1 " + val_to_llvm(sources[0]) + ", label %" + destinations[0] + ", label %" + destinations[1]
             end
         else if instruction_type == "add" || instruction_type == "mul" || instruction_type == "sdiv" || instruction_type == "sub" || instruction_type == "and" || instruction_type == "or" || instruction_type == "xor"
             # Arithmatic and Boolean instructions
-            return destinations [0].emit_llvm () + " = " + instruction_type + " " + typ + " " + sources [0].emit_llvm () + " " + sources [1].emit_llvm ()
+            return val_to_llvm(destinations [0]) + " = " + instruction_type + " " + typ + " " + val_to_llvm(sources [0]) + " " + val_to_llvm(sources [1])
         else if instruction_type == "Return"
             if sources == []
                 return "ret void"
             else
-                return "ret " + typ + " " + sources [0].emit_llvm ()
+                return "ret " + typ + " " + val_to_llvm(sources [0])
             end
         else if instruction_type == "Comparison"
-            return destinations [0].emit_llvm() + " = " + "icmp " + sources [0] + " " + typ + " " + sources [1].emit_llvm() + ", " + sources [2].emit_llvm()
+            return val_to_llvm(destinations [0]) + " = " + "icmp " + sources [0] + " " + typ + " " + val_to_llvm(sources [1]) + ", " + val_to_llvm(sources [2])
         else if instruction_type == "Allocation"
-            return destinations [0].emit_llvm() + " = alloca " + typ
+            return val_to_llvm(destinations [0]) + " = alloca " + typ
         else if instruction_type == "bitcast" || instruction_type == "trunc" || instruction_type == "zext"
-            return destinations [0].emit_llvm() + " = " + instruction_type + " " + typ + " " + sources [0].emit_llvm() + " to " + sources [1]
+            return val_to_llvm(destinations [0]) + " = " + instruction_type + " " + typ + " " + val_to_llvm(sources [0]) + " to " + sources [1]
         else if instruction_type == "Load"
-            return destinations [0].emit_llvm() + " = load " + typ + "* " + sources [0].emit_llvm()
+            return val_to_llvm(destinations [0]) + " = load " + typ + "* " + val_to_llvm(sources [0])
         else if instruction_type == "Store"
-            if sources [0].type == "MockRegister"
-                return "store " + typ + " " + sources [0].emit_llvm() + ", " + typ + "* " + sources [1].emit_llvm()
-            else
-                return "store " + typ + " " + sources [0] + ", " + typ + "* " + sources [1].emit_llvm()
-            end
+            return "store " + typ + " " + val_to_llvm(sources [0]) + ", " + typ + "* " + val_to_llvm(sources [1])
         else if instruction_type == "GetElement"
-            return destinations [0].emit_llvm() + " = getelementptr " + typ + "* " + sources [0].emit_llvm() + ", i1 0, i32 " + sources [1]
+            return val_to_llvm(destinations [0]) + " = getelementptr " + typ + "* " + val_to_llvm(sources [0]) + ", i1 0, i32 " + val_to_llvm(sources [1])
         # Needs to be resoved
         else if instruction_type == "NegateInteger"
-            destinations[0].emit_llvm() + " = sub i32 0, " + sources[1].emit_llvm()
+            val_to_llvm(destinations[0]) + " = sub i32 0, " + val_to_llvm(sources[1])
         else if instruction_type == "NegateBoolean"
             # Negate by XORing with 1
-            destinations[0].emit_llvm() + " = xor i32 1, " + sources[1].emit_llvm()
+            val_to_llvm(destinations[0]) + " = xor i32 1, " + val_to_llvm(sources[1])
 
         else
             throw InstructionError("Unknown instruction type " + instruction_type)

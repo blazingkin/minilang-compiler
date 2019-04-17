@@ -9,7 +9,7 @@ constructor CFGNode ()
     text_label = "L" + label
     true_successor = {blz.nil}
     false_successor = {blz.nil}
-    conditional_register = VirtualRegister()
+    conditional_register = VirtualRegister("i1")
 
     successor = {blz.nil}
     instructions = []

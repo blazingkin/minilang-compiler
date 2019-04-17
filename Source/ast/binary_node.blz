@@ -50,18 +50,18 @@ constructor BinaryNode(operator, left, right, line)
     end
 
     binary_op_to_instruction_op = {}
-    binary_op_to_instruction_op["+"] = "Add"
-    binary_op_to_instruction_op["-"] = "Subtract"
-    binary_op_to_instruction_op["*"] = "Multiply"
-    binary_op_to_instruction_op["/"] = "Divide"
-    binary_op_to_instruction_op["||"] = "LogicalOr"
-    binary_op_to_instruction_op["&&"] = "LogicalAnd"
-    binary_op_to_instruction_op["=="] = "Equal"
-    binary_op_to_instruction_op["<="] = "LessThanOrEqual"
-    binary_op_to_instruction_op[">="] = "GreaterThanOrEqual"
-    binary_op_to_instruction_op["!="] = "NotEqual"
-    binary_op_to_instruction_op["<"] = "LessThan"
-    binary_op_to_instruction_op[">"] = "GreaterThan"
+    binary_op_to_instruction_op["+"] = "add"
+    binary_op_to_instruction_op["-"] = "sub"
+    binary_op_to_instruction_op["*"] = "mul"
+    binary_op_to_instruction_op["/"] = "sdiv"
+    binary_op_to_instruction_op["||"] = "or"
+    binary_op_to_instruction_op["&&"] = "and"
+    binary_op_to_instruction_op["=="] = "eq"
+    binary_op_to_instruction_op["<="] = "sle"
+    binary_op_to_instruction_op[">="] = "sge"
+    binary_op_to_instruction_op["!="] = "ne"
+    binary_op_to_instruction_op["<"] = "slt"
+    binary_op_to_instruction_op[">"] = "sgt"
 
     binary_op_to_instruction_short = {}
     binary_op_to_instruction_short["+"] = (x, y -> x + y)
@@ -86,7 +86,11 @@ constructor BinaryNode(operator, left, right, line)
             return binary_op_to_instruction_short[operator](t_left, t_right)
         end
         result_register = VirtualRegister("i32")
-        current_block.add_instruction(binary_op_to_instruction_op[operator], [t_left, t_right], [result_register])
+        if operator == "!=" || operator == "==" || operator == "<=" || operator == ">=" || operator == "<" || operator == ">"
+            current_block.add_instruction("Comparison", [binary_op_to_instruction_op[operator], t_left, t_right], [result_register], "i32")
+        else
+            current_block.add_instruction(binary_op_to_instruction_op[operator], [t_left, t_right], [result_register], "i32")
+        end
         return result_register
     end
 
