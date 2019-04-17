@@ -27,7 +27,6 @@ constructor Instruction(instruction_type, sources, destinations, typ)
                 # Conditional branch
                 return "br i1 " + sources[0].emit_llvm() + ", label %" + destinations[0] + ", label %" + destinations[1]
             end
-<<<<<<< HEAD
         else if instruction_type == "add" || instruction_type == "mul" || instruction_type == "sdiv" || instruction_type == "sub" || instruction_type == "and" || instruction_type == "or" || instruction_type == "xor"
             # Arithmatic and Boolean instructions
             return destinations [0].emit_llvm () + " = " + instruction_type + " " + typ + " " + sources [0].emit_llvm () + " " + sources [1].emit_llvm ()
