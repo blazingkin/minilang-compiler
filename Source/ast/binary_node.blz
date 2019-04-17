@@ -1,5 +1,7 @@
 require ast_factory
 require ../types/primitive_type
+require ../instructions/instruction
+require ../instructions/register
 
 constructor BinaryNode(operator, left, right, line)
     statement? = false
@@ -47,8 +49,45 @@ constructor BinaryNode(operator, left, right, line)
 
     end
 
-    :translate(current_block)
+    binary_op_to_instruction_op = {}
+    binary_op_to_instruction_op["+"] = "Add"
+    binary_op_to_instruction_op["-"] = "Subtract"
+    binary_op_to_instruction_op["*"] = "Multiply"
+    binary_op_to_instruction_op["/"] = "Divide"
+    binary_op_to_instruction_op["||"] = "LogicalOr"
+    binary_op_to_instruction_op["&&"] = "LogicalAnd"
+    binary_op_to_instruction_op["=="] = "Equal"
+    binary_op_to_instruction_op["<="] = "LessThanOrEqual"
+    binary_op_to_instruction_op[">="] = "GreaterThanOrEqual"
+    binary_op_to_instruction_op["!="] = "NotEqual"
+    binary_op_to_instruction_op["<"] = "LessThan"
+    binary_op_to_instruction_op[">"] = "GreaterThan"
 
+    binary_op_to_instruction_short = {}
+    binary_op_to_instruction_short["+"] = (x, y -> x + y)
+    binary_op_to_instruction_short["-"] = (x, y -> x - y)
+    binary_op_to_instruction_short["*"] = (x, y -> x * y)
+
+    # WARNING. THIS CURRENTLY RETURNS A FLOAT. NEED TO FIX SO THAT IT RETURNS AN INT
+    binary_op_to_instruction_short["/"] = (x, y -> (x / y).floor())
+    binary_op_to_instruction_short["||"] = (x, y -> x ^ y)
+    binary_op_to_instruction_short["&&"] = (x, y -> x & y)
+    binary_op_to_instruction_short["=="] = (x, y -> x == y)
+    binary_op_to_instruction_short["<="] = (x, y -> x <= y)
+    binary_op_to_instruction_short[">="] = (x, y -> x >= y)
+    binary_op_to_instruction_short["!="] = (x, y -> x != y)
+    binary_op_to_instruction_short["<"] = (x, y -> x < y)
+    binary_op_to_instruction_short[">"] = (x, y -> x > y)
+
+    :translate(current_block)
+        t_left = left.translate(current_block)
+        t_right = right.translate(current_block)
+        if t_left.type == "Integer" && t_right.type == "Integer"
+            return binary_op_to_instruction_short[operator](t_left, t_right)
+        end
+        result_register = VirtualRegister("i32")
+        current_block.add_instruction(binary_op_to_instruction_op[operator], [t_left, t_right], [result_register])
+        return result_register
     end
 
 end
