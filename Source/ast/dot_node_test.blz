@@ -1,2 +1,31 @@
 import Test
 require dot_node
+require identifier_node_test
+require ../types/struct_type
+require ../cfg/cfg_node
+
+:test_dot_node_with_identifier_should_generate_struct_lookup_llvm
+    var_a = {}
+    var_a["line"] = 1
+    var_a["id"] = "c"
+    var_a["type"] = "int"
+    var_b = {}
+    var_b["line"] = 2
+    var_b["id"] = "st"
+    var_b["type"] = "asdf"
+    typ = StructType(0, "asdf", [var_a, var_b])
+    id_node = create_identifier_node_with_name_place_and_type!("a", "stack", typ)
+    dot_node = DotNode(id_node, "c")
+    dot_node.left_type = typ
+    dot_node.right_type = typ
+    blk = CFGNode()
+    dot_node.translate(blk)
+    expect(blk.instructions.length()).is(3)
+    ld_instr = blk.instructions[0].emit_llvm()
+    get_elem = blk.instructions[1].emit_llvm()
+    load_frm_strct = blk.instructions[2].emit_llvm()
+    expect(ld_instr.contains?(" = load %struct.asdf** %a")).is_true()
+    expect(get_elem.contains?(" = getelementptr %struct.asdf**")).is_true()
+    expect(get_elem.contains?("i1 0, i32 0")).is_true()
+    expect(load_frm_strct == "%7 = load %struct.asdf** %6").is_true()
+end

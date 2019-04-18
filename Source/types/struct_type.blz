@@ -9,7 +9,7 @@ constructor StructType(line, id, fields)
     fields = fields.map!(parse_declaration)
 
     :show
-        "%struct."+id
+        "%struct."+id+"*"
     end
 
     :==(other)

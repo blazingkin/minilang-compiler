@@ -35,5 +35,5 @@ end
     id_node.translate(blck)
     expect(blck.instructions.length()).is(1)
     instr = blck.instructions[0]
-    expect(instr.emit_llvm().contains?(" = load %struct.asdf* %a")).is_true()
+    expect(instr.emit_llvm().contains?(" = load %struct.asdf** %a")).is_true()
 end
