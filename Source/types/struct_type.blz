@@ -9,7 +9,7 @@ constructor StructType(line, id, fields)
     fields = fields.map!(parse_declaration)
 
     :show
-        "<StructType "+id+">"
+        "%struct."+id
     end
 
     :==(other)
@@ -27,6 +27,15 @@ constructor StructType(line, id, fields)
             end
         end
         return {blz.nil}
+    end
+
+    :index_of_field(name)
+        for i = 0; i < fields.length!(); i++
+            if fields[i].id == name
+                return i
+            end
+        end
+        return 0
     end
 
     :emit_llvm

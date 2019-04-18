@@ -25,7 +25,7 @@ constructor PrimitiveType(typ)
     end
 
     :show
-        typ
+        "i32"
     end
 
 end

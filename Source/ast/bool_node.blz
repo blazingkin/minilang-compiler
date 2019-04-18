@@ -11,6 +11,14 @@ constructor BoolNode(is_true, line)
         primitive_type("bool")
     end
 
+    :translate(current_block)
+        if is_true
+            1
+        else
+            0
+        end
+    end
+
 end
 
 :parse_bool_node(json, is_true)

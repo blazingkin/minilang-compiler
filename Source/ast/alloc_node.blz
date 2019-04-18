@@ -1,13 +1,20 @@
 require ../types/primitive_type
+require ../instructions/register
 
 constructor AllocNode(id, line)
-    statement? = true
+    statement? = false
+    expression? = true
     :show
         "new " + id
     end
 
+    :copy
+        this
+    end
+
     :typecheck(symbol_table, struct_map)
         if struct_map.keys().contains?(id)
+            this.struct_type = struct_map[id]
             struct_map[id]
         else
             print("Type error on line "+line+": "+id+" is not a valid type")
@@ -15,8 +22,9 @@ constructor AllocNode(id, line)
         end
     end
 
-    :translate_stmt(current_block, exit_block)
-        
+    :translate(current_block)
+        # Add malloc expression
+        result_register = VirtualRegister("%struct." + id + "*")
     end
 
 end
