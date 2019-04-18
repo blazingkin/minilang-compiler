@@ -1,7 +1,7 @@
 require ast_factory
 require ../types/primitive_type
-require ../instruction/register
-require ../instruction/instruction
+require ../instructions/register
+require ../instructions/instruction
 
 constructor DotNode(left, id, line)
     statement? = false

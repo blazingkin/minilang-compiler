@@ -1,11 +1,11 @@
 require ast_factory
 require ../types/primitive_type
+require ../instructions/register
+require ../instructions/instruction
 
 constructor IdentifierNode(id, line)
     statement? = false
     expression? = true
-    sym_table = {blz.nil}
-    struct_table  = {blz.nil}
 
     :copy
         this
@@ -16,10 +16,11 @@ constructor IdentifierNode(id, line)
     end
 
     :typecheck (symbol_table, struct_map)
-        sym_table = symbol_table
-        struct_table = struct_map
         if symbol_table.symbols.keys().contains?(id)
-            symbol_table.symbols.get(id).typ
+            declaration = symbol_table.symbols.get(id)
+            this.place = declaration.where
+            # Save the type and implicitly return it
+            this.typ = declaration.typ
         else
             print("Identifier "+id+" not bound to a type")
             primitive_type("error")
@@ -27,7 +28,10 @@ constructor IdentifierNode(id, line)
     end
 
     :translate(current_block)
-
+        load_register = VirtualRegister(this.typ.show(), id, this.place)
+        result_register = VirtualRegister(this.typ.show())
+        current_block.add_instruction(Instruction("Load", [load_register], [result_register], this.typ))
+        result_register
     end
 
 end

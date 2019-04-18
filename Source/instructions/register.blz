@@ -1,14 +1,24 @@
 
 v_register_counter = 0
-constructor VirtualRegister(content_type)
+constructor VirtualRegister(content_type, name, place)
     number = v_register_counter++
+
+    if place == "global"
+        register_char = "@"
+    else
+        register_char = "%"
+    end
 
     :copy
         this
     end
 
     :emit_llvm
-        "%" + number
+        if name == {blz.nil}
+            register_char + number
+        else
+            register_char + name
+        end
     end
 
 end

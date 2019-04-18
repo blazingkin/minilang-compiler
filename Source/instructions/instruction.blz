@@ -16,7 +16,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
     end
 
     :val_to_llvm(val)
-        if val.type == "Integer"
+        if val.type == "Integer" || val.type == "String"
             val
         else
             val.emit_llvm()
