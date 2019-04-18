@@ -16,7 +16,7 @@ constructor LValue(id, line, left)
     :typecheck(symbol_table, struct_map)
         if terminal
             if symbol_table.symbols.keys().contains?(id)
-                symbol_table.symbols.get(id)
+                symbol_table.symbols.get(id).typ
             else
                 print("Type error on line " + line + " could not find type for symbol " + id)
                 primitive_type("error")

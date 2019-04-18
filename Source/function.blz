@@ -19,10 +19,10 @@ constructor Function(line, id, return_type, body, parameters, declarations)
     :typecheck(id_map, struct_map)
         # bind local variables in the id_map
         for i = 0; i < parameters.length!(); i++
-            id_map[parameters[i].id] = parameters[i].typ
+            id_map[parameters[i].id] = parameters[i]
         end
         for i = 0; i < declarations.length!(); i++
-            id_map[declarations[i].id] = declarations[i].typ
+            id_map[declarations[i].id] = declarations[i]
         end
         symbol_table = SymbolTable(id_map, typ)
         if return_type != primitive_type("void") && return_equivalence? (body).negate()

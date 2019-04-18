@@ -15,5 +15,5 @@ constructor Declaration(line, id, typ, where)
 end
 
 :parse_declaration(json, where)
-    Declaration(json["line"], json["id"], parse_type(json["type"]))
+    Declaration(json["line"], json["id"], parse_type(json["type"], where))
 end

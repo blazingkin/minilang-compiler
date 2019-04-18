@@ -4,13 +4,22 @@ require ../types/primitive_type
 constructor IdentifierNode(id, line)
     statement? = false
     expression? = true
+    sym_table = {blz.nil}
+    struct_table  = {blz.nil}
+
+    :copy
+        this
+    end
+
     :show
         id
     end
 
     :typecheck (symbol_table, struct_map)
+        sym_table = symbol_table
+        struct_table = struct_map
         if symbol_table.symbols.keys().contains?(id)
-            symbol_table.symbols.get(id)
+            symbol_table.symbols.get(id).typ
         else
             print("Identifier "+id+" not bound to a type")
             primitive_type("error")
