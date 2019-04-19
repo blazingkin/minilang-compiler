@@ -1,10 +1,13 @@
 require ast_factory
 require ../types/primitive_type
 
+
 constructor ReturnNode(line, expression)
     statement? = true
     expression? = false
     void_return? = (expression == {blz.nil})
+
+    return_type = {blz.nil}
 
     :show
         if void_return?
@@ -24,11 +27,18 @@ constructor ReturnNode(line, expression)
             print("Type error on line: " + line + " Expected function to return type " + symbol_table.function_type.output + " but returned "+exp_type)
             return primitive_type("error")
         end
+        return_type = exp_type
         exp_type
     end
 
     :translate_stmt(current_block, exit_block)
         # generate return code
+        if void_return?
+            current_block.add_instruction("Return", [], [], {blz.nil})
+        else
+            t_return = expression.translate(current_block)
+            current_block.add_instruction("Return", [t_return], [], return_type.show())
+        end
         current_block.set_successor(exit_block)
         exit_block
     end
