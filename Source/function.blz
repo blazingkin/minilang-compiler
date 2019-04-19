@@ -32,6 +32,20 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         result = body.typecheck(symbol_table, struct_map)
     end
 
+    :emit_llvm
+        llvm = "define " + return_type + " @" + id + "("
+        for i = 0; i < parameters.length(); i++
+            if i != 0
+                llvm = llvm + ", "
+            end
+            llvm = llvm + parameters [i].typ + " %_P_" + parameters [i].id
+        end
+        llvm = llvm + ")"
+        return llvm
+    end
+
+    print(emit_llvm())
+
 end
 
 :return_equivalence? (node)
