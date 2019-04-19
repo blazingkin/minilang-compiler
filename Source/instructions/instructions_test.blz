@@ -116,3 +116,18 @@ end
     llvm = Instruction("GetElement", [MockRegister(0), 1], [MockRegister(1)], "struct_type").emit_llvm()
     expect(llvm).is("%1 = getelementptr struct_type* %0, i1 0, i32 1")
 end
+
+:test_emit_call_instruction_llvm_no_args
+    llvm = Instruction("FunctionCall", ["@foo"],[MockRegister(0)], "i32").emit_llvm()
+    expect(llvm).is("%0 = call i32 @foo()")
+end
+
+:test_emit_call_instruction_llvm_one_arg
+    llvm = Instruction("FunctionCall", ["@foo", "i32", MockRegister(1)],[MockRegister(0)], "i32").emit_llvm()
+    expect(llvm).is("%0 = call i32 @foo(i32 %1)")
+end
+
+:test_emit_call_instruction_llvm_multiple_args
+    llvm = Instruction("FunctionCall", ["@foo", "i32", MockRegister(1), "%struct.A*", MockRegister(2), "i32", MockRegister(3)],[MockRegister(0)], "i32").emit_llvm()
+    expect(llvm).is("%0 = call i32 @foo(i32 %1, %struct.A* %2, i32 %3)")
+end
