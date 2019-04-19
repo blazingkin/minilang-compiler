@@ -39,7 +39,15 @@ constructor StructType(line, id, fields)
     end
 
     :emit_llvm
-        ""
+        type_dec = "%struct." + id + " = type {"
+	for i = 0; i < fields.length(); i++
+            if i != 0
+                type_dec = type_dec + ", "
+            end
+            type_dec = type_dec + fields [i].typ
+        end
+        type_dec = type_dec + "}"
+        return type_dec
     end
 
 end

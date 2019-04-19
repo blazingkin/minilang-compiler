@@ -1,0 +1,7 @@
+import Test
+require struct_type
+
+:test_emit_struct_llvm_empty
+    llvm = StructType(0, "A", []).emit_llvm()
+    expect(llvm).is("%struct.A = type {}")
+end
