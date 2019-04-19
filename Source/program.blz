@@ -3,6 +3,11 @@ require declaration
 
 constructor Program(types, functions, declarations)
 
+    :emit_llvm
+        types.each(x -> print(x.emit_llvm()))
+        functions.each(x -> print(x.emit_llvm()))
+    end
+
     :typecheck
         # add the structs
         struct_map = {}

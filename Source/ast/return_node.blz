@@ -1,5 +1,6 @@
 require ast_factory
 require ../types/primitive_type
+require ../instructions/instruction
 
 
 constructor ReturnNode(line, expression)
@@ -34,10 +35,10 @@ constructor ReturnNode(line, expression)
     :translate_stmt(current_block, exit_block)
         # generate return code
         if void_return?
-            current_block.add_instruction("Return", [], [], {blz.nil})
+            current_block.add_instruction(Instruction("Return", [], [], {blz.nil}))
         else
             t_return = expression.translate(current_block)
-            current_block.add_instruction("Return", [t_return], [], return_type.show())
+            current_block.add_instruction(Instruction("Return", [t_return], [], return_type.show()))
         end
         current_block.set_successor(exit_block)
         exit_block

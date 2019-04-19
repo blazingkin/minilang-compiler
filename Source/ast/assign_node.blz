@@ -19,6 +19,10 @@ constructor AssignNode(target, right, line)
         target_type
     end
 
+    :translate_stmt(current_block, exit_block)
+
+    end
+
 end
 
 :parse_assign_node(json)

@@ -6,6 +6,7 @@ require types/type_error
 require types/primitive_type
 require tables/symbol_table
 require syntax_exception
+require cfg/cfg_node
 
 constructor Function(line, id, return_type, body, parameters, declarations)
 
@@ -40,11 +41,13 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             end
             llvm = llvm + parameters [i].typ + " %_P_" + parameters [i].id
         end
-        llvm = llvm + ")"
+        function_entry_cfg = CFGNode()
+        function_exit_cfg = CFGNode()
+        body.translate_stmt(function_entry_cfg, function_exit_cfg)
+        llvm = llvm + ")\n{" + function_entry_cfg.emit_llvm() + "\n}"
         return llvm
     end
 
-    print(emit_llvm())
 
 end
 

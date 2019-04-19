@@ -59,7 +59,7 @@ constructor CFGNode ()
         emit_instr.concatenate!(instructions)
         if is_conditional?()
             emit_instr.add!(Instruction("Branch", [conditional_register], [true_successor.label, false_successor.label]))
-        else
+        else if successor != {blz.nil}
             emit_instr.add!(Instruction("Branch", [], [successor.label]))
         end
         emit_instr
@@ -67,7 +67,15 @@ constructor CFGNode ()
 
     :emit_llvm
         append_newlines = (x,y -> x + "\n" + y)
-        emit_instructions.map(x -> x.emit_llvm()).fold_left("", append_newlines)
+        
+        instr = emit_instructions().map(x -> x.emit_llvm()).fold_left("", append_newlines)
+        if is_conditional?()
+            instr = instr + "\n" + true_successor.emit_llvm()
+            instr = instr + "\n" + false_successor.emit_llvm()
+        else if successor != {blz.nil}
+            instr = instr + "\n" + successor.emit_llvm()
+        end
+        instr
     end
 
 end

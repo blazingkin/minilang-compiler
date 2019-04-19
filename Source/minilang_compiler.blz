@@ -1,14 +1,21 @@
 import JSON
 import FileSystem
+import Flag
 require declaration
 require types/struct_type
 require function
 require program
 
+
+llvm_stack = Flag("s", "bool", false, false, "Stack Based LLVM Code Generation", "llvm-stack").value
+
 :main
     program_json = open({arguments}[0]).read_all()
     program = json_to_ast(program_json)
     program.typecheck()
+    if llvm_stack
+        program.emit_llvm()
+    end
 end
 
 :json_to_ast(json)

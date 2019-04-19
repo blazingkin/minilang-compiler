@@ -40,7 +40,7 @@ constructor StructType(line, id, fields)
 
     :emit_llvm
         type_dec = "%struct." + id + " = type {"
-	for i = 0; i < fields.length(); i++
+	    for i = 0; i < fields.length(); i++
             if i != 0
                 type_dec = type_dec + ", "
             end
