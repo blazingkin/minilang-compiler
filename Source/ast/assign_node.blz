@@ -20,7 +20,9 @@ constructor AssignNode(target, right, line)
     end
 
     :translate_stmt(current_block, exit_block)
-
+        # generate the expression to be stored
+        right_val = right.translate(current_block)
+        current_block
     end
 
 end

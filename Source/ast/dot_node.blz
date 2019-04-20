@@ -33,7 +33,7 @@ constructor DotNode(left, id, line)
 
     :translate(current_block)
         offset = left_type.index_of_field(id)
-
+        
         left_result = left.translate(current_block)
         address_of_val_in_struct = VirtualRegister(this.right_type + "*")
         

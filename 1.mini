@@ -17,6 +17,7 @@ bool bob;
 fun f(int i, struct B j) struct A
 {
    int f, l, k;
+   f = l + k;
    return b.a.a.a.a;
 }
 
