@@ -34,7 +34,8 @@ constructor AssignNode(target, right, line)
             current_block.add_instruction(Instruction("Store", [right_val], [dest_register], target.this.symbol_type.typ))
         else
             # There is a dot
-
+            dest_register = target.translate(current_block)
+            current_block.add_instruction(Instruction("Store", [right_val], [dest_register], target.this.right_type.typ))
         end
         current_block
     end

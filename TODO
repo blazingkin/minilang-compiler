@@ -1,2 +1,6 @@
-3. Translate stmt on assign
 5. Make sure exit node is not printed multiple times
+6. Delete node
+7. Types for null
+8. util.c
+9. Printing externs as part of file
+10. Assigning from a binary expression types from i1 to i32
