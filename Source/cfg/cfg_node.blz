@@ -2,6 +2,9 @@ require ../instructions/register
 require ../instructions/instruction
 node_counter = 1
 
+printed_counters = []
+printed_llvm_counters = []
+
 constructor CFGNode ()
 
     predecessors = []
@@ -56,12 +59,12 @@ constructor CFGNode ()
     end
 
     :emit_instructions
-        if printed
+        if printed_counters.contains?(label)
             arr = []
             return arr
         end
         emit_instr = [Instruction("Label", label)]
-        printed = true
+        printed_counters.add!(label)
         emit_instr.concatenate!(instructions)
         if is_conditional?()
             emit_instr.add!(Instruction("Branch", [conditional_register], [true_successor.label, false_successor.label]))
@@ -71,18 +74,18 @@ constructor CFGNode ()
         emit_instr
     end
 
-    this.emitted_llvm = false
+    emitted_llvm = false
     :emit_llvm
         append_newlines = (x,y -> x + "\n" + y)
-        if this.emitted_llvm
+        if printed_llvm_counters.contains?(label)
             return ""
         end
-        this.emited_llvm = true
-        instr = emit_instructions().map(x -> x.emit_llvm()).fold_left("", append_newlines)
+        printed_llvm_counters.add!(label)
+        instr = emit_instructions().map!(x -> x.emit_llvm()).fold_left("", append_newlines)
         if is_conditional?()
             instr = instr + "\n" + true_successor.emit_llvm()
             instr = instr + "\n" + false_successor.emit_llvm()
-        else if successor != {blz.nil}
+        else if successor != {blz.nil} && successor != this
             instr = instr + "\n" + successor.emit_llvm()
         end
         instr
