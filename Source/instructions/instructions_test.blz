@@ -103,12 +103,12 @@ end
 end
 
 :test_emit_store_instruction_llvm_from_register
-    llvm = Instruction("Store", [MockRegister(0), MockRegister(1)], [], "i32").emit_llvm()
+    llvm = Instruction("Store", [MockRegister(0)], [MockRegister(1)], "i32").emit_llvm()
     expect(llvm).is("store i32 %0, i32* %1")
 end
 
 :test_emit_store_instruction_llvm_from_immediate
-    llvm = Instruction("Store", [7, MockRegister(1)], [], "i32").emit_llvm()
+    llvm = Instruction("Store", [7], [MockRegister(1)], "i32").emit_llvm()
     expect(llvm).is("store i32 7, i32* %1")
 end
 

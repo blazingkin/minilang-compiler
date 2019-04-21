@@ -7,6 +7,8 @@ require types/primitive_type
 require tables/symbol_table
 require syntax_exception
 require cfg/cfg_node
+require instructions/instruction
+require instructions/register
 
 constructor Function(line, id, return_type, body, parameters, declarations)
 
@@ -35,16 +37,28 @@ constructor Function(line, id, return_type, body, parameters, declarations)
 
     :emit_llvm
         llvm = "define " + return_type + " @" + id + "("
+        param_registers = []
         for i = 0; i < parameters.length(); i++
             if i != 0
                 llvm = llvm + ", "
             end
-            llvm = llvm + parameters [i].typ + " %_P_" + parameters [i].id
+            param_registers[i] = VirtualRegister(parameters[i].typ, "_P_"+parameters[i].id, "parameters")
+            llvm = llvm + param_registers[i].emit_llvm()
         end
+        llvm = llvm + ")\n{"
         function_entry_cfg = CFGNode()
         function_exit_cfg = CFGNode()
+        for i = 0; i < parameters.length!(); i++
+            local_register = VirtualRegister(parameters[i].typ, parameters[i].id, "stack")
+            function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], parameters[i].typ))
+            function_entry_cfg.add_instruction(Instruction("Store", [param_registers[i]], [local_register], parameters[i].typ))
+        end
+        for i = 0; i < declarations.length(); i++
+            local_register = VirtualRegister(declarations[i].typ, declarations[i].id, "stack")
+            function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], declarations[i].typ))
+        end
         body.translate_stmt(function_entry_cfg, function_exit_cfg)
-        llvm = llvm + ")\n{" + function_entry_cfg.emit_llvm() + "\n}"
+        llvm = llvm + function_entry_cfg.emit_llvm() + "\n}"
         return llvm
     end
 

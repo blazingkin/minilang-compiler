@@ -11,6 +11,11 @@ constructor PrintNode(exp, endl, line)
         exp.typecheck(symbol_table, struct_map)
     end
 
+    :translate_stmt(current_block, exit_block)
+        result = exp.translate(current_block)
+        current_block
+    end
+
 end
 
 :parse_print_node(json)

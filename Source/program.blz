@@ -5,7 +5,9 @@ constructor Program(types, functions, declarations)
 
     :emit_llvm
         types.each(x -> print(x.emit_llvm()))
-        functions.each(x -> print(x.emit_llvm()))
+        for i = 0; i < functions.length(); i++
+            print(functions[i].emit_llvm())
+        end
     end
 
     :typecheck

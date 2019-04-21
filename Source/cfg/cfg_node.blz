@@ -10,6 +10,7 @@ constructor CFGNode ()
     true_successor = {blz.nil}
     false_successor = {blz.nil}
     conditional_register = VirtualRegister("i1")
+    printed = false
 
     successor = {blz.nil}
     instructions = []
@@ -55,7 +56,12 @@ constructor CFGNode ()
     end
 
     :emit_instructions
+        if printed
+            arr = []
+            return arr
+        end
         emit_instr = [Instruction("Label", label)]
+        printed = true
         emit_instr.concatenate!(instructions)
         if is_conditional?()
             emit_instr.add!(Instruction("Branch", [conditional_register], [true_successor.label, false_successor.label]))
@@ -65,9 +71,13 @@ constructor CFGNode ()
         emit_instr
     end
 
+    this.emitted_llvm = false
     :emit_llvm
         append_newlines = (x,y -> x + "\n" + y)
-        
+        if this.emitted_llvm
+            return ""
+        end
+        this.emited_llvm = true
         instr = emit_instructions().map(x -> x.emit_llvm()).fold_left("", append_newlines)
         if is_conditional?()
             instr = instr + "\n" + true_successor.emit_llvm()

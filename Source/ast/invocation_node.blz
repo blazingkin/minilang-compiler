@@ -1,5 +1,7 @@
 require ast_factory
 require ../types/primitive_type
+require ../instructions/register
+require ../instructions/instruction
 require identifier_node
 
 constructor InvocationNode(args, id, line)
@@ -22,8 +24,8 @@ constructor InvocationNode(args, id, line)
             return primitive_type ("error")
         end
 
-        if id_type.inputs.length! () != args_types.length! ()
-            print ("Arity error on line: " + line + " Expected " + id_type.inputs.length! () + " arguments but found " + args_types.length! () + " instead.")
+        if id_type.inputs.length! () != args_types.length ()
+            print ("Arity error on line: " + line + "id_type Expected " + id_type.inputs.length! () + " arguments but found " + args_types.length! () + " instead.")
             return primitive_type ("error")
         end
 
@@ -33,9 +35,28 @@ constructor InvocationNode(args, id, line)
                 return primitive_type ("error")
             end
         end
-
+        this.id_type = id_type
+        this.args_types = args_types
         return id_type.output
 
+    end
+
+    :translate_stmt(current_block, exit_block)
+        translate(current_block)
+        current_block
+    end
+
+    :translate(current_block)
+        result = VirtualRegister()
+        parameter_instructions = [this.id]
+        j = 0
+        for i = 1; i < args.length(); i = i + 2
+            parameter_instructions[i] = this.args_types[j]
+            parameter_instructions[i + 1] = args[j].translate(current_block)
+            j++
+        end
+        current_block.add_instruction(Instruction("FunctionCall", parameter_instructions, [result], this.id_type))
+        result
     end
 
 end
