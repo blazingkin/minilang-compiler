@@ -45,6 +45,7 @@ fun main() int
    int i, j, k;
    bool b;
       int h;
+         a = new A;
    {
       i = --2;
       if (i < g(1,null))
