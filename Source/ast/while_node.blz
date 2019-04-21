@@ -22,7 +22,8 @@ constructor WhileNode(guard, block, line)
     :translate_stmt(current_node, exit_node)
         condition_node = CFGNode()
         # Add guard instruction to condition_node
-
+        result = guard.translate(condition_node)
+        condition_node.conditional_register = result
         # Link the current node to the condition
         current_node.set_successor(condition_node)
         block_node = CFGNode()

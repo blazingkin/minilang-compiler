@@ -1,5 +1,2 @@
-1. Functions need to set up stack
-2. Invoke needs translate
 3. Translate stmt on assign
-4. handle expressions in if, while
 5. Make sure exit node is not printed multiple times

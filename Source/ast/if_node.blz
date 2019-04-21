@@ -28,7 +28,9 @@ constructor IfNode(cond, main, line, els)
     end
 
     :translate_stmt(current_node, return_node)
-        #set condition on n
+        # generate condition
+        val = cond.translate(current_node)
+        current_node.conditional_register = val
         main_node = CFGNode ()
         join_node = CFGNode ()
 

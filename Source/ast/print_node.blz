@@ -1,4 +1,6 @@
 require ast_factory
+require ../instructions/instruction
+require ../instructions/register
 
 constructor PrintNode(exp, endl, line)
     statement? = true
@@ -13,6 +15,11 @@ constructor PrintNode(exp, endl, line)
 
     :translate_stmt(current_block, exit_block)
         result = exp.translate(current_block)
+        result_register = VirtualRegister()
+        # Print the expression result
+        current_block.add_instruction(Instruction("FunctionCall", ["@print", "i32", result], [result_register], "void"))
+        # Handle endl
+
         current_block
     end
 
