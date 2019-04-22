@@ -1,10 +1,18 @@
 require ../types/primitive_type
+require ../instructions/register
+require ../instructions/instruction
 
 constructor ReadNode(line)
     statement? = true
     expression? = false
     :typecheck(symbol_table, struct_map)
         primitive_type("int")
+    end
+
+    :translate(current_block)
+        result = VirtualRegister()
+        current_block.add_instruction(Instruction("FunctionCall", ["readchar"], [result], "i32"))
+        result
     end
 
 end

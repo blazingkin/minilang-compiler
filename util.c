@@ -5,7 +5,7 @@
 void print(uint32_t n) {
     printf("%d", n);
 }
-int32_t read_char() {
+int32_t readchar() {
     int res = 0;
     scanf("%d", &res);
     return res;
