@@ -27,6 +27,4 @@ require block_node
     # The condition should fall through to the returned node if the condition is false
     expect(continuation).is(returned)
 
-    # No exit path should exist
-    expect(exit_node.predecessors.length()).is(0)
 end
