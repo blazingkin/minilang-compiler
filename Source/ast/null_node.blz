@@ -12,7 +12,7 @@ constructor NullNode(line)
     end
 
     :translate(current_node)
-        0
+        "null"
     end
 
 end

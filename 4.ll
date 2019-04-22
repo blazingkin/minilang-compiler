@@ -22,6 +22,7 @@ br label %LU3
 
 LU3:
 ret i32 0
+br label %LU3
 }
 define i32 @foo(i32 %_P_n)
 {
@@ -38,6 +39,7 @@ br label %LU5
 
 LU5:
 ret i32 0
+br label %LU5
 
 LU8:
 %v21 = load i32, i32* %n
@@ -82,6 +84,7 @@ br label %LU10
 
 LU10:
 ret %struct.A* null
+br label %LU10
 }
 define void @bar(%struct.B* %_P_j, i32 %_P_i)
 {
@@ -158,15 +161,16 @@ call void @print(i32 2)
 %v98 = call %struct.A* @f(i32 %v99, %struct.B* %v103)
 %v104 = getelementptr %struct.A, %struct.A* %v98, i1 0, i32 0
 %v105 = load i32, i32* %v104
-call void @print(i32 %v105)
+call void @printl(i32 %v105)
 ret i32 0
 br label %LU14
 
 LU14:
 ret i32 0
+br label %LU14
 
 LU19:
-call void @print(i32 3)
+call void @printl(i32 3)
 br label %LU18
 
 
@@ -175,5 +179,6 @@ br label %LU18
 declare i8* @malloc(i32)
 declare void @free(i8*)
 declare void @print(i32)
+declare void @printl(i32)
 declare i32 @readchar()
 

@@ -36,7 +36,7 @@ constructor InvocationNode(args, id, line)
             end
         end
         this.id_type = id_type
-        this.args_types = args_types
+        this.args_types = id_type.inputs
         return id_type.output
 
     end
