@@ -1,5 +1,7 @@
 require ast_factory
 require ../types/primitive_type
+require ../instructions/instruction
+require ../instructions/register
 
 constructor DeleteNode(expr, line)
     statement? = true
@@ -10,6 +12,7 @@ constructor DeleteNode(expr, line)
 
     :typecheck(symbol_table, struct_map)
         typ = expr.typecheck(symbol_table, struct_map)
+        this.typ = typ
         if typ.type != "StructType"
             print("Type error on line "+line+": Delete tried to delete non structure")
             return primitive_type("error")
@@ -17,9 +20,16 @@ constructor DeleteNode(expr, line)
         typ
     end
 
+    :translate_stmt(current_block, exit_block)
+        translate(current_block)
+        current_block
+    end
+
     :translate(current_block)
         expr_register = expr.translate(current_block)
-        current_block.add_instruction(Instruction("FunctionCall"), ["@free", "i8*", expr_register], [], "void")
+        bitcast_register = VirtualRegister("i8*")
+        current_block.add_instruction(Instruction("bitcast", [expr_register, "i8*"], [bitcast_register], this.typ))
+        current_block.add_instruction(Instruction("FunctionCall", ["free", "i8*", bitcast_register], [], "void"))
     end
 
 end

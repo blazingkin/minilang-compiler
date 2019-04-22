@@ -5,6 +5,10 @@
 void print(uint32_t n) {
     printf("%d", n);
 }
+
+void printl(uint32_t n) {
+    printf("%d\n", n);
+}
 int32_t readchar() {
     int res = 0;
     scanf("%d", &res);

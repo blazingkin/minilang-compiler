@@ -17,11 +17,15 @@ constructor BlockNode(subnodes)
     :translate_stmt(current_node, exit_node)
         for i = 0; i < subnodes.length!(); i++
             if subnodes[i].statement?
+                old_node = current_node
                 current_node = subnodes[i].translate_stmt(current_node, exit_node)
-                if current_node == exit_node
-                    return exit_node
+                if old_node.is_conditional?().negate() && old_node.successor == {blz.nil}
+                    old_node.set_successor(current_node)
                 end
             end
+        end
+        if current_node.is_conditional?().negate() && current_node.successor == {blz.nil}
+                current_node.set_successor(exit_node)
         end
         current_node
     end

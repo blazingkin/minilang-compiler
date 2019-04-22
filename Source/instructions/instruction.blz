@@ -62,10 +62,10 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             return val_to_llvm(destinations [0]) + " = getelementptr " + typ.llvm_no_pointer() + ", " + typ + " " + val_to_llvm(sources [0]) + ", i1 0, i32 " + val_to_llvm(sources [1])
         # Needs to be resoved
         else if instruction_type == "NegateInteger"
-            val_to_llvm(destinations[0]) + " = sub i32 0, " + val_to_llvm(sources[1])
+            val_to_llvm(destinations[0]) + " = sub i32 0, " + val_to_llvm(sources[0])
         else if instruction_type == "NegateBoolean"
             # Negate by XORing with 1
-            val_to_llvm(destinations[0]) + " = xor i32 1, " + val_to_llvm(sources[1])
+            val_to_llvm(destinations[0]) + " = xor i32 1, " + val_to_llvm(sources[0])
         else if instruction_type == "FunctionCall"
             if destinations != []
                 llvm = val_to_llvm(destinations[0]) + " = "

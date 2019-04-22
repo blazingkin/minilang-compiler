@@ -1,6 +1,8 @@
 require ast_factory
 require ../types/primitive_type
 require ../cfg/cfg_node
+require ../instructions/instruction
+require ../instructions/register
 
 constructor WhileNode(guard, block, line)
     statement? = true
@@ -23,7 +25,14 @@ constructor WhileNode(guard, block, line)
         condition_node = CFGNode()
         # Add guard instruction to condition_node
         result = guard.translate(condition_node)
-        condition_node.conditional_register = result
+        if result.type == "VirtualRegister" && result.content_type != "i1"
+            truncated = VirtualRegister("i1")
+            condition_node.add_instruction(Instruction("trunc", [result, "i1"], [truncated], result.content_type))
+            condition_node.conditional_register = truncated
+            result = truncated
+        else
+            condition_node.conditional_register = result
+        end
         # Link the current node to the condition
         current_node.set_successor(condition_node)
         block_node = CFGNode()

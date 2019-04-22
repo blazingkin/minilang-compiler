@@ -16,8 +16,11 @@ constructor PrintNode(exp, endl, line)
     :translate_stmt(current_block, exit_block)
         result = exp.translate(current_block)
         # Print the expression result
-        current_block.add_instruction(Instruction("FunctionCall", ["print", "i32", result], [], "void"))
-        # Handle endl
+        if endl
+            current_block.add_instruction(Instruction("FunctionCall", ["printl", "i32", result], [], "void"))
+        else
+            current_block.add_instruction(Instruction("FunctionCall", ["print", "i32", result], [], "void"))
+        end
 
         current_block
     end

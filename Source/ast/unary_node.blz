@@ -54,6 +54,7 @@ constructor UnaryNode(op, left, line)
                 return result_register
             end
         end
+        left_translate.type
     end
 
 end

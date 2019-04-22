@@ -9,7 +9,7 @@ constructor Program(types, functions, declarations)
         for i = 0; i < functions.length(); i++
             print(functions[i].emit_llvm())
         end
-        print("\ndeclare i8* @malloc(i32)\ndeclare void @free(i8*)\ndeclare void @print(i32)\ndeclare i32 @readchar()\n")
+        print("\ndeclare i8* @malloc(i32)\ndeclare void @free(i8*)\ndeclare void @print(i32)\ndeclare void @printl(i32)\ndeclare i32 @readchar()\n")
     end
 
     :typecheck

@@ -47,7 +47,7 @@ constructor InvocationNode(args, id, line)
     end
 
     :translate(current_block)
-        result = VirtualRegister()
+        result = VirtualRegister(this.id_type.output)
         if this.id_type.output == primitive_type("void")
             sources = []
         else

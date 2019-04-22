@@ -4,6 +4,9 @@ require ../types/primitive_type
 constructor NumberNode(number, line)
     statement? = false
     expression? = true
+    if number.type == "String"
+        number = number.parse_to_int()
+    end
     :show
         "<Number " + number + ">"
     end
