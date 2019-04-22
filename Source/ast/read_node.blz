@@ -7,8 +7,13 @@ constructor ReadNode(line)
         primitive_type("int")
     end
 
+    :translate_stmt(current_block, exit_block)
+        result_reg = VirtualRegister("i32")
+        current_block.add_instruction(Instruction("FunctionCall", ["scan"], [result_reg], "i32"))
+    end
+
 end
 
 :parse_read_node(json)
     ReadNode!(json["line"])
-end
+end 
