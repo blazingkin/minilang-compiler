@@ -17,6 +17,11 @@ constructor DeleteNode(expr, line)
         typ
     end
 
+    :translate(current_block)
+        expr_register = expr.translate(current_block)
+        current_block.add_instruction(Instruction("FunctionCall"), ["@free", "i8*", expr_register], [], "void")
+    end
+
 end
 
 :parse_delete_node(json)

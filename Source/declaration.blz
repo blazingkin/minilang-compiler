@@ -12,6 +12,10 @@ constructor Declaration(line, id, typ, where)
         return other.id == id && other.typ == typ
     end
 
+    :emit_llvm
+        return "@" + id + " = common global " + typ + " null, align 4"
+    end
+
 end
 
 :parse_declaration(json, where)

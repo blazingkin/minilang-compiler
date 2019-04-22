@@ -5,9 +5,18 @@ constructor Program(types, functions, declarations)
 
     :emit_llvm
         types.each(x -> print(x.emit_llvm()))
+        declarations.each(x -> print(x.emit_llvm()))
         for i = 0; i < functions.length(); i++
             print(functions[i].emit_llvm())
         end
+        print("\ndeclare i8* @malloc(i32)\n
+                declare void @free(i8*)\n
+                declare i32 @printf(i8*, ...)\n
+                declare i32 @scanf(i8*, ...)\n
+                @.println = private unnamed_addr constant [5 x i8] c\"%ld\\0A\\00\", align 1\n
+                @.print = private unnamed_addr constant [5 x i8] c\"%ld \\00\", align 1\n
+                @.read = private unnamed_addr constant [4 x i8] c\"%ld\\00\", align 1\n
+                @.read_scratch = common global i32 0, align 4")
     end
 
     :typecheck
