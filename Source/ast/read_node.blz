@@ -9,16 +9,10 @@ constructor ReadNode(line)
         primitive_type("int")
     end
 
-<<<<<<< HEAD
-    :translate_stmt(current_block, exit_block)
-        result_reg = VirtualRegister("i32")
-        current_block.add_instruction(Instruction("FunctionCall", ["scan"], [result_reg], "i32"))
-=======
     :translate(current_block)
         result = VirtualRegister()
         current_block.add_instruction(Instruction("FunctionCall", ["readchar"], [result], "i32"))
         result
->>>>>>> 70aa4e6d94d4becab6064127dd9505ed58ae1a32
     end
 
 end
