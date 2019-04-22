@@ -12,6 +12,14 @@ constructor StructType(line, id, fields)
         "%struct."+id+"*"
     end
 
+    :llvm_no_pointer
+        "%struct."+id
+    end
+
+    :default_value
+        "null"
+    end
+
     :==(other)
         other.type == "StructType" && id == other.id
     end

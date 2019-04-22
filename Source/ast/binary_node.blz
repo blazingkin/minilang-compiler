@@ -91,9 +91,6 @@ constructor BinaryNode(operator, left, right, line)
             current_block.add_instruction(Instruction("Comparison", [binary_op_to_instruction_op[operator], t_left, t_right], [result_register], "i32"))
         else
             current_block.add_instruction(Instruction(binary_op_to_instruction_op[operator], [t_left, t_right], [result_register], "i32"))
-            extend_reg = VirtualRegister("i32")
-            current_block.add_instruction(Instruction("zext", [result_register, "i32"], [extend_reg], "i1"))
-            return extend_reg
         end
         return result_register
     end

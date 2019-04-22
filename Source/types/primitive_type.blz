@@ -25,7 +25,19 @@ constructor PrimitiveType(typ)
     end
 
     :show
-        "i32"
+        if typ == "void"
+            "void"
+        else
+            "i32"
+        end
+    end
+
+    :default_value
+        if typ == "void"
+            ""
+        else
+            0
+        end
     end
 
 end

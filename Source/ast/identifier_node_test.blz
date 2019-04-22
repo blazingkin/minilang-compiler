@@ -17,7 +17,7 @@ end
     id_node.translate(blck)
     expect(blck.instructions.length()).is(1)
     instr = blck.instructions[0]
-    expect(instr.emit_llvm().contains?(" = load i32* @var")).is_true()
+    expect(instr.emit_llvm().contains?(" = load i32, i32* @var")).is_true()
 end
 
 :test_local_identifier_should_yield_llvm_instruction_with_ampersand
@@ -26,7 +26,7 @@ end
     id_node.translate(blck)
     expect(blck.instructions.length()).is(1)
     instr = blck.instructions[0]
-    expect(instr.emit_llvm().contains?(" = load i32* %var")).is_true()
+    expect(instr.emit_llvm().contains?(" = load i32, i32* %var")).is_true()
 end
 
 :test_loading_struct_should_load_with_correct_type
@@ -35,5 +35,5 @@ end
     id_node.translate(blck)
     expect(blck.instructions.length()).is(1)
     instr = blck.instructions[0]
-    expect(instr.emit_llvm().contains?(" = load %struct.asdf** %a")).is_true()
+    expect(instr.emit_llvm().contains?(" = load %struct.asdf*, %struct.asdf** %a")).is_true()
 end

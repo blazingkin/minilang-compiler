@@ -13,7 +13,12 @@ constructor Declaration(line, id, typ, where)
     end
 
     :emit_llvm
-        return "@" + id + " = common global " + typ + " null, align 4"
+        if typ.type == "PrimitiveType"
+            default_value = 0
+        else
+            default_value = "null"
+        end
+        return "@" + id + " = common global " + typ + " " + default_value + ", align 4"
     end
 
 end

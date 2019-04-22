@@ -15,7 +15,7 @@ constructor VirtualRegister(content_type, name, place)
 
     :emit_llvm
         if name == {blz.nil}
-            register_char + number
+            register_char + "v" + number
         else
             register_char + name
         end

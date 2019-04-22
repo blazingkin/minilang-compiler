@@ -26,7 +26,7 @@ constructor AllocNode(id, line)
     :translate(current_block)
         # Add malloc expression
         malloc_register = VirtualRegister("i8*")
-        current_block.add_instruction(Instruction("FunctionCall", ["@malloc", "i32", this.struct_type.fields.length() * 4], [malloc_register], "i8*"))
+        current_block.add_instruction(Instruction("FunctionCall", ["malloc", "i32", this.struct_type.fields.length() * 4], [malloc_register], "i8*"))
         result_register = VirtualRegister("%struct." + id + "*")
         current_block.add_instruction(Instruction("bitcast", [malloc_register, "%struct." + id + "*"], [result_register], "i8*"))
         result_register

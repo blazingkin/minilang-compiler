@@ -18,8 +18,11 @@ constructor LValue(id, line, left)
     :typecheck(symbol_table, struct_map)
         if terminal
             if symbol_table.symbols.keys().contains?(id)
-                this.symbol_type = symbol_table.symbols.get(id)
-                return this.symbol_type.typ
+                sym = symbol_table.symbols.get(id)
+                this.symbol = sym
+                this.symbol_type = sym.typ
+                this.place = sym.where
+                return sym.typ
             else
                 print("Type error on line " + line + " could not find type for symbol " + id)
                 primitive_type("error")
@@ -40,12 +43,32 @@ constructor LValue(id, line, left)
 
     :translate(current_block)
         if terminal
+            load_register = VirtualRegister(this.symbol_type, id, this.place)
+            result_register = VirtualRegister(this.symbol_type)
+            current_block.add_instruction(Instruction("Load", [load_register], [result_register], this.symbol_type))
+            result_register
+        else
+            offset = left_type.index_of_field(id)
+            
+            left_result = left.translate(current_block)
+            address_of_val_in_struct = VirtualRegister(right_type + "*")
+            
+            # Figure out how to get the types from these
+            current_block.add_instruction(Instruction("GetElement", [left_result, offset], [address_of_val_in_struct], left_type))
+            result_register = VirtualRegister(right_type)
+            current_block.add_instruction(Instruction("Load", [address_of_val_in_struct], [result_register], right_type))
+            result_register
+        end
+    end
+
+    :translate_right(current_block)
+        if terminal
             # return a reference to the register that the variable should be in
-            VirtualRegister(this.symbol_type.typ+"*", id, this.symbol_type.where)
+            VirtualRegister(this.symbol_type+"*", id, this.place)
         else
             left_result = left.translate(current_block)
             result = VirtualRegister()
-            current_block.add_instruction(Instruction("GetElement", [left_result, this.right_offset], [result], this.right_type))
+            current_block.add_instruction(Instruction("GetElement", [left_result, this.right_offset], [result], this.left_type))
             return result
         end
     end

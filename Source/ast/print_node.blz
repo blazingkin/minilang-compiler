@@ -15,9 +15,8 @@ constructor PrintNode(exp, endl, line)
 
     :translate_stmt(current_block, exit_block)
         result = exp.translate(current_block)
-        result_register = VirtualRegister()
         # Print the expression result
-        current_block.add_instruction(Instruction("FunctionCall", ["@print", "i32", result], [result_register], "void"))
+        current_block.add_instruction(Instruction("FunctionCall", ["print", "i32", result], [], "void"))
         # Handle endl
 
         current_block

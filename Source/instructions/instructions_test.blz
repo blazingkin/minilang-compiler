@@ -5,26 +5,45 @@ constructor MockNode()
 
 end
 
-constructor MockRegister(number)
+constructor MockRegister(number, ll_no_pointer)
 
     :emit_llvm
         "%" + number
+    end
+
+end
+
+constructor MockType(typ, struct)
+    :show
+        emit_llvm()
+    end
+
+    :emit_llvm
+        if struct
+            typ + "*"
+        else
+            typ
+        end
+    end
+
+    :llvm_no_pointer
+        typ
     end
 end
 
 :test_emit_label_llvm
     llvm = Instruction("Label", 3, {blz.nil}).emit_llvm()
-    expect(llvm).is("; <label>:3:")
+    expect(llvm).is("LU3:")
 end
 
 :test_emit_branch_instruction_llvm_unconditional
     llvm = Instruction("Branch", [], [7], {blz.nil}).emit_llvm()
-    expect(llvm).is("br label %7")
+    expect(llvm).is("br label %LU7")
 end
 
 :test_emit_branch_instruction_llvm_conditional
     llvm = Instruction("Branch", [MockRegister(10)], [3, 11], {blz.nil}).emit_llvm()
-    expect(llvm).is("br i1 %10, label %3, label %11")
+    expect(llvm).is("br i1 %10, label %LU3, label %LU11")
 end
 
 :test_emit_add_instruction_llvm
@@ -99,7 +118,7 @@ end
 
 :test_emit_load_instruction_llvm
     llvm = Instruction("Load", [MockRegister(0)], [MockRegister(1)], "i32").emit_llvm()
-    expect(llvm).is("%1 = load i32* %0")
+    expect(llvm).is("%1 = load i32, i32* %0")
 end
 
 :test_emit_store_instruction_llvm_from_register
@@ -113,21 +132,21 @@ end
 end
 
 :test_emit_getelementptr_instruction_llvm
-    llvm = Instruction("GetElement", [MockRegister(0), 1], [MockRegister(1)], "struct_type").emit_llvm()
-    expect(llvm).is("%1 = getelementptr struct_type* %0, i1 0, i32 1")
+    llvm = Instruction("GetElement", [MockRegister(0), 1], [MockRegister(1)], MockType("struct_type", true)).emit_llvm()
+    expect(llvm).is("%1 = getelementptr struct_type, struct_type* %0, i1 0, i32 1")
 end
 
 :test_emit_call_instruction_llvm_no_args
-    llvm = Instruction("FunctionCall", ["@foo"],[MockRegister(0)], "i32").emit_llvm()
+    llvm = Instruction("FunctionCall", ["foo"],[MockRegister(0)], "i32").emit_llvm()
     expect(llvm).is("%0 = call i32 @foo()")
 end
 
 :test_emit_call_instruction_llvm_one_arg
-    llvm = Instruction("FunctionCall", ["@foo", "i32", MockRegister(1)],[MockRegister(0)], "i32").emit_llvm()
+    llvm = Instruction("FunctionCall", ["foo", "i32", MockRegister(1)],[MockRegister(0)], "i32").emit_llvm()
     expect(llvm).is("%0 = call i32 @foo(i32 %1)")
 end
 
 :test_emit_call_instruction_llvm_multiple_args
-    llvm = Instruction("FunctionCall", ["@foo", "i32", MockRegister(1), "%struct.A*", MockRegister(2), "i32", MockRegister(3)],[MockRegister(0)], "i32").emit_llvm()
+    llvm = Instruction("FunctionCall", ["foo", "i32", MockRegister(1), "%struct.A*", MockRegister(2), "i32", MockRegister(3)],[MockRegister(0)], "i32").emit_llvm()
     expect(llvm).is("%0 = call i32 @foo(i32 %1, %struct.A* %2, i32 %3)")
 end

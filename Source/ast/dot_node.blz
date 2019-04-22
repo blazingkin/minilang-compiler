@@ -38,7 +38,7 @@ constructor DotNode(left, id, line)
         address_of_val_in_struct = VirtualRegister(this.right_type + "*")
         
         # Figure out how to get the types from these
-        current_block.add_instruction(Instruction("GetElement", [left_result, offset], [address_of_val_in_struct], this.right_type))
+        current_block.add_instruction(Instruction("GetElement", [left_result, offset], [address_of_val_in_struct], this.left_type))
         result_register = VirtualRegister(this.right_type)
         current_block.add_instruction(Instruction("Load", [address_of_val_in_struct], [result_register], this.right_type))
         return result_register
