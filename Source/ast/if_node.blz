@@ -48,7 +48,9 @@ constructor IfNode(cond, main, line, els)
         # Set the successor before we call translate stmt so that it can be overriden
         main_node.set_successor(join_node)
         main_node_exit = main.translate_stmt (main_node, return_node)
-
+        if main_node_exit != return_node
+            main_node_exit.set_successor(join_node)
+        end
         if has_else?
             # Set up the else node
             els_node = CFGNode ()
@@ -57,6 +59,9 @@ constructor IfNode(cond, main, line, els)
             # Set the successor before we call translate stmt so that it can be overriden
             els_node.set_successor(join_node)
             els_node_exit = els.translate_stmt (els_node, return_node)
+            if els_node_exit != return_node
+                els_node_exit.set_successor(join_node)
+            end
             if main_node_exit == return_node && els_node_exit == return_node
                 return return_node
             end
