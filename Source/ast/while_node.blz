@@ -36,14 +36,17 @@ constructor WhileNode(guard, block, line)
         # Link the current node to the condition
         current_node.set_successor(condition_node)
         block_node = CFGNode()
+        block_node.sealed = true
         condition_node.set_true_successor(block_node)
         continuation_node = CFGNode()
+        continuation_node.sealed = true
         condition_node.set_false_successor(continuation_node)
 
         block_exit_node = block.translate_stmt(block_node, exit_node)
         if block_exit_node != exit_node
             block_exit_node.set_successor(condition_node)
         end
+        condition_node.seal()
         continuation_node
     end
 

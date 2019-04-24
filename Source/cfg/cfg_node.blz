@@ -5,7 +5,7 @@ node_counter = 1
 printed_counters = []
 printed_llvm_counters = []
 
-constructor CFGNode ()
+constructor CFGNode()
 
     predecessors = []
     label = (node_counter++)
@@ -15,8 +15,19 @@ constructor CFGNode ()
     conditional_register = VirtualRegister("i1")
     printed = false
 
+    # Milestone 3
+    sealed = false
+    variable_map = {}
+    phis = []
+    incomplete_phis = []
+
     successor = {blz.nil}
     instructions = []
+
+    :seal
+        this.sealed = true
+        # Do stuff
+    end
 
     :show
         "Node " + text_label

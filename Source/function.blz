@@ -51,6 +51,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         end
         llvm = llvm + ")\n{"
         function_entry_cfg = CFGNode()
+        function_entry_cfg.sealed = true
         function_exit_cfg = CFGNode()
         function_entry_cfg.set_successor(function_exit_cfg)
         for i = 0; i < parameters.length!(); i++
@@ -63,6 +64,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], declarations[i].typ))
         end
         last_node = body.translate_stmt(function_entry_cfg, function_exit_cfg)
+        function_exit_cfg.seal()
         if last_node.is_conditional?().negate() && last_node.successor == {blz.nil}
             last_node.set_successor(function_exit_cfg)
         end

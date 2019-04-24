@@ -41,7 +41,9 @@ constructor IfNode(cond, main, line, els)
             current_node.conditional_register = val
         end
         main_node = CFGNode ()
+        main_node.sealed = true
         join_node = CFGNode ()
+        join_node.sealed = true
 
         current_node.set_true_successor(main_node)
 
@@ -54,6 +56,7 @@ constructor IfNode(cond, main, line, els)
         if has_else?
             # Set up the else node
             els_node = CFGNode ()
+            els_node.sealed = true
             current_node.set_false_successor (els_node)
 
             # Set the successor before we call translate stmt so that it can be overriden
