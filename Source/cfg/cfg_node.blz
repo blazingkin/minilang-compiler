@@ -29,6 +29,36 @@ constructor CFGNode()
         # Do stuff
     end
 
+    :write_variable(id, val)
+        variable_map[id] = val
+    end
+
+    :find_variable(id, typ)
+        if variable_map.has_key?(id)
+            variable_map[id]
+        else
+            find_variable_from_predecessors(id, typ)
+        end
+    end
+
+    :find_variable_from_predecessors(id, typ)
+        if sealed.negate()
+
+        else if predecessors.length!() == 0
+            throw "Uninitialized variable " + id
+        else if predecessors.length!() == 1
+            val = predecessors[0].find_variable(id, typ)
+        else
+            phi_dest = VirtualRegister()
+            instr = Instruction("phi", [], [], typ)
+            phi.add!(instr)
+            val = phi_dest
+            write_variable(id, val)
+            # add operands to phi
+        end
+        write_variable(id, val)
+    end
+
     :show
         "Node " + text_label
     end
