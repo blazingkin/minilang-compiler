@@ -150,3 +150,8 @@ end
     llvm = Instruction("FunctionCall", ["foo", "i32", MockRegister(1), "%struct.A*", MockRegister(2), "i32", MockRegister(3)],[MockRegister(0)], "i32").emit_llvm()
     expect(llvm).is("%0 = call i32 @foo(i32 %1, %struct.A* %2, i32 %3)")
 end
+
+:test_emit_phi_instruction
+    llvm = Instruction("Phi", [MockRegister(1), "%L1", MockRegister(2), "%L3"], [MockRegister(0)], "i32").emit_llvm()
+    expect(llvm).is("%0 = phi i32 [ %1, %L1 ], [ %2, %L3 ]")
+end
