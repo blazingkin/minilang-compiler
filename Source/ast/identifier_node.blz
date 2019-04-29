@@ -2,6 +2,7 @@ require ast_factory
 require ../types/primitive_type
 require ../instructions/register
 require ../instructions/instruction
+require ../minilang_compiler
 
 constructor IdentifierNode(id, line)
     statement? = false
@@ -28,10 +29,22 @@ constructor IdentifierNode(id, line)
     end
 
     :translate(current_block)
-        load_register = VirtualRegister(this.typ.show(), id, this.place)
-        result_register = VirtualRegister(this.typ.show())
-        current_block.add_instruction(Instruction("Load", [load_register], [result_register], this.typ))
-        result_register
+        if emitting_llvm?()
+            if stack_based?()
+                load_register = VirtualRegister(this.typ.show(), id, this.place)
+                result_register = VirtualRegister(this.typ.show())
+                current_block.add_instruction(Instruction("Load", [load_register], [result_register], this.typ))
+                result_register
+            else
+                try
+                    current_block.find_variable(id, this.typ)
+                catch exception
+                    throw exception + " on line " + line
+                end
+            end
+        else 
+            throw "Not yet implemented"
+        end
     end
 
 end

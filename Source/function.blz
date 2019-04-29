@@ -9,6 +9,7 @@ require syntax_exception
 require cfg/cfg_node
 require instructions/instruction
 require instructions/register
+require minilang_compiler
 
 constructor Function(line, id, return_type, body, parameters, declarations)
 
@@ -54,14 +55,22 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_entry_cfg.sealed = true
         function_exit_cfg = CFGNode()
         function_entry_cfg.set_successor(function_exit_cfg)
-        for i = 0; i < parameters.length!(); i++
-            local_register = VirtualRegister(parameters[i].typ, parameters[i].id, "stack")
-            function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], parameters[i].typ))
-            function_entry_cfg.add_instruction(Instruction("Store", [param_registers[i]], [local_register], parameters[i].typ))
-        end
-        for i = 0; i < declarations.length(); i++
-            local_register = VirtualRegister(declarations[i].typ, declarations[i].id, "stack")
-            function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], declarations[i].typ))
+        if stack_based?()
+            # Emit the stack if we are using it
+            for i = 0; i < parameters.length!(); i++
+                local_register = VirtualRegister(parameters[i].typ, parameters[i].id, "stack")
+                function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], parameters[i].typ))
+                function_entry_cfg.add_instruction(Instruction("Store", [param_registers[i]], [local_register], parameters[i].typ))
+            end
+            for i = 0; i < declarations.length(); i++
+                local_register = VirtualRegister(declarations[i].typ, declarations[i].id, "stack")
+                function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], declarations[i].typ))
+            end
+        else
+            # Otherwise, set up bindings in the top block
+            for i = 0; i < parameters.length!(); i++
+                function_entry_cfg.write_variable(parameters[i].id, param_registers[i])
+            end
         end
         last_node = body.translate_stmt(function_entry_cfg, function_exit_cfg)
         function_exit_cfg.seal()

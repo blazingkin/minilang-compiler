@@ -11,6 +11,10 @@ constructor MockRegister(number, ll_no_pointer)
         "%" + number
     end
 
+    :==(other)
+        number == other.number
+    end
+
 end
 
 constructor MockType(typ, struct)

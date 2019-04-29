@@ -13,7 +13,7 @@ llvm_stack = Flag("s", "bool", false, false, "Stack Based LLVM Code Generation",
     program_json = open({arguments}[0]).read_all()
     program = json_to_ast(program_json)
     program.typecheck()
-    if llvm_stack || {arguments}.contains?("-stack")
+    if emitting_llvm?()
         output = program.emit_llvm()
     end
 end
@@ -28,3 +28,10 @@ end
 end
 
 
+:stack_based?
+    llvm_stack || {arguments}.contains?("-stack")
+end
+
+:emitting_llvm?
+    true
+end

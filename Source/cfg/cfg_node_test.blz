@@ -1,5 +1,6 @@
 import Test
 require cfg_node
+require ../instructions/instructions_test
 
 :test_cfg_is_conditional
     node = CFGNode()
@@ -17,4 +18,20 @@ end
     parent.set_successor(child)
     expect(child.predecessors.length()).is(1)
     expect(child.predecessors[0]).is(parent)
+end
+
+:test_seal_moves_incomplete_phis_to_complete
+    parent = CFGNode()
+    parent.sealed = true
+    child = CFGNode()
+    parent.set_successor(child)
+    parent.write_variable("Blah", MockRegister(3))
+    child.find_variable("Blah", "i32")
+    expect(child.incomplete_phis.length!()).is(1)
+    expect(child.phis.length!()).is(0)
+    child.seal()
+    expect(child.incomplete_phis.length!()).is(0)
+    expect(child.phis.length!()).is(1)
+    expect(child.phis[0].sources.length!()).is(2)
+    expect(child.phis[0].sources[0]).is(MockRegister(3))
 end
