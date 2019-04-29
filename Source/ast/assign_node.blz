@@ -3,6 +3,7 @@ require lvalue
 require ../types/primitive_type
 require ../instructions/register
 require ../instructions/instruction
+require ../minilang_compiler
 
 constructor AssignNode(target, right, line)
     statement? = true
@@ -28,11 +29,14 @@ constructor AssignNode(target, right, line)
             throw "The target of an assignment must be an lvalue"
         end
         if target.terminal
-            # There is no dot, simply generate a store instruction
-            # Get the destination register from the target
-            dest_register = target.translate_right(current_block)
-            current_block.write_variable(target.id, dest_register)
-            current_block.add_instruction(Instruction("Store", [right_val], [dest_register], target.this.symbol_type))
+            if stack_based?() || target.place == "global"
+                # Get the destination register from the target
+                dest_register = target.translate_right(current_block)
+                # There is no dot, simply generate a store instruction
+                current_block.add_instruction(Instruction("Store", [right_val], [dest_register], target.this.symbol_type))
+            else
+                current_block.write_variable(target.id, right_val)
+            end
         else
             # There is a dot
             dest_register = target.translate_right(current_block)

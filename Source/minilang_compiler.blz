@@ -35,3 +35,7 @@ end
 :emitting_llvm?
     true
 end
+
+:set_stack_based_for_test(val)
+    llvm_stack = val
+end

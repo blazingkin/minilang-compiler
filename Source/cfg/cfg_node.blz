@@ -10,7 +10,7 @@ constructor CFGNode()
 
     predecessors = []
     label = (node_counter++)
-    text_label = "L" + label
+    text_label = "LU" + label
     true_successor = {blz.nil}
     false_successor = {blz.nil}
     conditional_register = VirtualRegister("i1")
@@ -122,7 +122,7 @@ constructor CFGNode()
             arr = []
             return arr
         end
-        emit_instr = [Instruction("Label", label)]
+        emit_instr = []
         printed_counters.add!(label)
         emit_instr.concatenate!(instructions)
         if is_conditional?()
@@ -140,7 +140,8 @@ constructor CFGNode()
             return ""
         end
         printed_llvm_counters.add!(label)
-        instr = (phis.map!(x -> x.emit_llvm())).fold_left("", append_newlines)
+        instr = text_label + ":"
+        instr = instr + "\n" + (phis.map!(x -> x.emit_llvm())).fold_left("", append_newlines)
         instr = instr + "\n" + (emit_instructions().map!(x -> x.emit_llvm()).fold_left("", append_newlines))
         if is_conditional?()
             instr = instr + "\n" + true_successor.emit_llvm()

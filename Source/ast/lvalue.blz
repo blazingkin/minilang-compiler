@@ -1,6 +1,7 @@
 require ../types/primitive_type
 require ../instructions/register
 require ../instructions/instruction
+require ../minilang_compiler
 
 constructor LValue(id, line, left)
     statement? = false
@@ -43,10 +44,22 @@ constructor LValue(id, line, left)
 
     :translate(current_block)
         if terminal
-            load_register = VirtualRegister(this.symbol_type, id, this.place)
-            result_register = VirtualRegister(this.symbol_type)
-            current_block.add_instruction(Instruction("Load", [load_register], [result_register], this.symbol_type))
-            result_register
+            if emitting_llvm?()
+                if stack_based?() || this.place == "global"
+                    load_register = VirtualRegister(this.symbol_type.show(), id, this.place)
+                    result_register = VirtualRegister(this.symbol_type.show())
+                    current_block.add_instruction(Instruction("Load", [load_register], [result_register], this.symbol_type))
+                    result_register
+                else
+                    try
+                        current_block.find_variable(id, this.symbol_type)
+                    catch exception
+                        throw exception + " on line " + line
+                    end
+                end
+            else 
+                throw "Not yet implemented"
+            end
         else
             offset = left_type.index_of_field(id)
             
