@@ -35,6 +35,12 @@ constructor UnaryNode(op, left, line)
             if left_translate.type == "Integer"
                 return -1 * left_translate
             else if left_translate.type == "VirtualRegister"
+                if left_translate.content_type == "i1"
+                    # make sure the type is correct
+                    extended = VirtualRegister("i32")
+                    current_block.add_instruction(Instruction("zext", [left_translate, "i32"], [extended], "i1"))
+                    left_translate = extended
+                end
                 result_register = VirtualRegister("i32")
                 current_block.add_instruction(Instruction("NegateInteger", [left_translate], [result_register], "i32"))
                 return result_register
@@ -49,6 +55,12 @@ constructor UnaryNode(op, left, line)
                     throw "Invalid bool representative " + left_translate
                 end
             else if left_translate.type == "VirtualRegister"
+                if left_translate.content_type == "i1"
+                    # make sure the type is correct
+                    extended = VirtualRegister("i32")
+                    current_block.add_instruction(Instruction("zext", [left_translate, "i32"], [extended], "i1"))
+                    left_translate = extended
+                end
                 result_register = VirtualRegister("i32")
                 current_block.add_instruction(Instruction("NegateBoolean", [left_translate], [result_register], "i32"))
                 return result_register

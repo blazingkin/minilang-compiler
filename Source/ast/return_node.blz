@@ -28,7 +28,7 @@ constructor ReturnNode(line, expression)
             print("Type error on line: " + line + " Expected function to return type " + symbol_table.function_type.output + " but returned "+exp_type)
             return primitive_type("error")
         end
-        return_type = exp_type
+        return_type = symbol_table.function_type.output
         exp_type
     end
 
