@@ -25,6 +25,7 @@ constructor WhileNode(guard, block, line)
         condition_node = CFGNode()
         # Add guard instruction to condition_node
         result = guard.translate(condition_node)
+
         if result.type == "VirtualRegister" && result.content_type != "i1"
             truncated = VirtualRegister("i1")
             condition_node.add_instruction(Instruction("trunc", [result, "i1"], [truncated], result.content_type))
@@ -46,7 +47,13 @@ constructor WhileNode(guard, block, line)
         if block_exit_node != exit_node
             block_exit_node.set_successor(condition_node)
         end
-        condition_node.seal()
+        try
+            condition_node.seal()
+        catch e
+            pr = condition_node.predecessors + ""
+            print(condition_node.incomplete_phis)
+            throw pr
+        end
         continuation_node
     end
 

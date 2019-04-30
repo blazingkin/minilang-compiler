@@ -29,7 +29,7 @@ constructor AssignNode(target, right, line)
             throw "The target of an assignment must be an lvalue"
         end
         if target.terminal
-            if stack_based?() || target.place == "global"
+            if stack_based?() || target.this.place == "global"
                 # Get the destination register from the target
                 dest_register = target.translate_right(current_block)
                 # There is no dot, simply generate a store instruction

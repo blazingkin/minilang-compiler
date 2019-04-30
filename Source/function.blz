@@ -54,7 +54,6 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_entry_cfg = CFGNode()
         function_entry_cfg.sealed = true
         function_exit_cfg = CFGNode()
-        function_entry_cfg.set_successor(function_exit_cfg)
         if stack_based?()
             # Emit the stack if we are using it
             for i = 0; i < parameters.length!(); i++

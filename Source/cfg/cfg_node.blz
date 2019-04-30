@@ -26,7 +26,7 @@ constructor CFGNode()
     instructions = []
 
     :seal
-        this.sealed = true
+        sealed = true
         for i = 0; i < incomplete_phis.length!(); i++
             phi_id = incomplete_phis[i].sources[0]
             phi_typ = incomplete_phis[i].typ
@@ -66,6 +66,7 @@ constructor CFGNode()
         else
             phi_dest = VirtualRegister(typ)
             phi_src = []
+            write_variable(id, phi_dest)
             for i = 0; i < predecessors.length!(); i++
                 phi_src.add!(predecessors[i].find_variable(id, typ))
                 phi_src.add!("%" + predecessors[i].text_label)
@@ -75,6 +76,7 @@ constructor CFGNode()
             val = phi_dest
         end
         write_variable(id, val)
+        return val
     end
 
     :show
@@ -98,17 +100,30 @@ constructor CFGNode()
         end
     end
 
+    :remove_predecessor(node)
+        predecessors = predecessors.filter!(x -> x != node)
+    end
+
     :set_true_successor(node)
+        if true_successor != {blz.nil}
+            true_successor.remove_predecessor(this)
+        end
         node.add_predecessor(this)
         true_successor = node
     end
 
     :set_false_successor(node)
+        if false_successor != {blz.nil}
+            false_successor.remove_predecessor(this)
+        end
         node.add_predecessor(this)
         false_successor = node
     end
 
     :set_successor(node)
+        if successor != {blz.nil}
+            successor.remove_predecessor(this)
+        end
         node.add_predecessor(this)
         successor = node
     end
