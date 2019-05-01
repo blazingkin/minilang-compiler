@@ -41,6 +41,26 @@ constructor CFGNode()
         incomplete_phis = []
     end
 
+    printing_predecessors = false
+    :print_predecessors(depth)
+        if depth == {blz.nil}
+            depth = 0
+        end
+        if printing_predecessors
+            return ""
+        end
+        padding_char = ""
+        for i = 0; i < depth; i++
+            padding_char = padding_char + "\t"
+        end
+        printing_predecessors = true
+        print(padding_char + this.show())
+        for i = 0; i < predecessors.length!(); i++
+            predecessors[i].print_predecessors(depth + 1)
+        end
+        printing_predecessors = false
+    end
+
     :write_variable(id, val)
         variable_map[id] = val
     end

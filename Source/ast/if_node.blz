@@ -59,9 +59,11 @@ constructor IfNode(cond, main, line, els)
             els_node.sealed = true
             current_node.set_false_successor (els_node)
 
-            # Set the successor before we call translate stmt so that it can be overriden
-            els_node.set_successor(join_node)
             els_node_exit = els.translate_stmt (els_node, return_node)
+            if els_node.successor == {blz.nil} && els_node.true_successor == {blz.nil} && els_node.false_successor == {blz.nil}
+                # Set the successor before we call translate stmt so that it can be overriden
+                els_node.set_successor(join_node)
+            end
             if els_node_exit != return_node
                 els_node_exit.set_successor(join_node)
             end
