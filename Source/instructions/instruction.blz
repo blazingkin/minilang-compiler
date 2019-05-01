@@ -7,6 +7,24 @@ end
 
 constructor Instruction(instruction_type, sources, destinations, typ)
 
+    if sources.type == "Array"
+        for i = 0; i < sources.length!(); i++
+            if sources[i].type == "VirtualRegister"
+                sources[i].add_use(this)
+            end
+        end
+    end
+    
+    if destinations.type == "Array"
+        for i = 0; i < destinations.length!(); i++
+            if destinations[i].type == "VirtualRegister"
+                destinations[i].add_source(this)
+            end
+        end
+    else if destinations.type == "VirtualRegister"
+        destinations.add_source(this)
+    end
+
     :show
         "<" + instruction_type + " from " + sources + " to " + destinations + ">"
     end

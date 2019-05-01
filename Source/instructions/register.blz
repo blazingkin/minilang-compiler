@@ -9,6 +9,16 @@ constructor VirtualRegister(content_type, name, place)
         register_char = "%"
     end
 
+    source = {blz.nil}
+    :add_source(instruction)
+        source = instruction
+    end
+
+    uses = []
+    :add_use(instruction)
+        uses.add!(instruction)
+    end
+
     :copy
         this
     end
