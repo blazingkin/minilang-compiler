@@ -1,4 +1,4 @@
-
+require register
 constructor InstructionError(message)
     :show
         message
@@ -6,6 +6,26 @@ constructor InstructionError(message)
 end
 
 constructor Instruction(instruction_type, sources, destinations, typ)
+
+    scratch_registers = determine_scratch_registers()
+    MAX_THAT_CAN_FIT_IN_OP_TWO = (2 ** 9) - 1
+    :determine_scratch_registers
+        if instruction_type == "NegateInteger"
+            if sources[0].type == "Integer" && sources[0] > MAX_THAT_CAN_FIT_IN_OP_TWO
+                return [VirtualRegister("i32"), VirtualRegister("i32")]
+            else
+                return [VirtualRegister("i32")]
+            end
+        else if instruction_type == "add" || instruction_type == "sub" || instruction_type == "mul"
+            if sources[0].type == "Integer" && sources[0] > MAX_THAT_CAN_FIT_IN_OP_TWO
+                return [VirtualRegister("i32")]
+            else if sources[1].type == "Integer" && sources[1] > MAX_THAT_CAN_FIT_IN_OP_TWO
+                return [VirtualRegister("i32")]
+            end
+        end
+        []
+    end
+
 
     if sources.type == "Array"
         for i = 0; i < sources.length!(); i++
@@ -37,11 +57,15 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         if val.type == "Integer" || val.type == "String"
             val
         else
-            try
-                val.emit_llvm()
-            catch adsf
+            val.emit_llvm()
+        end
+    end
 
-            end
+    :val_to_arm(val)
+        if val.type == "Integer" || val.type == "String"
+            val
+        else
+            val.emit_arm()
         end
     end
 
@@ -100,6 +124,102 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             llvm = llvm + ")"
             return llvm
         else if instruction_type == "Phi"
+            llvm = val_to_llvm(destinations[0]) + " = phi " + typ
+            for i = 0; i < sources.length(); i = i + 2
+                if i != 0
+                    llvm = llvm + ","
+                end
+                llvm = llvm + " [ " + val_to_llvm(sources[i]) + ", " + val_to_llvm(sources[i+1]) + " ]"
+            end
+            return llvm
+        else
+            throw InstructionError("Unknown instruction type " + instruction_type)
+        end
+    end
+    
+    :emit_arm
+        # "Label", label_name
+        if instruction_type == "Label"
+            return "LU" + sources + ":"
+        else if instruction_type == "Branch"
+            if sources == []
+                # Unconditional branch
+                return "b LU" + destinations[0]
+            else
+                # Conditional branch
+                comp = "cmp " + val_to_arm(sources[0]) + ", 1\n"
+                branches = "beq LU" + destinations[0] + "\nbne LU" + destinations[1]
+                return comp + branches
+            end
+        else if (instruction_type == "add" || instruction_type == "mul" || instruction_type == "sub" || instruction_type == "and")
+            #TODO
+            # Arithmatic and Boolean instructions
+            return val_to_llvm(destinations [0]) + " = " + instruction_type + " " + typ + " " + val_to_llvm(sources [0]) + ", " + val_to_llvm(sources [1])
+        else if instruction_type == "or"
+            #TODO
+        else if instruction_type == "xor"
+            #TODO
+        else if instruction_type == "sdiv"
+            #TODO
+        else if instruction_type == "Return"
+            #TODO
+            if sources == []
+                return "ret void"
+            else
+                return "ret " + typ + " " + val_to_llvm(sources [0])
+            end
+        else if instruction_type == "Comparison"
+            #TODO
+            return val_to_llvm(destinations [0]) + " = " + "icmp " + sources [0] + " " + typ + " " + val_to_llvm(sources [1]) + ", " + val_to_llvm(sources [2])
+        else if instruction_type == "Allocation"
+            #TODO
+            return val_to_llvm(destinations [0]) + " = alloca " + typ
+        else if instruction_type == "bitcast" || instruction_type == "trunc" || instruction_type == "zext"
+            return ""
+        else if instruction_type == "Load"
+            #TODO
+            return val_to_llvm(destinations [0]) + " = load " + typ + ", " + typ + "* " + val_to_llvm(sources [0])
+        else if instruction_type == "Store"
+            #TODO
+            return "store " + typ + " " + val_to_llvm(sources [0]) + ", " + typ + "* " + val_to_llvm(destinations [0])
+        else if instruction_type == "GetElement"
+            #TODO
+            return val_to_llvm(destinations [0]) + " = getelementptr " + typ.llvm_no_pointer() + ", " + typ + " " + val_to_llvm(sources [0]) + ", i1 0, i32 " + val_to_llvm(sources [1])
+        # Needs to be resoved
+        else if instruction_type == "NegateInteger"
+            if sources[0].type == "Integer" && sources[0] > MAX_THAT_CAN_FIT_IN_OP_TWO
+                # Constant that is too big
+                ld_constant = "movw " + val_to_arm(scratch_register[0]) + ", #:lower16: "+ val_to_arm(sources[0]) +"\n"
+                ld_constant = ld_constant + "movt " + val_to_arm(scratch_register[0]) + ", #:upper16: " + val_to_arm(sources[0]) + "\n"
+                ld_zero = "mov " + val_to_arm(scratch_register[1]) + ", 0\n"
+                sub = "sub " + val_to_arm(destinations[0]) + ", " + val_to_arm(scratch_registers[1]) +", " + val_to_arm(scratch_register[0])
+            else
+                ld_zero = "mov " + scratch_register[0] + ", 0\n"
+                sub = "sub " + val_to_arm(destinations[0]) + ", " +  scratch_register[0] + ", " + val_to_arm(sources[0])
+                return ld_zero + sub
+            end
+        else if instruction_type == "NegateBoolean"
+            #TODO
+            # Negate by XORing with 1
+            val_to_llvm(destinations[0]) + " = xor i32 1, " + val_to_llvm(sources[0])
+        else if instruction_type == "FunctionCall"
+            #TODO
+            if destinations != []
+                llvm = val_to_llvm(destinations[0]) + " = "
+            else
+                llvm = ""
+            end
+            llvm = llvm + "call " + typ + " @" + sources[0] + "("
+            for i = 1; i < sources.length(); i = i + 2
+                if i != 1
+                    llvm = llvm + ", "
+                end
+                llvm = llvm + val_to_llvm(sources [i]) + " " + val_to_llvm(sources [i + 1])
+            end
+            llvm = llvm + ")"
+            return llvm
+        else if instruction_type == "Phi"
+            #TODO
             llvm = val_to_llvm(destinations[0]) + " = phi " + typ
             for i = 0; i < sources.length(); i = i + 2
                 if i != 0

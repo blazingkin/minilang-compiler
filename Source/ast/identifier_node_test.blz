@@ -13,16 +13,19 @@ require ../minilang_compiler
 end
 
 :test_global_identifier_should_yield_llvm_instruction_with_ampersand
+    set_llvm_for_test(true)
     id_node = create_identifier_node_with_name_place_and_type("var", "global", primitive_type("int"))
     blck = CFGNode()
     id_node.translate(blck)
     expect(blck.instructions.length()).is(1)
     instr = blck.instructions[0]
     expect(instr.emit_llvm().contains?(" = load i32, i32* @var")).is_true()
+    set_llvm_for_test(false)
 end
 
 :test_local_identifier_should_yield_llvm_instruction_with_ampersand
     set_stack_based_for_test(true)
+    set_llvm_for_test(true)
     id_node = create_identifier_node_with_name_place_and_type("var", "stack", primitive_type("int"))
     blck = CFGNode()
     id_node.translate(blck)
@@ -30,10 +33,12 @@ end
     instr = blck.instructions[0]
     expect(instr.emit_llvm().contains?(" = load i32, i32* %var")).is_true()
     set_stack_based_for_test(false)
+    set_llvm_for_test(false)
 end
 
 :test_loading_struct_should_load_with_correct_type
     set_stack_based_for_test(true)
+    set_llvm_for_test(true)
     id_node = create_identifier_node_with_name_place_and_type("a", "stack", StructType(0, "asdf", []))
     blck = CFGNode()
     id_node.translate(blck)
@@ -41,4 +46,5 @@ end
     instr = blck.instructions[0]
     expect(instr.emit_llvm().contains?(" = load %struct.asdf*, %struct.asdf** %a")).is_true()
     set_stack_based_for_test(false)
+    set_llvm_for_test(false)
 end

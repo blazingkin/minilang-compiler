@@ -7,6 +7,7 @@ require ../minilang_compiler
 
 :test_dot_node_with_identifier_should_generate_struct_lookup_llvm
     set_stack_based_for_test(true)
+    set_llvm_for_test(true)
     var_a = {}
     var_a["line"] = 1
     var_a["id"] = "c"
@@ -31,4 +32,5 @@ require ../minilang_compiler
     expect(get_elem.contains?("i1 0, i32 0")).is_true()
     expect(load_frm_strct == "%v7 = load %struct.asdf*, %struct.asdf** %v6").is_true()
     set_stack_based_for_test(false)
+    set_llvm_for_test(false)
 end

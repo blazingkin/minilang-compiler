@@ -40,9 +40,12 @@ end
     expect(llvm).is("LU3:")
 end
 
-:test_emit_branch_instruction_llvm_unconditional
-    llvm = Instruction("Branch", [], [7], {blz.nil}).emit_llvm()
+:test_emit_branch_instruction_unconditional
+    instr = Instruction("Branch", [], [7], {blz.nil})
+    llvm = instr.emit_llvm()
     expect(llvm).is("br label %LU7")
+    arm = instr.emit_arm()
+    expect(arm).is("b LU7")
 end
 
 :test_emit_branch_instruction_llvm_conditional
