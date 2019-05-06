@@ -62,7 +62,7 @@ end
     llvm = instr.emit_llvm()
     expect(llvm).is("%2 = add i32 %0, %1")
     arm = instr.emit_arm()
-    expect(arm).is("add %2, &0, %1")
+    expect(arm).is("add %2, %0, %1")
 end
 
 :test_emit_mul_instruction
@@ -70,7 +70,7 @@ end
     llvm = instr.emit_llvm()
     expect(llvm).is("%2 = mul i32 %0, %1")
     arm = instr.emit_arm()
-    expect(arm).is("mul %2, &0, %1")
+    expect(arm).is("mul %2, %0, %1")
 end
 
 :test_emit_sdiv_instruction_llvm
@@ -83,7 +83,7 @@ end
     llvm = instr.emit_llvm()
     expect(llvm).is("%2 = sub i32 %0, %1")
     arm = instr.emit_arm()
-    expect(arm).is("sub %2, &0, %1")
+    expect(arm).is("sub %2, %0, %1")
 end
 
 :test_emit_and_instruction_llvm
