@@ -90,7 +90,7 @@ end
     instr = Instruction("and", [MockRegister(0), MockRegister(1)], [MockRegister(2)], "i32")
     llvm = instr.emit_llvm()
     expect(llvm).is("%2 = and i32 %0, %1")
-    arm = instt.emit_arm()
+    arm = instr.emit_arm()
     expect(arm).is("and %2, %0, %1")
 end
 
