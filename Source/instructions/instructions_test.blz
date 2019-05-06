@@ -86,19 +86,28 @@ end
     expect(arm).is("sub %2, %0, %1")
 end
 
-:test_emit_and_instruction_llvm
-    llvm = Instruction("and", [MockRegister(0), MockRegister(1)], [MockRegister(2)], "i32").emit_llvm()
+:test_emit_and_instruction
+    instr = Instruction("and", [MockRegister(0), MockRegister(1)], [MockRegister(2)], "i32")
+    llvm = instr.emit_llvm()
     expect(llvm).is("%2 = and i32 %0, %1")
+    arm = instt.emit_arm()
+    expect(arm).is("and %2, %0, %1")
 end
 
-:test_emit_or_instruction_llvm
-    llvm = Instruction("or", [MockRegister(0), MockRegister(1)], [MockRegister(2)], "i32").emit_llvm()
+:test_emit_or_instruction
+    instr = Instruction("or", [MockRegister(0), MockRegister(1)], [MockRegister(2)], "i32")
+    llvm = instr.emit_llvm()
     expect(llvm).is("%2 = or i32 %0, %1")
+    arm = instr.emit_arm()
+    expect(arm).is("orr %2, %0, %1")
 end
 
-:test_emit_xor_instruction_llvm
-    llvm = Instruction("xor", [MockRegister(0), MockRegister(1)], [MockRegister(2)], "i32").emit_llvm()
+:test_emit_xor_instruction
+    instr = Instruction("xor", [MockRegister(0), MockRegister(1)], [MockRegister(2)], "i32")
+    llvm = instr.emit_llvm()
     expect(llvm).is("%2 = xor i32 %0, %1")
+    arm = instr.emit_arm()
+    expect(arm).is("eor %2, %0, %1")
 end
 
 :test_emit_return_instruction_llvm_void
