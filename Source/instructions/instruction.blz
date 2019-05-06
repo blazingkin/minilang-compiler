@@ -201,23 +201,26 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             # Negate by XORing with 1
             val_to_llvm(destinations[0]) + " = xor i32 1, " + val_to_llvm(sources[0])
         else if instruction_type == "FunctionCall"
+            args = sources.slice(1, sources.length())
+            instr = ""
             #TODO
-            if destinations != []
-                llvm = val_to_llvm(destinations[0]) + " = "
-            else
-                llvm = ""
-            end
-            llvm = llvm + "call " + typ + " @" + sources[0] + "("
+            
+            instr = instr + "call " + typ + " @" + sources[0] + "("
             for i = 1; i < sources.length(); i = i + 2
                 if i != 1
-                    llvm = llvm + ", "
+                    instr = instr + ", "
                 end
-                llvm = llvm + val_to_llvm(sources [i]) + " " + val_to_llvm(sources [i + 1])
+                instr = instr + val_to_arm(sources [i]) + " " + val_to_arm(sources [i + 1])
             end
-            llvm = llvm + ")"
-            return llvm
+            instr = instr + ")"
+            if destinations != []
+                # If a result is expected, move the result from r0 into the destination register
+                instr = instr + "\n" + "mov " val_to_arm(destinations[0]) + ", r0 ; Store the result"
+            end
+            return instr
         else if instruction_type == "Phi"
             #TODO
+            throw "Phi instructions should not be emitted for ARM"
             llvm = val_to_llvm(destinations[0]) + " = phi " + typ
             for i = 0; i < sources.length(); i = i + 2
                 if i != 0
