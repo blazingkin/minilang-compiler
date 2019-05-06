@@ -11,6 +11,10 @@ constructor MockRegister(number, ll_no_pointer)
         "%" + number
     end
 
+    :emit_arm
+        "%" + number
+    end
+
     :==(other)
         number == other.number
     end
