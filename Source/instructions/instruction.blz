@@ -229,16 +229,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             end
             return instr
         else if instruction_type == "Phi"
-            #TODO
             throw "Phi instructions should not be emitted for ARM"
-            llvm = val_to_llvm(destinations[0]) + " = phi " + typ
-            for i = 0; i < sources.length(); i = i + 2
-                if i != 0
-                    llvm = llvm + ","
-                end
-                llvm = llvm + " [ " + val_to_llvm(sources[i]) + ", " + val_to_llvm(sources[i+1]) + " ]"
-            end
-            return llvm
         else
             throw InstructionError("Unknown instruction type " + instruction_type)
         end

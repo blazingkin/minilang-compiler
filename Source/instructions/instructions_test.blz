@@ -181,6 +181,6 @@ end
 end
 
 :test_emit_phi_instruction
-    llvm = Instruction("Phi", [MockRegister(1), "%L1", MockRegister(2), "%L3"], [MockRegister(0)], "i32").emit_llvm()
+    llvm = Instruction("Phi", [MockRegister(1), "L1", MockRegister(2), "L3"], [MockRegister(0)], "i32").emit_llvm()
     expect(llvm).is("%0 = phi i32 [ %1, %L1 ], [ %2, %L3 ]")
 end
