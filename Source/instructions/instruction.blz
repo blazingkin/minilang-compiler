@@ -5,10 +5,11 @@ constructor InstructionError(message)
     end
 end
 
+MAX_THAT_CAN_FIT_IN_OP_TWO = (2 ** 9) - 1
 constructor Instruction(instruction_type, sources, destinations, typ)
 
     scratch_registers = determine_scratch_registers()
-    MAX_THAT_CAN_FIT_IN_OP_TWO = (2 ** 9) - 1
+    fixed_registers = determine_fixed_registers()
     :determine_scratch_registers
         if instruction_type == "NegateInteger"
             if sources[0].type == "Integer" && sources[0] > MAX_THAT_CAN_FIT_IN_OP_TWO
@@ -19,13 +20,18 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         else if instruction_type == "add" || instruction_type == "sub" || instruction_type == "mul"
             if sources[0].type == "Integer" #&& sources[0] > MAX_THAT_CAN_FIT_IN_OP_TWO
                 return [VirtualRegister("i32")]
-            else if sources[1].type == "Integer" && sources[1] > MAX_THAT_CAN_FIT_IN_OP_TWO
+            else if sources[1].type == "Integer" && (sources[1] > MAX_THAT_CAN_FIT_IN_OP_TWO || instruction_type == "mul")
                 return [VirtualRegister("i32")]
             end
         end
         []
     end
 
+    :determine_fixed_registers
+        if instruction_type == ""
+        end
+        []
+    end
 
     if sources.type == "Array"
         for i = 0; i < sources.length!(); i++
@@ -56,6 +62,8 @@ constructor Instruction(instruction_type, sources, destinations, typ)
     :val_to_llvm(val)
         if val.type == "Integer" || val.type == "String"
             val
+        else if val.type == "CFGNode"
+            val.text_label
         else
             val.emit_llvm()
         end
@@ -129,7 +137,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
                 if i != 0
                     llvm = llvm + ","
                 end
-                llvm = llvm + " [ " + val_to_llvm(sources[i]) + ", " + val_to_llvm(sources[i+1]) + " ]"
+                llvm = llvm + " [ " + val_to_llvm(sources[i]) + ", %" + val_to_llvm(sources[i+1]) + " ]"
             end
             return llvm
         else
@@ -157,6 +165,8 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             return do_arithmatic_and_boolean("orr")
         else if instruction_type == "xor"
             return do_arithmatic_and_boolean("eor")
+        else if instruction_type == "mov"
+            return "mov " + val_to_arm(destinations[0]) + ", " + val_to_arm(sources[0])
         else if instruction_type == "sdiv"
             #TODO
         else if instruction_type == "Return"
@@ -215,7 +225,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             instr = instr + ")"
             if destinations != []
                 # If a result is expected, move the result from r0 into the destination register
-                instr = instr + "\n" + "mov " val_to_arm(destinations[0]) + ", r0 ; Store the result"
+                instr = instr + "\n" + "mov " + val_to_arm(destinations[0]) + ", r0 ; Store the result"
             end
             return instr
         else if instruction_type == "Phi"
@@ -235,12 +245,12 @@ constructor Instruction(instruction_type, sources, destinations, typ)
     end
 
     :do_arithmatic_and_boolean (instruction_code)
-        if sources [0].type == "Integer"
+        if sources[0].type == "Integer"
             # Constant that is too big
             ld_constant = "movw " + val_to_arm(scratch_register[0]) + ", \#:lower16: "+ val_to_arm(sources[0]) +"\n"
             ld_constant = ld_constant + "movt " + val_to_arm(scratch_register[0]) + ", \#:upper16: " + val_to_arm(sources[0]) + "\n"
             return ld_constant + instruction_code + " " + val_to_arm(destinations[0]) + ", " + val_to_arm(scratch_register[0]) + ", " + val_to_arm(sources[1])
-        else if sources [1].type == "Integer" && (sources [0] > MAX_THAT_CAN_FIT_IN_OP_TWO || instruction_type == "mul")
+        else if sources [1].type == "Integer" && ((sources[1] > MAX_THAT_CAN_FIT_IN_OP_TWO) || instruction_type == "mul")
         # Constant that is too big
             ld_constant = "movw " + val_to_arm(scratch_register[0]) + ", \#:lower16: "+ val_to_arm(sources[1]) +"\n"
             ld_constant = ld_constant + "movt " + val_to_arm(scratch_register[0]) + ", \#:upper16: " + val_to_arm(sources[1]) + "\n"

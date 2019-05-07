@@ -5,6 +5,7 @@ node_counter = 1
 
 printed_counters = []
 printed_llvm_counters = []
+printed_arm_counters = []
 
 constructor CFGNode()
 
@@ -33,7 +34,7 @@ constructor CFGNode()
             phi_src = []
             for j = 0; j < predecessors.length!(); j++
                 phi_src.add!(predecessors[j].find_variable(phi_id, phi_typ))
-                phi_src.add!("%" + predecessors[j].text_label)
+                phi_src.add!(predecessors[j])
             end
             incomplete_phis[i].sources = phi_src
             phis.add!(incomplete_phis[i])
@@ -89,7 +90,7 @@ constructor CFGNode()
             write_variable(id, phi_dest)
             for i = 0; i < predecessors.length!(); i++
                 phi_src.add!(predecessors[i].find_variable(id, typ))
-                phi_src.add!("%" + predecessors[i].text_label)
+                phi_src.add!(predecessors[i])
             end
             instr = Instruction("Phi", phi_src, [phi_dest], typ)
             phis.add!(instr)
@@ -168,21 +169,54 @@ constructor CFGNode()
         emit_instr
     end
 
-    emitted_llvm = false
+    :append_newlines(a, b)
+        return a + "\n" + b
+    end
+
     :emit_llvm
-        append_newlines = (x,y -> x + "\n" + y)
         if printed_llvm_counters.contains?(label)
             return ""
         end
         printed_llvm_counters.add!(label)
-        instr = text_label + ":"
-        instr = instr + "\n" + (phis.map!(x -> x.emit_llvm())).fold_left("", append_newlines)
+        instr = "\n" + text_label + ":"
+        instr = instr + (phis.map!(x -> x.emit_llvm())).fold_left("", append_newlines)
         instr = instr + "\n" + (emit_instructions().map!(x -> x.emit_llvm()).fold_left("", append_newlines))
         if is_conditional?()
             instr = instr + "\n" + true_successor.emit_llvm()
             instr = instr + "\n" + false_successor.emit_llvm()
         else if successor != {blz.nil} && successor != this
             instr = instr + "\n" + successor.emit_llvm()
+        end
+        instr
+    end
+
+    :resolve_phis_arm
+        for i = 0; i < phis.length!(); i++
+            temporary_for_phi = VirtualRegister()
+            for j = 0; j < phis[i].sources.length(); j = j + 2
+                val = phis[i].sources[j]
+                pred_block = phis[i].sources[j + 1]
+                pred_block.add_instruction(Instruction("mov", [val], [temporary_for_phi]))
+            end
+            this.add_instruction(Instruction("mov", [temporary_for_phi], [phis[i].destinations[0]]))
+        end
+    end
+
+    :emit_arm
+        if printed_arm_counters.contains?(label)
+            return ""
+        end
+        printed_arm_counters.add!(label)
+        instr = text_label
+        instructions = emit_instructions()
+        for i = 0; i < instructions.length!(); i++
+            instr = instr + "\n" + instructions[i].emit_arm()
+        end
+        if is_conditional?()
+            instr = instr + "\n" + true_successor.emit_arm()
+            instr = instr + "\n" + false_successor.emit_arm()
+        else if successor != {blz.nil} && successor != this
+            instr = instr + "\n" + successor.emit_arm()
         end
         instr
     end

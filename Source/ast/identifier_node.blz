@@ -43,7 +43,11 @@ constructor IdentifierNode(id, line)
                 end
             end
         else 
-            throw "Not yet implemented"
+            try
+                current_block.find_variable(id, this.typ)
+            catch exception
+                throw exception + " on line " + line
+            end
         end
     end
 

@@ -16,6 +16,8 @@ llvm_flag = Flag("l", "bool", false, false, "LLVM Code Generation", "llvm").valu
     program.typecheck()
     if emitting_llvm?()
         output = program.emit_llvm()
+    else
+        output = program.emit_arm()
     end
 end
 

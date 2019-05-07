@@ -10,6 +10,7 @@ require cfg/cfg_node
 require instructions/instruction
 require instructions/register
 require minilang_compiler
+import Set
 
 constructor Function(line, id, return_type, body, parameters, declarations)
 
@@ -38,6 +39,66 @@ constructor Function(line, id, return_type, body, parameters, declarations)
 
     :copy
         this
+    end
+
+    :blocks_in_function(ext)
+        result = Set([ext])
+        result_length = 0
+        while result_length != result.size()
+            result_length = result.size()
+            entries = result.values()
+            for i = 0; i < entries.length!(); i++
+                for j = 0; j < entries[i].predecessors.length(); j++
+                    result.add(entries[i].predecessors[j])
+                end
+            end
+        end
+        return result
+    end
+
+    :emit_arm
+        function_entry_cfg = CFGNode()
+        function_entry_cfg.sealed = true
+        function_exit_cfg = CFGNode()
+        
+        param_registers = []
+        # Move variables from registers / stack to 
+        # Emit the stack if we are using it
+        for i = 0; i < parameters.length!(); i++
+            if i < 4
+                # Copy parameter from r_i into local register
+                local_register = VirtualRegister(parameters[i].typ, parameters[i].id, "stack")
+                function_entry_cfg.add_instruction(Instruction("add", [ARMRegister(i), 0], [local_register], parameters[i].typ))
+                param_registers[i] = local_register
+            else
+                # Copy parameter from stack into local register
+                param_registers[i] = VirtualRegister(parameters[i].typ, parameters[i].id, "stack")
+            end
+        end
+        for i = 0; i < declarations.length(); i++
+            local_register = VirtualRegister(declarations[i].typ, declarations[i].id, "stack")
+            function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], declarations[i].typ))
+        end
+        # Set up bindings in the top block
+        for i = 0; i < parameters.length!(); i++
+            function_entry_cfg.write_variable(parameters[i].id, param_registers[i])
+        end
+
+        # Translate the graph into instructions
+        last_node = body.translate_stmt(function_entry_cfg, function_exit_cfg)
+        function_exit_cfg.seal()
+        if last_node.is_conditional?().negate() && last_node.successor == {blz.nil}
+            last_node.set_successor(function_exit_cfg)
+        end
+        # Add the default return in the exit block
+        function_exit_cfg.add_instruction(Instruction("Return", [return_type.default_value()], [], return_type))
+
+        # Translate phi instructions into psuedo-phis
+        function_blocks = blocks_in_function(function_exit_cfg).values()
+        for i = 0; i < function_blocks.length(); i++
+            function_blocks[i].resolve_phis_arm()
+        end
+        return function_entry_cfg.emit_arm() + "\n"
     end
 
     :emit_llvm
