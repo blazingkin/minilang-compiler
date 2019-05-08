@@ -165,6 +165,24 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         else if instruction_type == "Comparison"
             #TODO
             return generate_compare_instruction(instruction_type)
+            setup = "mov " + val_to_arm(destinations[0]) + ", #0\n"
+            compare = "cmp " + val_to_arm(sources[1]) + ", " + val_to_arm(sources[2]) + "\n"
+            move = ""
+            if sources[0] == "eq"
+              move = "moveq " + val_to_arm(desitinations[0]) + ", #1"
+            else if sources [0] == "ne"
+              move = "movne " + val_to_arm(desitinations[0]) + ", #1"
+            else if sources [0] == "sgt"
+              move = "movgt " + val_to_arm(desitinations[0]) + ", #1"
+            else if sources [0] == "sge"
+              move = "movge " + val_to_arm(desitinations[0]) + ", #1"
+            else if sources [0] == "slt"
+              move = "movlt " + val_to_arm(desitinations[0]) + ", #1"
+            else if sources [0] == "sle"
+              move = "movle " + val_to_arm(desitinations[0]) + ", #1"
+            end
+            return setup + compare + move
+            return val_to_llvm(destinations [0]) + " = " + "icmp " + sources [0] + " " + typ + " " + val_to_llvm(sources [1]) + ", " + val_to_llvm(sources [2])
         else if instruction_type == "Allocation"
             #TODO
             result = []
@@ -173,6 +191,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         else if instruction_type == "bitcast" || instruction_type == "trunc" || instruction_type == "zext"
             result = []
             return result
+            return "mov " + val_to_arm(destinations[0]) + ", " + val_to_arm(sources[0])
         else if instruction_type == "Load"
             #TODO
             result = []
@@ -187,6 +206,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             #TODO
             result = []
             return result
+            return "add " + val_to_arm(destinations[0]) + ", " + val_to_arm(sources[0]) + ", #8"
             return val_to_llvm(destinations [0]) + " = getelementptr " + typ.llvm_no_pointer() + ", " + typ + " " + val_to_llvm(sources [0]) + ", i1 0, i32 " + val_to_llvm(sources [1])
         # Needs to be resoved
         else if instruction_type == "NegateInteger"
