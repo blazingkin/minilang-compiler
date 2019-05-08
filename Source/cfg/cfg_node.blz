@@ -209,8 +209,12 @@ constructor CFGNode()
         printed_arm_counters.add!(label)
         instr = text_label
         instructions = emit_instructions()
+        arm_instructions = []
         for i = 0; i < instructions.length!(); i++
-            instr = instr + "\n" + instructions[i].emit_arm()
+            arm_instructions.append!(instructions[i].translate_to_arm())
+        end
+        for i = 0; i < arm_instructions.length!(); i++
+            instr = instr + "\n" + arm_instructions[i].emit_arm()
         end
         if is_conditional?()
             instr = instr + "\n" + true_successor.emit_arm()
