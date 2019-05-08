@@ -35,4 +35,28 @@ constructor VirtualRegister(content_type, name, place)
         end
     end
 
+    :emit_arm
+        if name == {blz.nil}
+            register_char + "v" + number
+        else
+            register_char + name
+        end
+    end
+
+end
+
+constructor ARMRegister(number)
+
+    :show
+        "r" + number
+    end
+
+    :emit_arm
+        this.show()
+    end
+
+    :==(other)
+        other.type == "ARMRegister" && this.number == other.number
+    end
+
 end

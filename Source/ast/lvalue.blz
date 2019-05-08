@@ -58,7 +58,11 @@ constructor LValue(id, line, left)
                     end
                 end
             else 
-                throw "Not yet implemented"
+                try
+                    current_block.find_variable(id, this.symbol_type)
+                catch exception
+                    throw exception + " on line " + line
+                end
             end
         else
             offset = left_type.index_of_field(id)

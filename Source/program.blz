@@ -12,6 +12,12 @@ constructor Program(types, functions, declarations)
         print("\ndeclare i8* @malloc(i32)\ndeclare void @free(i8*)\ndeclare void @print(i32)\ndeclare void @printl(i32)\ndeclare i32 @readchar()\n")
     end
 
+    :emit_arm
+        for i = 0; i < functions.length!(); i++
+            print(functions[i].emit_arm())
+        end
+    end
+
     :typecheck
         # add the structs
         struct_map = {}
