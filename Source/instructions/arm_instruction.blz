@@ -3,8 +3,14 @@
 constructor ARMInstruction(instruction_type, sources, destinations)
 
     :to_arm(val)
-        if val.type == "Integer" || val.type == "String"
+        if val.type == "Integer"
             val
+        else if val.type == "String"
+            if val == "null"
+                0
+            else
+                val
+            end
         else
             try
                 val.emit_arm()
@@ -14,20 +20,29 @@ constructor ARMInstruction(instruction_type, sources, destinations)
         end
     end
 
+    :show
+        "<ARM " + instruction_type + " from " + sources + " to " + destinations + ">"
+    end
+
     :emit_arm
-        if type == "add" || type == "sub" || type == "mul" || type == "and" || type == "orr" || type == "eor"
-            type + " " + to_arm(destinations[0]) + ", " + to_arm(sources[0]) + ", " + to_arm(sources[1])
-        else if type == "cmp"
-            "cmp " + to_arm(sources[0]) + ", " + to_arm(sources[1])
-        else if type == "beq" || type == "bne" || type == "bge" || type == "blt" || type == "b" || type == "bl"
-            type + " " + to_arm(destinations[0])
-        else if type == "mov" || type == "movw" || type == "movt" || type == "movt" || type == "movt" || type == "moveq" || type == "movlt" || type == "movne" || type == "movge"
-            type + " " + to_arm(destinations[0]) + ", " + to_arm(sources[0])
-        else if type == "ldr" || type == "str"
-            type + " " + to_arm(destinations[0]) + ", " + to_arm(sources[0])
-        else if type == "push" || type == "pop"
-            type + " " + destinations[0]
+        if instruction_type == "add" || instruction_type == "sub" || instruction_type == "mul" || instruction_type == "and" || instruction_type == "orr" || instruction_type == "eor"
+            return instruction_type + " " + to_arm(destinations[0]) + ", " + to_arm(sources[0]) + ", " + to_arm(sources[1])
+        else if instruction_type == "cmp"
+            return "cmp " + to_arm(sources[0]) + ", " + to_arm(sources[1])
+        else if instruction_type == "beq" || instruction_type == "bne" || instruction_type == "bge" || instruction_type == "blt" || instruction_type == "b" || instruction_type == "bl"
+            return instruction_type + " LU" + to_arm(destinations[0])
+        else if instruction_type == "mov" || instruction_type == "movw" || instruction_type == "movt" || instruction_type == "moveq" || instruction_type == "movlt" || instruction_type == "movne" || instruction_type == "movge" || instruction_type == "movle" || instruction_type == "movgt"
+            return instruction_type + " " + to_arm(destinations[0]) + ", " + to_arm(sources[0])
+        else if instruction_type == "ldr" || instruction_type == "str"
+            return instruction_type + " " + to_arm(destinations[0]) + ", [" + to_arm(sources[0]) +", " + to_arm(sources[1]) + "]"
+        else if instruction_type == "ldptr"
+            return "ldr " + to_arm(destinations[0]) + ", [" + to_arm(sources[0]) + "]"
+        else if instruction_type == "stptr"
+            return "str " + to_arm(sources[0]) + ", [" + to_arm(sources[1]) + "]"
+        else if instruction_type == "push" || instruction_type == "pop"
+            return instruction_type + " " + destinations[0]
         end
+        throw "Invalid ARM instruction type " + instruction_type
     end
 
 end

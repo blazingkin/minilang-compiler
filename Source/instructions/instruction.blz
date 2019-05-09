@@ -152,83 +152,88 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         else if instruction_type == "sdiv"
             #TODO
             result = []
+            result.add!(ARMInstruction("mov", [sources[0]], [ARMRegister(0)]))
+            result.add!(ARMInstruction("mov", [sources[1]], [ARMRegister(1)]))
+            result.add!(ARMInstruction("bl", [ARMRegister(0), ARMRegister(1), ARMRegister(2), ARMRegister(3)], ["__aeabi_idiv", ARMRegister(0), ARMRegister(1)]))
+            result.add!(ARMInstruction("mov", [ARMRegister(1)], [destinations[0]]))
             return result
         else if instruction_type == "Return"
             result = []
-            return result
-            #TODO
             if sources == []
-                return "ret void"
+                return result
             else
-                return "ret " + typ + " " + val_to_llvm(sources [0])
+                result.add!(ARMInstruction("mov", [sources[0]], [ARMRegister(0)]))
+                return result
             end
         else if instruction_type == "Comparison"
             #TODO
-            return generate_compare_instruction(instruction_type)
-            setup = "mov " + val_to_arm(destinations[0]) + ", #0\n"
-            compare = "cmp " + val_to_arm(sources[1]) + ", " + val_to_arm(sources[2]) + "\n"
+            result = []
+            result.add!(ARMInstruction("mov", ["\#0"], [destinations[0]]))
+            result.add!(ARMInstruction("cmp", [sources[1], sources[2]], []))
             move = ""
             if sources[0] == "eq"
-              move = "moveq " + val_to_arm(desitinations[0]) + ", #1"
-            else if sources [0] == "ne"
-              move = "movne " + val_to_arm(desitinations[0]) + ", #1"
-            else if sources [0] == "sgt"
-              move = "movgt " + val_to_arm(desitinations[0]) + ", #1"
-            else if sources [0] == "sge"
-              move = "movge " + val_to_arm(desitinations[0]) + ", #1"
-            else if sources [0] == "slt"
-              move = "movlt " + val_to_arm(desitinations[0]) + ", #1"
-            else if sources [0] == "sle"
-              move = "movle " + val_to_arm(desitinations[0]) + ", #1"
+              move = "moveq"
+            else if sources[0] == "ne"
+              move = "movne"
+            else if sources[0] == "sgt"
+              move = "movgt"
+            else if sources[0] == "sge"
+              move = "movge"
+            else if sources[0] == "slt"
+              move = "movlt"
+            else if sources[0] == "sle"
+              move = "movle"
             end
-            return setup + compare + move
-            return val_to_llvm(destinations [0]) + " = " + "icmp " + sources [0] + " " + typ + " " + val_to_llvm(sources [1]) + ", " + val_to_llvm(sources [2])
+            result.add!(ARMInstruction(move, ["\#1"], [destinations[0]]))
+            return result
         else if instruction_type == "Allocation"
             #TODO
             result = []
             return result
             return val_to_llvm(destinations [0]) + " = alloca " + typ
         else if instruction_type == "bitcast" || instruction_type == "trunc" || instruction_type == "zext"
-            result = []
-            return result
-            return "mov " + val_to_arm(destinations[0]) + ", " + val_to_arm(sources[0])
+            return [ARMInstruction("mov", [sources[0]], [destinations[0]])]
         else if instruction_type == "Load"
             #TODO
             result = []
+            result.add!(ARMInstruction("ldptr", [sources[0]], [destinations[0]]))
             return result
-            return val_to_llvm(destinations [0]) + " = load " + typ + ", " + typ + "* " + val_to_llvm(sources [0])
         else if instruction_type == "Store"
             #TODO
             result = []
+            result.add!(ARMInstruction("stptr", [sources[0], destinations[0]], []))
             return result
-            return "store " + typ + " " + val_to_llvm(sources [0]) + ", " + typ + "* " + val_to_llvm(destinations [0])
         else if instruction_type == "GetElement"
             #TODO
             result = []
+            result.add!(ARMInstruction("add", [sources[0], "\#" + sources[1] * 4], [destinations[0]]))
             return result
-            return "add " + val_to_arm(destinations[0]) + ", " + val_to_arm(sources[0]) + ", #8"
-            return val_to_llvm(destinations [0]) + " = getelementptr " + typ.llvm_no_pointer() + ", " + typ + " " + val_to_llvm(sources [0]) + ", i1 0, i32 " + val_to_llvm(sources [1])
         # Needs to be resoved
         else if instruction_type == "NegateInteger"
             result = []
-            return result
             if sources[0].type == "Integer" && sources[0] > MAX_THAT_CAN_FIT_IN_OP_TWO
                 # Constant that is too big
-                ld_constant = "movw " + val_to_arm(scratch_register[0]) + ", \#:lower16: "+ val_to_arm(sources[0]) +"\n"
-                ld_constant = ld_constant + "movt " + val_to_arm(scratch_register[0]) + ", \#:upper16: " + val_to_arm(sources[0]) + "\n"
-                ld_zero = "mov " + val_to_arm(scratch_register[1]) + ", 0\n"
-                sub = "sub " + val_to_arm(destinations[0]) + ", " + val_to_arm(scratch_registers[1]) +", " + val_to_arm(scratch_register[0])
+                scratch_one = VirtualRegister()
+                scratch_two = VirtualRegister()
+                # Move the lower half into the scratch
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + val_to_arm(sources[0])], [scratch_one]))
+                # Move the upper half into the scratch
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + val_to_arm(sources[0])], [scratch_one]))
+                # Load zero into the second scratch
+                result.add!(ARMInstruction("mov", ["\#0"], [scratch_two]))
+                result.add!(ARMInstruction("sub", [scratch_two, scratch_one], [destinations[0]]))
+                return result
             else
-                ld_zero = "mov " + scratch_register[0] + ", 0\n"
-                sub = "sub " + val_to_arm(destinations[0]) + ", " +  scratch_register[0] + ", " + val_to_arm(sources[0])
+                scratch_one = VirtualRegister()
+                result.add!(ARMInstruction("mov", ["\#0"], scratch_one))
+                result.add!(ARMInstruction("sub", [scratch_one, sources[0]], [destinations[0]]))
                 return ld_zero + sub
             end
+            return result
         else if instruction_type == "NegateBoolean"
-            #TODO
-            # Negate by XORing with 1
             result = []
-            return arr
-            val_to_llvm(destinations[0]) + " = xor i32 1, " + val_to_llvm(sources[0])
+            result.add!(ARMInstruction("eor", [sources[0], "\#1"], [destinations[0]]))
+            return result
         else if instruction_type == "FunctionCall"
             args = sources.slice(1, sources.length())
             instr = ""
@@ -258,21 +263,29 @@ constructor Instruction(instruction_type, sources, destinations, typ)
 
     :do_arithmatic_and_boolean (instruction_code)
         result = []
-        return result
         if sources[0].type == "Integer"
             # Constant that is too big
             scratch_one = VirtualRegister()
-            result.append!(ARMInstruction("movw", [scratch_one], []))
-            ld_constant = "movw " + val_to_arm(scratch_registers[0]) + ", \#:lower16: "+ val_to_arm(sources[0]) +"\n"
-            ld_constant = ld_constant + "movt " + val_to_arm(scratch_registers[0]) + ", \#:upper16: " + val_to_arm(sources[0]) + "\n"
-            return ld_constant + instruction_code + " " + val_to_arm(destinations[0]) + ", " + val_to_arm(scratch_registers[0]) + ", " + val_to_arm(sources[1])
+            # Load the lower part of the constant
+            result.add!(ARMInstruction("movw", ["\#:lower16: " + val_to_arm(sources[0])], [scratch_one]))
+            # Load the upper part of the constant
+            result.add!(ARMInstruction("movt", ["\#:upper16: " + val_to_arm(sources[0])], [scratch_one]))
+            # Do the operation
+            result.add!(ARMInstruction(instruction_code, [scratch_one, sources[1]], [destinations[0]]))
+            return result
         else if sources [1].type == "Integer" && ((sources[1] > MAX_THAT_CAN_FIT_IN_OP_TWO) || instruction_type == "mul")
-        # Constant that is too big
-            ld_constant = "movw " + val_to_arm(scratch_registers[0]) + ", \#:lower16: "+ val_to_arm(sources[1]) +"\n"
-            ld_constant = ld_constant + "movt " + val_to_arm(scratch_registers[0]) + ", \#:upper16: " + val_to_arm(sources[1]) + "\n"
-            return ld_constant + instruction_code + " " + val_to_arm(destinations[0]) + ", " + val_to_arm(sources[0]) + ", " + val_to_arm(scratch_registers[0])
+            # Constant that is too big
+            scratch_one = VirtualRegister()
+            # Load the lower part of the constant
+            result.add!(ARMInstruction("movw", ["\#:lower16: " + val_to_arm(sources[1])], [scratch_one]))
+            # Load the upper part of the constant
+            result.add!(ARMInstruction("movt", ["\#:upper16: " + val_to_arm(sources[1])], [scratch_one]))
+            # Do the operation
+            result.add!(ARMInstruction(instruction_code, [scratch_one, sources[0]], [destinations[0]]))
+            return result
         end
-        return instruction_code + " " + val_to_arm(destinations[0]) + ", " + val_to_arm(sources[0]) + ", " + val_to_arm(sources [1])
+        result.add!(ARMInstruction(instruction_code, [sources[0], sources[1]], [destinations[0]]))
+        return result
     end
 
  :generate_compare_instruction(type)

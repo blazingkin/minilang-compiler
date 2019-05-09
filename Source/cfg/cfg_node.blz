@@ -207,7 +207,7 @@ constructor CFGNode()
             return ""
         end
         printed_arm_counters.add!(label)
-        instr = text_label
+        instr = text_label + ":"
         instructions = emit_instructions()
         arm_instructions = []
         for i = 0; i < instructions.length!(); i++
