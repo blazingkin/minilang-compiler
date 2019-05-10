@@ -202,7 +202,13 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         else if instruction_type == "Store"
             #TODO
             result = []
-            result.add!(ARMInstruction("stptr", [sources[0], destinations[0]], []))
+            if sources[0].type == "Integer"
+                scratch = VirtualRegister()
+                result.add!(ARMInstruction("mov", [sources[0]], [scratch]))
+                result.add!(ARMInstruction("stptr", [scratch, destinations[0]]))
+            else
+                result.add!(ARMInstruction("stptr", [sources[0], destinations[0]], []))
+            end
             return result
         else if instruction_type == "GetElement"
             #TODO

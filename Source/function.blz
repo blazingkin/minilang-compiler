@@ -91,8 +91,6 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         if last_node.is_conditional?().negate() && last_node.successor == {blz.nil}
             last_node.set_successor(function_exit_cfg)
         end
-        # Add the default return in the exit block
-        function_exit_cfg.add_instruction(Instruction("Return", [return_type.default_value()], [], return_type))
 
         # Translate phi instructions into psuedo-phis
         function_blocks = blocks_in_function(function_exit_cfg).values()

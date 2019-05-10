@@ -4,10 +4,12 @@ constructor ARMInstruction(instruction_type, sources, destinations)
 
     :to_arm(val)
         if val.type == "Integer"
-            val
+            "\#" + val
         else if val.type == "String"
             if val == "null"
                 0
+            else if val.is_number?()
+                "\#" + val
             else
                 val
             end
@@ -40,7 +42,7 @@ constructor ARMInstruction(instruction_type, sources, destinations)
         else if instruction_type == "bl"
             return "bl " + destinations[0]
         else if instruction_type == "beq" || instruction_type == "bne" || instruction_type == "bge" || instruction_type == "blt" || instruction_type == "b"
-            return instruction_type + " LU" + to_arm(destinations[0])
+            return instruction_type + " LU" + destinations[0]
         else if instruction_type == "mov" || instruction_type == "movw" || instruction_type == "movt" || instruction_type == "moveq" || instruction_type == "movlt" || instruction_type == "movne" || instruction_type == "movge" || instruction_type == "movle" || instruction_type == "movgt"
             return instruction_type + " " + to_arm(destinations[0]) + ", " + to_arm(sources[0])
         else if instruction_type == "ldr" || instruction_type == "str"

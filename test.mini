@@ -1,0 +1,17 @@
+struct test {
+    int a;
+};
+
+fun main() int {
+    struct test a;
+    a = new test;
+    a.a = other(50);
+    return a.a;
+}
+
+fun other(int b) int {
+    int a;
+    a = 3;
+    return b + a;
+}
+

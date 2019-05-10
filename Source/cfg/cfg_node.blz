@@ -1,5 +1,6 @@
 require ../instructions/register
 require ../instructions/instruction
+require ../instructions/arm_instruction
 require ../minilang_compiler
 node_counter = 1
 
@@ -196,9 +197,10 @@ constructor CFGNode()
             for j = 0; j < phis[i].sources.length(); j = j + 2
                 val = phis[i].sources[j]
                 pred_block = phis[i].sources[j + 1]
-                pred_block.add_instruction(Instruction("mov", [val], [temporary_for_phi]))
+                pred_block.add_instruction(ARMInstruction("mov", [val], [temporary_for_phi]))
             end
-            this.add_instruction(Instruction("mov", [temporary_for_phi], [phis[i].destinations[0]]))
+            this.add_instruction(ARMInstruction("mov", [temporary_for_phi], [phis[i].destinations[0]]))
+
         end
     end
 
@@ -207,7 +209,7 @@ constructor CFGNode()
             return ""
         end
         printed_arm_counters.add!(label)
-        instr = "." + text_label + ":"
+        instr = text_label + ":"
         instructions = emit_instructions()
         arm_instructions = []
         for i = 0; i < instructions.length!(); i++
