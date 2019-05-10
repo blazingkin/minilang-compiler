@@ -251,10 +251,10 @@ constructor Instruction(instruction_type, sources, destinations, typ)
                 if sources[i + 1].type == "VirtualRegister" || sources[i + 1].type == "ARMRegister"
                     used_registers.add!(sources[i + 1])
                 end
-                result.add!(ARMInstruction("push", ["{" + sources[i + 1] + "}"], []))
+                result.add!(ARMInstruction("push", [], ["{" + sources[i + 1] + "}"]))
             end
             # Call the function
-            result.add!(ARMInstruction("call", [ARMRegister(0), ARMRegister(1), ARMRegister(2), ARMRegister(3)], [sources[0]+""].append(used_registers)))
+            result.add!(ARMInstruction("bl", [ARMRegister(0), ARMRegister(1), ARMRegister(2), ARMRegister(3)], [sources[0]+""].append(used_registers)))
             if destinations != []
                 result.add!(ARMInstruction("mov", [ARMRegister(0)], [destinations[0]]))
             end
