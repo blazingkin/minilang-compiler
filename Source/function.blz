@@ -98,7 +98,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         for i = 0; i < function_blocks.length(); i++
             function_blocks[i].resolve_phis_arm()
         end
-        return function_entry_cfg.emit_arm() + "\n"
+        return id + ":\n" + function_entry_cfg.emit_arm() + "\n"
     end
 
     :emit_llvm

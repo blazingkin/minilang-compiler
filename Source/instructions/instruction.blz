@@ -235,25 +235,29 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             result.add!(ARMInstruction("eor", [sources[0], "\#1"], [destinations[0]]))
             return result
         else if instruction_type == "FunctionCall"
-            args = sources.slice(1, sources.length())
-            instr = ""
-            #TODO
             result = []
-            return result
-            
-            instr = instr + "call " + typ + " @" + sources[0] + "("
-            for i = 1; i < sources.length(); i = i + 2
-                if i != 1
-                    instr = instr + ", "
+            call_register = 0
+            used_registers = []
+            # Set up the calling registers
+            for i = 1; i < sources.length() && i < 9; i = i + 2
+                # Type is in sources[i], value is in sources[i + 1]
+                result.add!(ARMInstruction("mov", [sources[i + 1]], [ARMRegister(call_register)]))
+                used_registers.add!(ARMRegister(call_register))
+                call_register++
+            end
+            # Set up extra parameters on the stack
+            for i = 9; i < sources.length(); i = i + 2
+                if sources[i + 1].type == "VirtualRegister" || sources[i + 1].type == "ARMRegister"
+                    used_registers.add!(sources[i + 1])
                 end
-                instr = instr + val_to_arm(sources [i]) + " " + val_to_arm(sources [i + 1])
+                result.add!(ARMInstruction("push", ["{" + sources[i + 1] + "}"], []))
             end
-            instr = instr + ")"
+            # Call the function
+            result.add!(ARMInstruction("call", [ARMRegister(0), ARMRegister(1), ARMRegister(2), ARMRegister(3)], [sources[0]+""].append(used_registers)))
             if destinations != []
-                # If a result is expected, move the result from r0 into the destination register
-                instr = instr + "\n" + "mov " + val_to_arm(destinations[0]) + ", r0 ; Store the result"
+                result.add!(ARMInstruction("mov", [ARMRegister(0)], [destinations[0]]))
             end
-            return instr
+            return result
         else if instruction_type == "Phi"
             throw "Phi instructions should not be emitted for ARM"
         else
@@ -288,30 +292,6 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         return result
     end
 
- :generate_compare_instruction(type)
-        result = []
-        return result
-        default_value = "\#0"
-        if type == "<=" || type == ">="
-            default_value = "\#1"
-        end
-        result = "mov " + val_to_arm(destinations[0]) + ", " + default_value + "\n"
-        result = result + "cmp " + val_to_arm(sources[0]) + ", " + val_to_arm(sources[1]) + " ; Compare\n"
-        if type == "<="
-            # Check the opposite and set the result to 0 if it is true
-            result = result + "mov "
-        else if type == ">="
-
-        else if type == "<"
-
-        else if type == "=="
-
-        else if type == "!="
-
-        else if type == ">"
-
-        end
-    end
 
 
 end
