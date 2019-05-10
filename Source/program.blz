@@ -13,8 +13,20 @@ constructor Program(types, functions, declarations)
     end
 
     :emit_arm
+        # Print the program prologue
+        print(".arch armv7-a")
+        print(".global __aeabi_idiv")
+        # Print the global declarations
+        for i = 0; i < declarations.length(); i++
+            print(".comm " +declarations[i].id + " 4,4")
+        end
         for i = 0; i < functions.length!(); i++
+            # Print the function setup
+            print(".text")
+            print(".align 2")
+            print(".global " + functions[i].id)
             print(functions[i].emit_arm())
+            print(".size " + functions[i].id + ", .-"+functions[i].id)
         end
     end
 

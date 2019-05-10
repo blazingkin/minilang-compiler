@@ -8,6 +8,7 @@ require tables/symbol_table
 require syntax_exception
 require cfg/cfg_node
 require instructions/instruction
+require instructions/arm_instruction
 require instructions/register
 require minilang_compiler
 import Set
@@ -60,7 +61,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_entry_cfg = CFGNode()
         function_entry_cfg.sealed = true
         function_exit_cfg = CFGNode()
-        
+        function_entry_cfg.add_instruction(ARMInstruction("push", [], ["{fp, lr}"]))
         param_registers = []
         # Move variables from registers / stack to 
         # Emit the stack if we are using it
@@ -98,6 +99,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         for i = 0; i < function_blocks.length(); i++
             function_blocks[i].resolve_phis_arm()
         end
+        function_exit_cfg.add_instruction(ARMInstruction("pop", [], ["{fp, pc}"]))
         return id + ":\n" + function_entry_cfg.emit_arm() + "\n"
     end
 

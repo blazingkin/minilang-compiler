@@ -1,5 +1,6 @@
 require register
 require arm_instruction
+require ../types/primitive_type
 constructor InstructionError(message)
     :show
         message
@@ -159,7 +160,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             return result
         else if instruction_type == "Return"
             result = []
-            if sources == []
+            if sources == [] || typ == primitive_type("void")
                 return result
             else
                 result.add!(ARMInstruction("mov", [sources[0]], [ARMRegister(0)]))

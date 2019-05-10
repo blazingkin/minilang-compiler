@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 void print(uint32_t n) {
-    printf("%d", n);
+    printf("%d ", n);
 }
 
 void printl(uint32_t n) {

@@ -24,6 +24,14 @@ constructor ARMInstruction(instruction_type, sources, destinations)
         "<ARM " + instruction_type + " from " + sources + " to " + destinations + ">"
     end
 
+    :copy
+        this
+    end
+
+    :translate_to_arm
+        [this]
+    end
+
     :emit_arm
         if instruction_type == "add" || instruction_type == "sub" || instruction_type == "mul" || instruction_type == "and" || instruction_type == "orr" || instruction_type == "eor"
             return instruction_type + " " + to_arm(destinations[0]) + ", " + to_arm(sources[0]) + ", " + to_arm(sources[1])
