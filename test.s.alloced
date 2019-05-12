@@ -1,0 +1,58 @@
+.arch armv7-a
+.global __aeabi_idiv
+.text
+.align 2
+.global main
+main:
+LU2:
+push {fp, lr}
+mov r0, #4
+bl malloc
+mov r6, r0
+mov r7, r6
+mov r0, #50
+bl other
+mov r8, r0
+add r9, r7, #0
+str r8, [r9]
+add r10, r7, #0
+ldr r4, [r10]
+mov r5, #0
+cmp r4, #60
+movle r5, #1
+cmp r5, #1
+beq LU4
+bne LU6
+LU4:
+mov r7, #3
+b LU5
+LU5:
+mov r6, r7
+mov r0, r6
+bl printl
+mov r0, #0
+b LU3
+LU3:
+pop {fp, pc}
+b LU3
+LU6:
+mov r7, #4
+b LU5
+
+
+.size main, .-main
+.text
+.align 2
+.global other
+other:
+LU7:
+push {fp, lr}
+add r4, r0, #0
+add r5, r4, #3
+mov r0, r5
+b LU8
+LU8:
+pop {fp, pc}
+b LU8
+
+.size other, .-other

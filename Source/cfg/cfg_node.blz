@@ -154,6 +154,10 @@ constructor CFGNode()
         instructions.add!(instruction)
     end
 
+    :add_instruction_at_beginning(instruction)
+        instructions = [instruction].append(this.instructions)
+    end
+
     :emit_instructions
         if printed_counters.contains?(label)
             arr = []
@@ -199,7 +203,7 @@ constructor CFGNode()
                 pred_block = phis[i].sources[j + 1]
                 pred_block.add_instruction(ARMInstruction("mov", [val], [temporary_for_phi]))
             end
-            this.add_instruction(ARMInstruction("mov", [temporary_for_phi], [phis[i].destinations[0]]))
+            this.add_instruction_at_beginning(ARMInstruction("mov", [temporary_for_phi], [phis[i].destinations[0]]))
 
         end
     end
