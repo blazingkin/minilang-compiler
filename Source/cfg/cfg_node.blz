@@ -27,6 +27,12 @@ constructor CFGNode()
     successor = {blz.nil}
     instructions = []
 
+    arm_instruction_list = []
+
+    gen = Set()
+    kill = Set()
+    live_out = Set()
+
     :seal
         sealed = true
         for i = 0; i < incomplete_phis.length!(); i++
@@ -229,6 +235,49 @@ constructor CFGNode()
             instr = instr + "\n" + successor.emit_arm()
         end
         instr
+    end
+
+    :create_gen_kill_sets ()
+        for i = 0; i < arm_instruction_list.length(); i++
+            for int j = 0; j < arm_instruction_list [i].sources.length(); j++ 
+                if !kill.contains?(arm_instruction_list[i].sources[j])
+                    gen.add(arm_instruction_list[i].sources[j])
+                end
+            end
+            for int j = 0; j < arm_instruction_list[i].destinations.length(); j++
+                kill.add(arm_instruction_list[i].destinations[k])
+            end
+        end
+    end
+
+    :generate_live_out_sets
+        temp = Set()
+        if successor != {blz.nil}
+            temp.union(successor.live_out)
+            for int i = 0; i < successor.kill; i++
+                temp.remove(successor.kill[i])
+            end
+            temp.union(successor.gen)
+            live_out.union(temp)
+        end
+        temp = Set()
+        if true_successor != {blz.nil}
+            temp.union(true_successor.live_out)
+            for int i = 0; i < true_successor.kill; i++
+                temp.remove(true_successor.kill[i])
+            end
+            temp.union(true_successor.gen)
+            live_out.union(temp)
+        end
+        temp = Set()
+        if false_successor != {blz.nil}
+            temp.union(false_successor.live_out)
+            for int i = 0; i < false_successor.kill; i++
+                temp.remove(false_successor.kill[i])
+            end
+            temp.union(false_successor.gen)
+            live_out.union(temp)
+        end
     end
 
 end

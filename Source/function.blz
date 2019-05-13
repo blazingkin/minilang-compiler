@@ -10,6 +10,7 @@ require cfg/cfg_node
 require instructions/instruction
 require instructions/arm_instruction
 require instructions/register
+require interference_graph/interference_node
 require minilang_compiler
 import Set
 
@@ -142,6 +143,45 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         return llvm
     end
 
+    :generate_interference_graph
+        interference_graph = {}
+        function_blocks = blocks_in_function(function_exit_cfg).values()
+        for n = 0; n < function_blocks.length(); n++
+            cur_bock = function_blocks[n]
+            for i = 0; i < cur_block.arm_instruction_list.length(); i++
+                cur_instruction = cur_block.arm_instruction_list[i]
+                for int j = 0; j < cur_instruction.destinations.length(); j++
+                    if !interference_graph.has_key? (cur_instruction.destinations[j])
+                        interference_graph [cur_instruction.destinations[j]] = InterferenceNode(cur_instruction.destinations[j])
+                    end
+                end
+                for int j = 0; j < cur_instruction.sources.length(); j++ 
+                    if !interference_graph.has_key? (cur_instruction.sources[j])
+                        interference_graph [cur_instruction.sources[j]] = InterferenceNode(cur_instruction.sources[j])
+                    end
+                end
+            end
+        end
+
+        for n = 0; n < function_blocks.length(); n++
+            cur_bock = function_blocks[n]
+            cur_live_set = cur_block.live_out
+            for i = cur_block.arm_instruction_list.length() - 1; i >= 0 ; i--
+                cur_instruction = cur_block.arm_instruction_list[i]
+                for int j = 0; j < cur_instruction.destinations.length(); j++
+                    cur_target = cur_instruction.destinations[j]
+                    cur_live_set.remove(cur_target)
+                    for int k = 0; k < cur_live_set.length(); k++
+                        interference_graph[cur_target].add_edge()
+                    end
+                end
+                for int j = 0; j < cur_instruction.sources.length(); j++ 
+                    cur_live_set.add(cur_instruction.sources[j])
+                end
+            end
+        end
+        interference_graph
+    end
 
 end
 

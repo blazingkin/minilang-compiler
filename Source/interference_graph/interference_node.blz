@@ -1,0 +1,22 @@
+require ../instructions/registser
+
+constructor InterferenceNode(register)
+
+    edges = Set()
+
+    :add_edge (target_node)
+        if !target_node.edges.contains?(self)
+            target_node.add_edge(self)
+        end
+        edges.add(target_node)
+    end
+
+    :remove_edge (target_node)
+        if target_node.edges.contains?(self)
+            target_node.remove_edge(self)
+        end
+        edges.remove(target_node)
+    end
+
+end
+
