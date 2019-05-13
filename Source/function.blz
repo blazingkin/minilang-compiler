@@ -98,8 +98,27 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         for i = 0; i < function_blocks.length(); i++
             function_blocks[i].resolve_phis_arm()
         end
+
+        # Generate the arm instructions
+        for i = 0; i < function_blocks.length(); i++
+            function_blocks[i].generate_arm()
+        end
         function_exit_cfg.add_instruction(ARMInstruction("pop", [], ["{fp, pc}"]))
+
+        # Generate gen and kill sets for register allocation
+        allocate_registers_arm(function_blocks)
+
         return id + ":\n" + function_entry_cfg.emit_arm() + "\n"
+    end
+
+    :allocate_registers_arm(function_blocks)
+        for i = 0; i < function_blocks.length(); i++
+            function_blocks[i].create_gen_kill_sets()
+        end
+        for i = 0; i < function_blocks.length(); i++
+            function_blocks[i].generate_live_out_sets()
+        end
+        generate_interference_graph(function_blocks)
     end
 
     :emit_llvm
@@ -143,20 +162,19 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         return llvm
     end
 
-    :generate_interference_graph
+    :generate_interference_graph(function_blocks)
         interference_graph = {}
-        function_blocks = blocks_in_function(function_exit_cfg).values()
         for n = 0; n < function_blocks.length(); n++
-            cur_bock = function_blocks[n]
+            cur_block = function_blocks[n]
             for i = 0; i < cur_block.arm_instruction_list.length(); i++
                 cur_instruction = cur_block.arm_instruction_list[i]
-                for int j = 0; j < cur_instruction.destinations.length(); j++
-                    if !interference_graph.has_key? (cur_instruction.destinations[j])
+                for j = 0; j < cur_instruction.destinations.length(); j++
+                    if (interference_graph.has_key? (cur_instruction.destinations[j])).negate()
                         interference_graph [cur_instruction.destinations[j]] = InterferenceNode(cur_instruction.destinations[j])
                     end
                 end
-                for int j = 0; j < cur_instruction.sources.length(); j++ 
-                    if !interference_graph.has_key? (cur_instruction.sources[j])
+                for j = 0; j < cur_instruction.sources.length(); j++ 
+                    if (interference_graph.has_key? (cur_instruction.sources[j])).negate()
                         interference_graph [cur_instruction.sources[j]] = InterferenceNode(cur_instruction.sources[j])
                     end
                 end
@@ -168,14 +186,15 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             cur_live_set = cur_block.live_out
             for i = cur_block.arm_instruction_list.length() - 1; i >= 0 ; i--
                 cur_instruction = cur_block.arm_instruction_list[i]
-                for int j = 0; j < cur_instruction.destinations.length(); j++
+                for j = 0; j < cur_instruction.destinations.length(); j++
                     cur_target = cur_instruction.destinations[j]
                     cur_live_set.remove(cur_target)
-                    for int k = 0; k < cur_live_set.length(); k++
-                        interference_graph[cur_target].add_edge()
+                    cur_live_set_values = cur_live_set.values()
+                    for k = 0; k < cur_live_set_values.length(); k++
+                        interference_graph[cur_target].add_edge(interference_graph[cur_live_set_values[k]])
                     end
                 end
-                for int j = 0; j < cur_instruction.sources.length(); j++ 
+                for j = 0; j < cur_instruction.sources.length(); j++ 
                     cur_live_set.add(cur_instruction.sources[j])
                 end
             end

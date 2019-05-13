@@ -2,6 +2,7 @@ require ../instructions/register
 require ../instructions/instruction
 require ../instructions/arm_instruction
 require ../minilang_compiler
+import Set
 node_counter = 1
 
 printed_counters = []
@@ -26,8 +27,6 @@ constructor CFGNode()
 
     successor = {blz.nil}
     instructions = []
-
-    arm_instruction_list = []
 
     gen = Set()
     kill = Set()
@@ -214,19 +213,22 @@ constructor CFGNode()
         end
     end
 
+    arm_instruction_list = []
+    :generate_arm
+        instructions = emit_instructions()
+        for i = 0; i < instructions.length!(); i++
+            arm_instruction_list.append!(instructions[i].translate_to_arm())
+        end
+    end
+
     :emit_arm
         if printed_arm_counters.contains?(label)
             return ""
         end
         printed_arm_counters.add!(label)
         instr = text_label + ":"
-        instructions = emit_instructions()
-        arm_instructions = []
-        for i = 0; i < instructions.length!(); i++
-            arm_instructions.append!(instructions[i].translate_to_arm())
-        end
-        for i = 0; i < arm_instructions.length!(); i++
-            instr = instr + "\n" + arm_instructions[i].emit_arm()
+        for i = 0; i < arm_instruction_list.length!(); i++
+            instr = instr + "\n" + arm_instruction_list[i].emit_arm()
         end
         if is_conditional?()
             instr = instr + "\n" + true_successor.emit_arm()
@@ -239,13 +241,13 @@ constructor CFGNode()
 
     :create_gen_kill_sets ()
         for i = 0; i < arm_instruction_list.length(); i++
-            for int j = 0; j < arm_instruction_list [i].sources.length(); j++ 
-                if !kill.contains?(arm_instruction_list[i].sources[j])
+            for j = 0; j < arm_instruction_list [i].sources.length(); j++ 
+                if (kill.contains?(arm_instruction_list[i].sources[j])).negate()
                     gen.add(arm_instruction_list[i].sources[j])
                 end
             end
-            for int j = 0; j < arm_instruction_list[i].destinations.length(); j++
-                kill.add(arm_instruction_list[i].destinations[k])
+            for j = 0; j < arm_instruction_list[i].destinations.length(); j++
+                kill.add(arm_instruction_list[i].destinations[j])
             end
         end
     end
@@ -253,30 +255,24 @@ constructor CFGNode()
     :generate_live_out_sets
         temp = Set()
         if successor != {blz.nil}
-            temp.union(successor.live_out)
-            for int i = 0; i < successor.kill; i++
-                temp.remove(successor.kill[i])
-            end
-            temp.union(successor.gen)
-            live_out.union(temp)
+            temp = temp.union(successor.live_out)
+            temp = temp.minus(successor.kill)
+            temp = temp.union(successor.gen)
+            live_out = live_out.union(temp)
         end
         temp = Set()
         if true_successor != {blz.nil}
-            temp.union(true_successor.live_out)
-            for int i = 0; i < true_successor.kill; i++
-                temp.remove(true_successor.kill[i])
-            end
-            temp.union(true_successor.gen)
-            live_out.union(temp)
+            temp = temp.union(true_successor.live_out)
+            temp = temp.minus(true_successor.kill)
+            temp = temp.union(true_successor.gen)
+            live_out = live_out.union(temp)
         end
         temp = Set()
         if false_successor != {blz.nil}
-            temp.union(false_successor.live_out)
-            for int i = 0; i < false_successor.kill; i++
-                temp.remove(false_successor.kill[i])
-            end
-            temp.union(false_successor.gen)
-            live_out.union(temp)
+            temp = temp.union(false_successor.live_out)
+            temp = temp.minus(false_successor.kill)
+            temp = temp.union(false_successor.gen)
+            live_out = live_out.union(temp)
         end
     end
 

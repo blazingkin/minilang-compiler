@@ -2,6 +2,10 @@
 
 constructor ARMInstruction(instruction_type, sources, destinations)
 
+    if destinations == {blz.nil}
+        destinations = []
+    end
+
     :to_arm(val)
         if val.type == "Integer"
             "\#" + val

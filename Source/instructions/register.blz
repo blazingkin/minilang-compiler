@@ -45,7 +45,7 @@ constructor VirtualRegister(content_type, name, place)
 
 end
 
-constructor ARMRegister(number)
+constructor ARM_Register(number)
 
     :show
         "r" + number
@@ -55,8 +55,20 @@ constructor ARMRegister(number)
         this.show()
     end
 
+    :copy
+        this
+    end
+
     :==(other)
         other.type == "ARMRegister" && this.number == other.number
     end
 
+end
+
+arm_registers = []
+for i = 0; i < 20; i++
+    arm_registers.add!(ARM_Register(i))
+end
+:ARMRegister(number)
+    arm_registers[number]
 end

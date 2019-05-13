@@ -1,19 +1,24 @@
-require ../instructions/registser
+require ../instructions/register
+import Set
 
 constructor InterferenceNode(register)
 
     edges = Set()
 
+    :copy
+        this
+    end
+
     :add_edge (target_node)
-        if !target_node.edges.contains?(self)
-            target_node.add_edge(self)
-        end
         edges.add(target_node)
+        if (target_node.edges.contains?(this)).negate()
+            target_node.add_edge(this)
+        end
     end
 
     :remove_edge (target_node)
-        if target_node.edges.contains?(self)
-            target_node.remove_edge(self)
+        if target_node.edges.contains?(this)
+            target_node.remove_edge(this)
         end
         edges.remove(target_node)
     end
