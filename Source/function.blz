@@ -147,17 +147,17 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         interference_graph = {}
         function_blocks = blocks_in_function(function_exit_cfg).values()
         for n = 0; n < function_blocks.length(); n++
-            cur_bock = function_blocks[n]
+            cur_block = function_blocks[n]
             for i = 0; i < cur_block.arm_instruction_list.length(); i++
                 cur_instruction = cur_block.arm_instruction_list[i]
                 for int j = 0; j < cur_instruction.destinations.length(); j++
-                    if !interference_graph.has_key? (cur_instruction.destinations[j])
-                        interference_graph [cur_instruction.destinations[j]] = InterferenceNode(cur_instruction.destinations[j])
+                    if (interference_graph.has_key?(cur_instruction.destinations[j])).negate()
+                        interference_graph[cur_instruction.destinations[j]] = InterferenceNode(cur_instruction.destinations[j])
                     end
                 end
                 for int j = 0; j < cur_instruction.sources.length(); j++ 
-                    if !interference_graph.has_key? (cur_instruction.sources[j])
-                        interference_graph [cur_instruction.sources[j]] = InterferenceNode(cur_instruction.sources[j])
+                    if (interference_graph.has_key?(cur_instruction.sources[j])).negate()
+                        interference_graph[cur_instruction.sources[j]] = InterferenceNode(cur_instruction.sources[j])
                     end
                 end
             end
