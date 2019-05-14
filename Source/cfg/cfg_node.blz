@@ -253,6 +253,7 @@ constructor CFGNode()
     end
 
     :generate_live_out_sets
+        live_out_copy = copy(live_out)
         temp = Set()
         if successor != {blz.nil}
             temp = temp.union(successor.live_out)
@@ -274,6 +275,7 @@ constructor CFGNode()
             temp = temp.union(false_successor.gen)
             live_out = live_out.union(temp)
         end
+        return live_out_copy == live_out
     end
 
 end

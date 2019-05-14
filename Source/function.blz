@@ -115,8 +115,12 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         for i = 0; i < function_blocks.length(); i++
             function_blocks[i].create_gen_kill_sets()
         end
-        for i = 0; i < function_blocks.length(); i++
-            function_blocks[i].generate_live_out_sets()
+        changed = true
+        while changed
+            changed = false
+            for i = 0; i < function_blocks.length(); i++
+                changed = changed || function_blocks[i].generate_live_out_sets()
+            end
         end
         generate_interference_graph(function_blocks)
     end
