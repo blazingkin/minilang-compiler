@@ -14,7 +14,7 @@ fun main() int {
         c = 4;
     }
     print c endl;
-    return 0;
+    return 10;
 }
 
 fun other(int b) int {

@@ -60,7 +60,7 @@ constructor ARM_Register(number)
     end
 
     :==(other)
-        other.type == "ARMRegister" && this.number == other.number
+        other.type == "ARM_Register" && this.number == other.number
     end
 
 end

@@ -6,6 +6,25 @@ constructor ARMInstruction(instruction_type, sources, destinations)
         destinations = []
     end
 
+    destination_registers = destinations.filter(x -> x.type == "VirtualRegister" || x.type == "ARM_Register")
+
+    source_registers = sources.filter(x -> x.type == "VirtualRegister" || x.type == "ARM_Register")
+
+    :replace_registers(coloring)
+        for i = 0; i < sources.length(); i++
+            if sources[i].type == "VirtualRegister"
+                sources[i] = coloring[sources[i]]
+            end
+        end
+        for i = 0; i < destinations.length(); i++
+            if destinations[i].type == "VirtualRegister"
+                destinations[i] = coloring[destinations[i]]
+            end
+        end
+        destination_registers = destinations.filter(x -> x.type == "VirtualRegister" || x.type == "ARM_Register")
+        source_registers = sources.filter(x -> x.type == "VirtualRegister" || x.type == "ARM_Register")
+    end
+
     :to_arm(val)
         if val.type == "Integer"
             "\#" + val

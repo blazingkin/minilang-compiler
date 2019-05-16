@@ -213,6 +213,14 @@ constructor CFGNode()
         end
     end
 
+    :add_arm_instruction(instruction)
+        arm_instruction_list.add!(instruction)
+    end
+
+    :add_arm_instruction_at_beginning(instruction)
+        arm_instruction_list = [instruction].append(this.arm_instruction_list)
+    end
+
     arm_instruction_list = []
     :generate_arm
         instructions = emit_instructions()
@@ -241,13 +249,13 @@ constructor CFGNode()
 
     :create_gen_kill_sets ()
         for i = 0; i < arm_instruction_list.length(); i++
-            for j = 0; j < arm_instruction_list [i].sources.length(); j++ 
-                if (kill.contains?(arm_instruction_list[i].sources[j])).negate()
-                    gen.add(arm_instruction_list[i].sources[j])
+            for j = 0; j < arm_instruction_list [i].source_registers.length(); j++ 
+                if (kill.contains?(arm_instruction_list[i].source_registers[j])).negate()
+                    gen.add(arm_instruction_list[i].source_registers[j])
                 end
             end
-            for j = 0; j < arm_instruction_list[i].destinations.length(); j++
-                kill.add(arm_instruction_list[i].destinations[j])
+            for j = 0; j < arm_instruction_list[i].destination_registers.length(); j++
+                kill.add(arm_instruction_list[i].destination_registers[j])
             end
         end
     end

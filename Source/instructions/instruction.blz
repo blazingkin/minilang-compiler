@@ -254,7 +254,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             end
             # Set up extra parameters on the stack
             for i = 9; i < sources.length(); i = i + 2
-                if sources[i + 1].type == "VirtualRegister" || sources[i + 1].type == "ARMRegister"
+                if sources[i + 1].type == "VirtualRegister" || sources[i + 1].type == "ARM_Register"
                     used_registers.add!(sources[i + 1])
                 end
                 result.add!(ARMInstruction("push", [], ["{" + sources[i + 1] + "}"]))

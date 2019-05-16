@@ -13,6 +13,9 @@ require instructions/register
 require interference_graph/interference_node
 require minilang_compiler
 import Set
+import DataStructures
+import Lists
+
 
 constructor Function(line, id, return_type, body, parameters, declarations)
 
@@ -62,7 +65,8 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_entry_cfg = CFGNode()
         function_entry_cfg.sealed = true
         function_exit_cfg = CFGNode()
-        function_entry_cfg.add_instruction(ARMInstruction("push", [], ["{fp, lr}"]))
+        function_entry_cfg.add_arm_instruction(ARMInstruction("add", [ARMRegister(13), 4], [ARMRegister(11)]))
+        function_entry_cfg.add_arm_instruction(ARMInstruction("push", [], ["{fp, lr}"]))
         param_registers = []
         # Move variables from registers / stack to 
         # Emit the stack if we are using it
@@ -103,10 +107,11 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         for i = 0; i < function_blocks.length(); i++
             function_blocks[i].generate_arm()
         end
-        function_exit_cfg.add_instruction(ARMInstruction("pop", [], ["{fp, pc}"]))
 
         # Generate gen and kill sets for register allocation
         allocate_registers_arm(function_blocks)
+        function_exit_cfg.add_arm_instruction_at_beginning(ARMInstruction("pop", [], ["{fp, pc}"]))
+        function_exit_cfg.add_arm_instruction_at_beginning(ARMInstruction("sub", [ARMRegister(11), 4], [ARMRegister(13)]))
 
         return id + ":\n" + function_entry_cfg.emit_arm() + "\n"
     end
@@ -122,7 +127,86 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 changed = changed || function_blocks[i].generate_live_out_sets()
             end
         end
-        generate_interference_graph(function_blocks)
+        graph = generate_interference_graph(function_blocks)
+        stack = deconstruct_graph(graph)
+        colored_graph = reconstruct_graph(stack)
+        colorings = {}
+        for i = 0; i < colored_graph.length(); i++
+            if colored_graph[i].color == {blz.nil}
+                colorings[colored_graph[i].register] = "spill"
+            else
+                colorings[colored_graph[i].register] = colored_graph[i].color
+            end
+        end
+        replace_with_colorings(function_blocks, colorings)
+    end
+
+    :replace_with_colorings(function_blocks, colorings)
+        for i = 0; i < function_blocks.length(); i++
+            block = function_blocks[i]
+            for j = 0; j < block.arm_instruction_list.size(); j++
+                instruction = block.arm_instruction_list[j]
+                instruction.replace_registers(colorings)
+            end
+        end
+    end
+
+    # Graph -> Stack of registers + edges
+    :deconstruct_graph(graph)
+        result = Stack()
+        while graph.size() > 0
+            # Order lists for removal, highest priority to remove is the first
+            node = graph.least()
+            position = graph.index_of(node)
+            result.push(node)
+            neighbors = node.edges.values()
+            for i = 0; i < neighbors.length(); i++
+                neighbors[i].remove_edge_from_this(node)
+            end
+            graph.remove!(position)
+        end
+        result
+    end
+
+    # Stack of registers + edges -> Colored Graph
+    :reconstruct_graph(stack)
+        possible_registers = range(9).map(x -> ARMRegister(x))
+        spilling = false
+        new_graph = []
+        while stack.size() > 0
+            node = stack.pop()
+            new_graph.add!(node)
+            if node.register.type == "ARM_Register"
+                node.color = node.register
+            else
+                # Try to color the node
+                not_found = true
+                for i = possible_registers.length() - 1; i >= 0 && not_found; i--
+                    neighbors = node.edges.values()
+                    color = possible_registers[i]
+                    can_color = true
+                    for j = 0; j < neighbors.length(); j++
+                        # If any of the neighbors are not compatible, then we can not color
+                        if neighbors[j].is_compatible?(color).negate()
+                            can_color = false
+                        end
+                    end
+                    if can_color
+                        node.color = color
+                        not_found = false
+                    end
+                end
+                if node.color == {blz.nil}
+                    spilling = true
+                    node.spilled = true
+                end
+            end
+        end
+        return new_graph
+    end
+
+    :resolve_coloring
+
     end
 
     :emit_llvm
@@ -166,20 +250,21 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         return llvm
     end
 
+    # [CFGNodes] -> [InterferenceNodes]
     :generate_interference_graph(function_blocks)
         interference_graph = {}
         for n = 0; n < function_blocks.length(); n++
             cur_block = function_blocks[n]
             for i = 0; i < cur_block.arm_instruction_list.length(); i++
                 cur_instruction = cur_block.arm_instruction_list[i]
-                for j = 0; j < cur_instruction.destinations.length(); j++
-                    if (interference_graph.has_key? (cur_instruction.destinations[j])).negate()
-                        interference_graph [cur_instruction.destinations[j]] = InterferenceNode(cur_instruction.destinations[j])
+                for j = 0; j < cur_instruction.destination_registers.length(); j++
+                    if (interference_graph.has_key? (cur_instruction.destination_registers[j])).negate()
+                        interference_graph [cur_instruction.destination_registers[j]] = InterferenceNode(cur_instruction.destination_registers[j])
                     end
                 end
-                for j = 0; j < cur_instruction.sources.length(); j++ 
-                    if (interference_graph.has_key? (cur_instruction.sources[j])).negate()
-                        interference_graph [cur_instruction.sources[j]] = InterferenceNode(cur_instruction.sources[j])
+                for j = 0; j < cur_instruction.source_registers.length(); j++ 
+                    if (interference_graph.has_key? (cur_instruction.source_registers[j])).negate()
+                        interference_graph [cur_instruction.source_registers[j]] = InterferenceNode(cur_instruction.source_registers[j])
                     end
                 end
             end
@@ -190,20 +275,22 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             cur_live_set = cur_block.live_out
             for i = cur_block.arm_instruction_list.length() - 1; i >= 0 ; i--
                 cur_instruction = cur_block.arm_instruction_list[i]
-                for j = 0; j < cur_instruction.destinations.length(); j++
-                    cur_target = cur_instruction.destinations[j]
+                for j = 0; j < cur_instruction.destination_registers.length(); j++
+                    cur_target = cur_instruction.destination_registers[j]
                     cur_live_set.remove(cur_target)
                     cur_live_set_values = cur_live_set.values()
                     for k = 0; k < cur_live_set_values.length(); k++
-                        interference_graph[cur_target].add_edge(interference_graph[cur_live_set_values[k]])
+                        e = cur_live_set_values[k]
+                        g = interference_graph[e]
+                        interference_graph[cur_target].add_edge(g)
                     end
                 end
-                for j = 0; j < cur_instruction.sources.length(); j++ 
-                    cur_live_set.add(cur_instruction.sources[j])
+                for j = 0; j < cur_instruction.source_registers.length(); j++ 
+                    cur_live_set.add(cur_instruction.source_registers[j])
                 end
             end
         end
-        interference_graph
+        interference_graph.values()
     end
 
 end
