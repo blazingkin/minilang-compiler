@@ -1,7 +1,0 @@
-fun main() int {
-    return other(3);
-}
-
-fun other(int a) int {
-    return 4 + a;
-}
