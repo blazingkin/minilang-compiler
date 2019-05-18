@@ -1,3 +1,7 @@
 fun main() int {
-    return 2;
+    return other(3);
+}
+
+fun other(int a) int {
+    return 4 + a;
 }

@@ -20,7 +20,7 @@ constructor InterferenceNode(register)
     end
 
     :show
-        "InterferenceNode - " + register + " " + color
+        "InterferenceNode - " + register + " " + color + "numEdges" + edges.size() + "\n" + edges.values().fold_left("\t", (a, v -> a + v + "\n\t"))
     end
 
     :<(other)

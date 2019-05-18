@@ -65,8 +65,9 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_entry_cfg = CFGNode()
         function_entry_cfg.sealed = true
         function_exit_cfg = CFGNode()
-        function_entry_cfg.add_arm_instruction(ARMInstruction("add", [ARMRegister(13), 4], [ARMRegister(11)]))
         function_entry_cfg.add_arm_instruction(ARMInstruction("push", [], ["{fp, lr}"]))
+        function_entry_cfg.add_arm_instruction(ARMInstruction("add", [ARMRegister(13), 4], [ARMRegister(11)]))
+        function_entry_cfg.add_arm_instruction(ARMInstruction("push", [], ["{r4-r10}"]))
         param_registers = []
         # Move variables from registers / stack to 
         # Emit the stack if we are using it
@@ -112,6 +113,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         allocate_registers_arm(function_blocks)
         function_exit_cfg.add_arm_instruction_at_beginning(ARMInstruction("pop", [], ["{fp, pc}"]))
         function_exit_cfg.add_arm_instruction_at_beginning(ARMInstruction("sub", [ARMRegister(11), 4], [ARMRegister(13)]))
+        function_exit_cfg.add_arm_instruction_at_beginning(ARMInstruction("pop", [], ["{r4-r10}"]))
 
         return id + ":\n" + function_entry_cfg.emit_arm() + "\n"
     end
@@ -269,9 +271,8 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 end
             end
         end
-
         for n = 0; n < function_blocks.length(); n++
-            cur_bock = function_blocks[n]
+            cur_block = function_blocks[n]
             cur_live_set = cur_block.live_out
             for i = cur_block.arm_instruction_list.length() - 1; i >= 0 ; i--
                 cur_instruction = cur_block.arm_instruction_list[i]
