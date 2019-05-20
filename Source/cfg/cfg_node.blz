@@ -206,6 +206,9 @@ constructor CFGNode()
             for j = 0; j < phis[i].sources.length(); j = j + 2
                 val = phis[i].sources[j]
                 pred_block = phis[i].sources[j + 1]
+                if val == "null"
+                    val = 0
+                end
                 pred_block.add_instruction(ARMInstruction("mov", [val], [temporary_for_phi]))
             end
             this.add_instruction_at_beginning(ARMInstruction("mov", [temporary_for_phi], [phis[i].destinations[0]]))

@@ -207,10 +207,6 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         return new_graph
     end
 
-    :resolve_coloring
-
-    end
-
     :emit_llvm
         llvm = "define " + return_type + " @" + id + "("
         param_registers = []
