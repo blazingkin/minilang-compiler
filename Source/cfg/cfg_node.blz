@@ -224,6 +224,14 @@ constructor CFGNode()
         arm_instruction_list = [instruction].append(this.arm_instruction_list)
     end
 
+    :get_arm_instructions
+        arm_instruction_list
+    end
+
+    :set_arm_instructions(arm_instr)
+        arm_instruction_list = arm_instr
+    end
+
     arm_instruction_list = []
     :generate_arm
         instructions = emit_instructions()

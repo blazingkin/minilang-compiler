@@ -72,3 +72,15 @@ end
 :ARMRegister(number)
     arm_registers[number]
 end
+
+constructor SpillRegister(number)
+
+    :show
+        "spill " + number
+    end
+
+    :emit_arm
+        throw "A spilled register was not replaced"
+    end
+
+end

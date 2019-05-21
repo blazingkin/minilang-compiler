@@ -66,7 +66,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_entry_cfg.sealed = true
         function_exit_cfg = CFGNode()
         function_entry_cfg.add_arm_instruction(ARMInstruction("push", [], ["{fp, lr}"]))
-        function_entry_cfg.add_arm_instruction(ARMInstruction("add", [ARMRegister(13), 4], [ARMRegister(11)]))
+        function_entry_cfg.add_arm_instruction(ARMInstruction("add", [ARMRegister(13), 4 + (spill_count * 4)], [ARMRegister(11)]))
         function_entry_cfg.add_arm_instruction(ARMInstruction("push", [], ["{r4-r10}"]))
         param_registers = []
         # Move variables from registers / stack to 
@@ -112,12 +112,13 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         # Generate gen and kill sets for register allocation
         allocate_registers_arm(function_blocks)
         function_exit_cfg.add_arm_instruction_at_beginning(ARMInstruction("pop", [], ["{fp, pc}"]))
-        function_exit_cfg.add_arm_instruction_at_beginning(ARMInstruction("sub", [ARMRegister(11), 4], [ARMRegister(13)]))
+        function_exit_cfg.add_arm_instruction_at_beginning(ARMInstruction("sub", [ARMRegister(11), 4 + (spill_count * 4)], [ARMRegister(13)]))
         function_exit_cfg.add_arm_instruction_at_beginning(ARMInstruction("pop", [], ["{r4-r10}"]))
 
         return id + ":\n" + function_entry_cfg.emit_arm() + "\n"
     end
 
+    spill_count = 0
     :allocate_registers_arm(function_blocks)
         for i = 0; i < function_blocks.length(); i++
             function_blocks[i].create_gen_kill_sets()
@@ -129,18 +130,20 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 changed = changed || function_blocks[i].generate_live_out_sets()
             end
         end
-        graph = generate_interference_graph(function_blocks)
-        stack = deconstruct_graph(graph)
-        colored_graph = reconstruct_graph(stack)
+        graph = generate_interference_graph!(function_blocks)
+        stack = deconstruct_graph!(graph)
+        colored_graph = reconstruct_graph!(stack)
         colorings = {}
         for i = 0; i < colored_graph.length(); i++
             if colored_graph[i].color == {blz.nil}
-                colorings[colored_graph[i].register] = "spill"
+                colorings[colored_graph[i].register] = SpillRegister(spill_count)
+                spill_count++
             else
                 colorings[colored_graph[i].register] = colored_graph[i].color
             end
         end
-        replace_with_colorings(function_blocks, colorings)
+        replace_with_colorings!(function_blocks, colorings)
+        resolve_spills!(function_blocks)
     end
 
     :replace_with_colorings(function_blocks, colorings)
@@ -150,6 +153,43 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 instruction = block.arm_instruction_list[j]
                 instruction.replace_registers(colorings)
             end
+        end
+    end
+
+    :spill_location(num)
+        4 * num
+    end
+
+    :resolve_spills(function_blocks)
+        for i = 0; i < function_blocks.length(); i++
+            block = function_blocks[i]
+            orig_instructions = block.get_arm_instructions()
+            result = []
+            for j = 0; j < orig_instructions.length(); j++
+                instr = orig_instructions[j]
+                # Solve spills in the source registers
+                spills_used = 0
+                spill_registers = [ARMRegister(10), ARMRegister(9)]
+                for k = 0; k < instr.sources.length(); k++
+                    src = instr.sources[k]
+                    if src.type == "SpillRegister"
+                        spill_to = spill_registers[spills_used]
+                        spills_used++
+                        result.add!(ARMInstruction("ldr", [ARMRegister(11), spill_location(src.number)], [spill_to]))
+                        instr.sources[k] = spill_to
+                    end
+                end
+                if instr.destinations.length() > 0 && instr.destinations[0].type == "SpillRegister"
+                    spill_to = ARMRegister(10)
+                    spill_num = instr.destinations[0].number
+                    instr.set_dest_zero(spill_to)
+                    result.add!(instr)
+                    result.add!(ARMInstruction("str", [ARMRegister(11), spill_location(spill_num)], [spill_to]))
+                else
+                    result.add!(instr)
+                end            
+            end
+            block.set_arm_instructions(result)
         end
     end
 
