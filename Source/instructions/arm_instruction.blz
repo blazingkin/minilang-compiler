@@ -10,6 +10,10 @@ constructor ARMInstruction(instruction_type, sources, destinations)
         destinations[0] = other
     end
 
+    :set_k_source(k, src)
+        sources[k] = src
+    end
+
     destination_registers = destinations.filter(x -> x.type == "VirtualRegister" || x.type == "ARM_Register")
 
     source_registers = sources.filter(x -> x.type == "VirtualRegister" || x.type == "ARM_Register")

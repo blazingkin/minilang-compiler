@@ -176,7 +176,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                         spill_to = spill_registers[spills_used]
                         spills_used++
                         result.add!(ARMInstruction("ldr", [ARMRegister(11), spill_location(src.number)], [spill_to]))
-                        instr.sources[k] = spill_to
+                        instr.set_k_source(k, spill_to)
                     end
                 end
                 if instr.destinations.length() > 0 && instr.destinations[0].type == "SpillRegister"

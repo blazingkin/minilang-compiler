@@ -194,7 +194,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             arg_two = sources[2]
             if arg_two == "null"
                 arg_two = "0"
-            else if arg_two.type == "Integer" && arg_two > MAX_THAT_CAN_FIT_IN_OP_TWO
+            else if arg_two.type == "Integer" && (arg_two > MAX_THAT_CAN_FIT_IN_OP_TWO || arg_two < 0)
                 scratch = VirtualRegister()
                 result.add!(ARMInstruction("movw", ["\#:lower16: " + arg_two], [scratch]))
                 result.add!(ARMInstruction("movt", ["\#:upper16: " + arg_two], [scratch]))
@@ -236,7 +236,8 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             result = []
             if sources[0].type == "Integer"
                 scratch = VirtualRegister()
-                result.add!(ARMInstruction("mov", [sources[0]], [scratch]))
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + sources[0]], [scratch]))
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + sources[0]], [scratch]))
                 result.add!(ARMInstruction("stptr", [scratch, destinations[0]]))
             else if sources[0] == "null"
                 scratch = VirtualRegister()
@@ -253,7 +254,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         # Needs to be resoved
         else if instruction_type == "NegateInteger"
             result = []
-            if sources[0].type == "Integer" && sources[0] > MAX_THAT_CAN_FIT_IN_OP_TWO
+            if sources[0].type == "Integer" && (sources[0] > MAX_THAT_CAN_FIT_IN_OP_TWO || sources[0] < 0)
                 # Constant that is too big
                 scratch_one = VirtualRegister()
                 scratch_two = VirtualRegister()
@@ -283,16 +284,37 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             # Set up the calling registers
             for i = 1; i < sources.length() && i < 9; i = i + 2
                 # Type is in sources[i], value is in sources[i + 1]
-                result.add!(ARMInstruction("mov", [sources[i + 1]], [ARMRegister(call_register)]))
+                src = sources[i + 1]
+                if src == "null"
+                    src = 0
+                end
+                if src.type == "Integer" && (src < 0 || src > MAX_THAT_CAN_FIT_IN_OP_TWO)
+                    scratch = VirtualRegister()
+                    result.add!(ARMInstruction("movw", ["\#:lower16: "+ src], [scratch]))
+                    result.add!(ARMInstruction("movt", ["\#:upper16: "+ src], [scratch]))
+                    src = scratch
+                end
+                result.add!(ARMInstruction("mov", [src], [ARMRegister(call_register)]))
                 used_registers.add!(ARMRegister(call_register))
                 call_register++
             end
             # Set up extra parameters on the stack
             for i = 9; i < sources.length(); i = i + 2
-                if sources[i + 1].type == "VirtualRegister" || sources[i + 1].type == "ARM_Register"
+                src = sources[i + 1]
+                if src.type == "VirtualRegister" || src.type == "ARM_Register"
                     used_registers.add!(sources[i + 1])
+                    result.add!(ARMInstruction("push", [], ["{" + src + "}"]))
+                else if src.type == "Integer"
+                    scratch = VirtualRegister()
+                    result.add!(ARMInstruction("movw", ["\#:lower16: "+ src], [scratch]))
+                    result.add!(ARMInstruction("movt", ["\#:upper16: "+ src], [scratch]))
+                    result.add!(ARMInstruction("push", [scratch], ["{" + scratch + "}"]))
+                else if src.type == "null"
+                    scratch = VirtualRegister()
+                    result.add!(ARMInstruction("mov", ["\#0"], [scratch]))
+                    result.add!(ARMInstruction("push", [scratch], ["{" + scratch + "}"]))
                 end
-                result.add!(ARMInstruction("push", [], ["{" + sources[i + 1] + "}"]))
+                
             end
             # Call the function
             result.add!(ARMInstruction("bl", [ARMRegister(0), ARMRegister(1), ARMRegister(2), ARMRegister(3)], [sources[0]+""].append(used_registers)))
@@ -309,6 +331,22 @@ constructor Instruction(instruction_type, sources, destinations, typ)
 
     :do_arithmatic_and_boolean (instruction_code)
         result = []
+        if instruction_type == "mul"
+            left = sources[0]
+            if left.type == "Integer"
+                left = VirtualRegister()
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + sources[0]], [left]))
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + sources[0]], [left]))
+            end
+            right = sources[1]
+            if right.type == "Integer"
+                right = VirtualRegister()
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + sources[1]], [right]))
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + sources[1]], [right]))
+            end
+            result.add!(ARMInstruction("mul", [left, right], [destinations[0]]))
+            return result
+        end
         if sources[0].type == "Integer"
             # Constant that is too big
             scratch_one = VirtualRegister()
@@ -319,7 +357,8 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             # Do the operation
             result.add!(ARMInstruction(instruction_code, [scratch_one, sources[1]], [destinations[0]]))
             return result
-        else if sources [1].type == "Integer" && ((sources[1] > MAX_THAT_CAN_FIT_IN_OP_TWO) || instruction_type == "mul")
+        end
+        if sources [1].type == "Integer" && ((sources[1] > MAX_THAT_CAN_FIT_IN_OP_TWO || (sources[1] < 0)))
             # Constant that is too big
             scratch_one = VirtualRegister()
             # Load the lower part of the constant
