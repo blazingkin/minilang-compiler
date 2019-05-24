@@ -125,14 +125,14 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         values = {}
         
         for i = 0; i < registers.length(); i++
-            values[registers[i]) = top
+            values[registers[i]] = top
         end
         for i = 0; i < registers.length(); i++
             if registers[i].place == "global"
                 values[registers[i]] = bottom
             else
                 values[registers[i]] = registers[i].source.evaluate()
-                if (values[registers[i] == top).negate()
+                if (values[registers[i]] == top).negate()
                     worklist.add(registers[i])
                 end
             end
