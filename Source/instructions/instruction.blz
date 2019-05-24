@@ -7,16 +7,24 @@ constructor InstructionError(message)
     end
 end
 
+:register_filter(x)
+    x.type == "VirtualRegister"
+end
+
 MAX_THAT_CAN_FIT_IN_OP_TWO = (2 ** 9) - 1
 constructor Instruction(instruction_type, sources, destinations, typ)
-
+    marked = false
     if sources.type == "Array"
         for i = 0; i < sources.length!(); i++
             if sources[i].type == "VirtualRegister"
                 sources[i].add_use(this)
             end
         end
+    else
+        throw "Sources should always be an array"
     end
+
+    source_registers = sources.filter(register_filter)
     
     if destinations.type == "Array"
         for i = 0; i < destinations.length!(); i++
@@ -25,8 +33,13 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             end
         end
     else if destinations.type == "VirtualRegister"
+        throw "Bad instruction destination"
         destinations.add_source(this)
+    else if destinations == {blz.nil}
+        destinations = []
     end
+
+    destination_registers = destinations.filter(register_filter)
 
     :show
         "<" + instruction_type + " from " + sources + " to " + destinations + ">"
@@ -228,23 +241,43 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             end
             return [ARMInstruction("mov", [src], [destinations[0]])]
         else if instruction_type == "Load"
-            #TODO
             result = []
-            result.add!(ARMInstruction("ldptr", [sources[0]], [destinations[0]]))
+
+            # Figure out where the destination should be, could be a global
+            load_from = sources[0]
+            if load_from.type == "VirtualRegister" && load_from.place == "global"
+                scratch = VirtualRegister()
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + load_from.name], [scratch]))
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + load_from.name], [scratch]))
+                load_from = scratch
+            end
+
+            result.add!(ARMInstruction("ldptr", [load_from], [destinations[0]]))
             return result
         else if instruction_type == "Store"
             result = []
+            
+            # Figure out where the destination should be, could be a global
+            store_to = destinations[0]
+            if store_to.type == "VirtualRegister" && store_to.place == "global"
+                scratch = VirtualRegister()
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + store_to.name], [scratch]))
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + store_to.name], [scratch]))
+                store_to = scratch
+            end
+
+            # Handle if the store a number or null
             if sources[0].type == "Integer"
                 scratch = VirtualRegister()
                 result.add!(ARMInstruction("movw", ["\#:lower16: " + sources[0]], [scratch]))
                 result.add!(ARMInstruction("movt", ["\#:upper16: " + sources[0]], [scratch]))
-                result.add!(ARMInstruction("stptr", [scratch, destinations[0]]))
+                result.add!(ARMInstruction("stptr", [scratch, store_to]))
             else if sources[0] == "null"
                 scratch = VirtualRegister()
                 result.add!(ARMInstruction("mov", [0], [scratch]))
-                result.add!(ARMInstruction("stptr", [scratch, destinations[0]]))
+                result.add!(ARMInstruction("stptr", [scratch, store_to]))
             else
-                result.add!(ARMInstruction("stptr", [sources[0], destinations[0]], []))
+                result.add!(ARMInstruction("stptr", [sources[0], store_to], []))
             end
             return result
         else if instruction_type == "GetElement"
@@ -303,16 +336,16 @@ constructor Instruction(instruction_type, sources, destinations, typ)
                 src = sources[i + 1]
                 if src.type == "VirtualRegister" || src.type == "ARM_Register"
                     used_registers.add!(sources[i + 1])
-                    result.add!(ARMInstruction("push", [], ["{" + src + "}"]))
+                    result.add!(ARMInstruction("pushone", [src], []))
                 else if src.type == "Integer"
                     scratch = VirtualRegister()
                     result.add!(ARMInstruction("movw", ["\#:lower16: "+ src], [scratch]))
                     result.add!(ARMInstruction("movt", ["\#:upper16: "+ src], [scratch]))
-                    result.add!(ARMInstruction("push", [scratch], ["{" + scratch + "}"]))
+                    result.add!(ARMInstruction("pushone", [scratch], []))
                 else if src.type == "null"
                     scratch = VirtualRegister()
                     result.add!(ARMInstruction("mov", ["\#0"], [scratch]))
-                    result.add!(ARMInstruction("push", [scratch], ["{" + scratch + "}"]))
+                    result.add!(ARMInstruction("pushone", [scratch], []))
                 end
                 
             end

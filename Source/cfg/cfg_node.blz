@@ -28,6 +28,10 @@ constructor CFGNode()
     successor = {blz.nil}
     instructions = []
 
+    :set_instructions(to)
+        instructions = to
+    end
+
     gen = Set()
     kill = Set()
     live_out = Set()

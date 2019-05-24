@@ -82,6 +82,8 @@ constructor ARMInstruction(instruction_type, sources, destinations)
             return "ldr " + to_arm(destinations[0]) + ", [" + to_arm(sources[0]) + "]"
         else if instruction_type == "stptr"
             return "str " + to_arm(sources[0]) + ", [" + to_arm(sources[1]) + "]"
+        else if instruction_type == "pushone"
+            return "push {" + sources[0] + "}"
         else if instruction_type == "push" || instruction_type == "pop"
             return instruction_type + " " + destinations[0]
         end
