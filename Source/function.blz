@@ -141,11 +141,17 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                     work_list.add(instruction)
                 end
             end
+            conditional_register = block.conditional_register
+            if conditional_register.source != {blz.nil}
+                instruction = conditional_register.source
+                instruction.marked = true
+                work_list.add(instruction)
+            end
         end
         while work_list.size() > 0
             instr = work_list.pick()
             work_list.remove(instr)
-            sources = instr.source_registers
+            sources = instr.sources.filter(x -> x.type == "VirtualRegister")
             for i = 0; i < sources.length(); i++
                 reg = sources[i]
                 src = reg.source
