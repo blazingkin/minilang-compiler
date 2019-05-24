@@ -118,6 +118,41 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         return id + ":\n" + function_entry_cfg.emit_arm() + "\n"
     end
 
+    top = "TOP"
+    bottom = "BOTTOM"
+    :spare_simple_constant_propogation(registers)
+        worklist = Set()
+        values = {}
+        
+        for i = 0; i < registers.length(); i++
+            values[registers[i]) = top
+        end
+        for i = 0; i < registers.length(); i++
+            if registers[i].place == "global"
+                values[registers[i]] = bottom
+            else
+                values[registers[i]] = registers[i].source.evaluate()
+                if (values[registers[i] == top).negate()
+                    worklist.add(registers[i])
+                end
+            end
+        end
+        while worklist.count > 0
+            reg = worklist.pop()
+            uses = reg.uses
+            for i = 0; i < uses.length(); i++
+                dest = uses[i].destinations
+                if (values[dest] == bottom).negate()
+                    temp = values[dest]
+                    values[dest] = uses[i].evaluate()
+                    if (values[dest] == temp).negate()
+                        worklist.add(dest)
+                    end
+                end
+            end
+        end    
+    end
+
     spill_count = 0
     :allocate_registers_arm(function_blocks)
         for i = 0; i < function_blocks.length(); i++
