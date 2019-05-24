@@ -3,18 +3,13 @@ struct test {
 };
 
 fun main() int {
-    struct test a;
-    bool b;
-    int c;
-    a = new test;
-    a.a = other(50);
-    if (a.a <= 60) {
-        c = 3;
-    }else {
-        c = 4;
+    int a;
+    a = read;
+    if (a < 4) {
+        return 3;
+    } else {
+        return 2;
     }
-    print c endl;
-    return 0;
 }
 
 fun other(int b) int {

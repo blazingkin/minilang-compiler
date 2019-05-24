@@ -139,7 +139,14 @@ constructor Instruction(instruction_type, sources, destinations, typ)
                 # Conditional branch
                 # Compare then branch if equal or branch if not equal
                 result = []
-                result.add!(ARMInstruction("cmp", [sources[0], 1], []))
+                src = sources[0]
+                if src.type == "Integer"
+                    scratch = VirtualRegister()
+                    result.add!(ARMInstruction("movw", [":lower16: " + src], [scratch]))
+                    result.add!(ARMInstruction("movt", [":upper16: " + src], [scratch]))
+                    src = scratch
+                end
+                result.add!(ARMInstruction("cmp", [src, 1], []))
                 result.add!(ARMInstruction("beq", [], [destinations[0]]))
                 result.add!(ARMInstruction("bne", [], [destinations[1]]))
                 return result
@@ -151,7 +158,6 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         else if instruction_type == "xor"
             return do_arithmatic_and_boolean("eor")
         else if instruction_type == "sdiv"
-            #TODO
             result = []
             result.add!(ARMInstruction("mov", [sources[0]], [ARMRegister(0)]))
             result.add!(ARMInstruction("mov", [sources[1]], [ARMRegister(1)]))
@@ -163,14 +169,38 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             if sources == [] || typ == primitive_type("void")
                 return result
             else
-                result.add!(ARMInstruction("mov", [sources[0]], [ARMRegister(0)]))
+                src = sources[0]
+                if src == "null"
+                    src = 0
+                end
+                result.add!(ARMInstruction("mov", [src], [ARMRegister(0)]))
                 return result
             end
         else if instruction_type == "Comparison"
-            #TODO
             result = []
             result.add!(ARMInstruction("mov", ["\#0"], [destinations[0]]))
-            result.add!(ARMInstruction("cmp", [sources[1], sources[2]], []))
+            arg_one = sources[1]
+            if arg_one.type == "Integer"
+                scratch = VirtualRegister()
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + arg_one], [scratch]))
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + arg_one], [scratch]))
+                arg_one = scratch
+            else if arg_one == "null"
+                scratch = VirtualRegister()
+                result.add!(ARMInstruction("mov", [0], [scratch]))
+                arg_one = scratch
+            end
+
+            arg_two = sources[2]
+            if arg_two == "null"
+                arg_two = "0"
+            else if arg_two.type == "Integer" && (arg_two > MAX_THAT_CAN_FIT_IN_OP_TWO || arg_two < 0)
+                scratch = VirtualRegister()
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + arg_two], [scratch]))
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + arg_two], [scratch]))
+                arg_two = scratch
+            end
+            result.add!(ARMInstruction("cmp", [arg_one, arg_two], []))
             move = ""
             if sources[0] == "eq"
               move = "moveq"
@@ -188,37 +218,43 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             result.add!(ARMInstruction(move, ["\#1"], [destinations[0]]))
             return result
         else if instruction_type == "Allocation"
-            #TODO
             result = []
             return result
             return val_to_llvm(destinations [0]) + " = alloca " + typ
         else if instruction_type == "bitcast" || instruction_type == "trunc" || instruction_type == "zext"
-            return [ARMInstruction("mov", [sources[0]], [destinations[0]])]
+            src = sources[0]
+            if sources[0] == "null"
+                src = 0
+            end
+            return [ARMInstruction("mov", [src], [destinations[0]])]
         else if instruction_type == "Load"
             #TODO
             result = []
             result.add!(ARMInstruction("ldptr", [sources[0]], [destinations[0]]))
             return result
         else if instruction_type == "Store"
-            #TODO
             result = []
             if sources[0].type == "Integer"
                 scratch = VirtualRegister()
-                result.add!(ARMInstruction("mov", [sources[0]], [scratch]))
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + sources[0]], [scratch]))
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + sources[0]], [scratch]))
+                result.add!(ARMInstruction("stptr", [scratch, destinations[0]]))
+            else if sources[0] == "null"
+                scratch = VirtualRegister()
+                result.add!(ARMInstruction("mov", [0], [scratch]))
                 result.add!(ARMInstruction("stptr", [scratch, destinations[0]]))
             else
                 result.add!(ARMInstruction("stptr", [sources[0], destinations[0]], []))
             end
             return result
         else if instruction_type == "GetElement"
-            #TODO
             result = []
             result.add!(ARMInstruction("add", [sources[0], "\#" + sources[1] * 4], [destinations[0]]))
             return result
         # Needs to be resoved
         else if instruction_type == "NegateInteger"
             result = []
-            if sources[0].type == "Integer" && sources[0] > MAX_THAT_CAN_FIT_IN_OP_TWO
+            if sources[0].type == "Integer" && (sources[0] > MAX_THAT_CAN_FIT_IN_OP_TWO || sources[0] < 0)
                 # Constant that is too big
                 scratch_one = VirtualRegister()
                 scratch_two = VirtualRegister()
@@ -248,16 +284,37 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             # Set up the calling registers
             for i = 1; i < sources.length() && i < 9; i = i + 2
                 # Type is in sources[i], value is in sources[i + 1]
-                result.add!(ARMInstruction("mov", [sources[i + 1]], [ARMRegister(call_register)]))
+                src = sources[i + 1]
+                if src == "null"
+                    src = 0
+                end
+                if src.type == "Integer" && (src < 0 || src > MAX_THAT_CAN_FIT_IN_OP_TWO)
+                    scratch = VirtualRegister()
+                    result.add!(ARMInstruction("movw", ["\#:lower16: "+ src], [scratch]))
+                    result.add!(ARMInstruction("movt", ["\#:upper16: "+ src], [scratch]))
+                    src = scratch
+                end
+                result.add!(ARMInstruction("mov", [src], [ARMRegister(call_register)]))
                 used_registers.add!(ARMRegister(call_register))
                 call_register++
             end
             # Set up extra parameters on the stack
             for i = 9; i < sources.length(); i = i + 2
-                if sources[i + 1].type == "VirtualRegister" || sources[i + 1].type == "ARMRegister"
+                src = sources[i + 1]
+                if src.type == "VirtualRegister" || src.type == "ARM_Register"
                     used_registers.add!(sources[i + 1])
+                    result.add!(ARMInstruction("push", [], ["{" + src + "}"]))
+                else if src.type == "Integer"
+                    scratch = VirtualRegister()
+                    result.add!(ARMInstruction("movw", ["\#:lower16: "+ src], [scratch]))
+                    result.add!(ARMInstruction("movt", ["\#:upper16: "+ src], [scratch]))
+                    result.add!(ARMInstruction("push", [scratch], ["{" + scratch + "}"]))
+                else if src.type == "null"
+                    scratch = VirtualRegister()
+                    result.add!(ARMInstruction("mov", ["\#0"], [scratch]))
+                    result.add!(ARMInstruction("push", [scratch], ["{" + scratch + "}"]))
                 end
-                result.add!(ARMInstruction("push", [], ["{" + sources[i + 1] + "}"]))
+                
             end
             # Call the function
             result.add!(ARMInstruction("bl", [ARMRegister(0), ARMRegister(1), ARMRegister(2), ARMRegister(3)], [sources[0]+""].append(used_registers)))
@@ -274,6 +331,22 @@ constructor Instruction(instruction_type, sources, destinations, typ)
 
     :do_arithmatic_and_boolean (instruction_code)
         result = []
+        if instruction_type == "mul"
+            left = sources[0]
+            if left.type == "Integer"
+                left = VirtualRegister()
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + sources[0]], [left]))
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + sources[0]], [left]))
+            end
+            right = sources[1]
+            if right.type == "Integer"
+                right = VirtualRegister()
+                result.add!(ARMInstruction("movw", ["\#:lower16: " + sources[1]], [right]))
+                result.add!(ARMInstruction("movt", ["\#:upper16: " + sources[1]], [right]))
+            end
+            result.add!(ARMInstruction("mul", [left, right], [destinations[0]]))
+            return result
+        end
         if sources[0].type == "Integer"
             # Constant that is too big
             scratch_one = VirtualRegister()
@@ -284,7 +357,8 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             # Do the operation
             result.add!(ARMInstruction(instruction_code, [scratch_one, sources[1]], [destinations[0]]))
             return result
-        else if sources [1].type == "Integer" && ((sources[1] > MAX_THAT_CAN_FIT_IN_OP_TWO) || instruction_type == "mul")
+        end
+        if sources [1].type == "Integer" && ((sources[1] > MAX_THAT_CAN_FIT_IN_OP_TWO || (sources[1] < 0)))
             # Constant that is too big
             scratch_one = VirtualRegister()
             # Load the lower part of the constant

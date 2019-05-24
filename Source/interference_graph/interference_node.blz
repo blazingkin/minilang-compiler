@@ -1,20 +1,66 @@
-require ../instructions/registser
+require ../instructions/register
+import Set
+
+# r10 and r9 are reserved for spills
+# r0, r1, r2, r3, r4, r5, r6, r7, r8
+NUM_COLORS = 9
 
 constructor InterferenceNode(register)
 
     edges = Set()
+    color = {blz.nil}
+    spilled = false
+
+    :is_compatible?(other_color)
+        return spilled || color != other_color
+    end
+
+    :copy
+        this
+    end
+
+    :show
+        "InterferenceNode - " + register + " " + color + "numEdges" + edges.size() + "\n" + edges.values().fold_left("\t", (a, v -> a + v + "\n\t"))
+    end
+
+    :<(other)
+        if other.type != "InterferenceNode"
+            throw "Tried to compare interference node with " + other
+        end
+        if register.type == "VirtualRegister" 
+            if edges.size() < NUM_COLORS
+                return true
+            else
+                if other.register.type == "VirtualRegister"
+                    if other.edges.size() < NUM_COLORS
+                        return false
+                    else
+                        return edges.size() > other.edges.size()
+                    end
+                else
+                    return true
+                end
+            end
+        else
+            return false
+        end
+    end
 
     :add_edge (target_node)
-        if !target_node.edges.contains?(self)
-            target_node.add_edge(self)
-        end
         edges.add(target_node)
+        if (target_node.edges.contains?(this)).negate()
+            target_node.add_edge(this)
+        end
     end
 
     :remove_edge (target_node)
-        if target_node.edges.contains?(self)
-            target_node.remove_edge(self)
+        if target_node.edges.contains?(this)
+            target_node.remove_edge(this)
         end
+        edges.remove(target_node)
+    end
+
+    :remove_edge_from_this(target_node)
         edges.remove(target_node)
     end
 
