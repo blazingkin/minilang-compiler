@@ -175,7 +175,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             result.add!(ARMInstruction("mov", [sources[0]], [ARMRegister(0)]))
             result.add!(ARMInstruction("mov", [sources[1]], [ARMRegister(1)]))
             result.add!(ARMInstruction("bl", [ARMRegister(0), ARMRegister(1), ARMRegister(2), ARMRegister(3)], ["__aeabi_idiv", ARMRegister(0), ARMRegister(1)]))
-            result.add!(ARMInstruction("mov", [ARMRegister(1)], [destinations[0]]))
+            result.add!(ARMInstruction("mov", [ARMRegister(0)], [destinations[0]]))
             return result
         else if instruction_type == "Return"
             result = []
