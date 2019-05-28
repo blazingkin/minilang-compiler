@@ -209,15 +209,15 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 end
             end
         end
-        while worklist.count > 0
+        while worklist.size() > 0
             reg = worklist.pop()
             uses = reg.uses
             for i = 0; i < uses.length(); i++
                 dest = uses[i].destinations
-                if (values[dest] == bottom).negate()
+                if (values[dest] != bottom)
                     temp = values[dest]
                     values[dest] = uses[i].evaluate()
-                    if (values[dest] == temp).negate()
+                    if (values[dest] != temp)
                         worklist.add(dest)
                     end
                 end

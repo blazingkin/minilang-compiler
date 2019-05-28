@@ -1,0 +1,28 @@
+:read_all(resource)
+    result = ""
+    while resource.has_next?()
+        result = result + resource.next()
+    end
+    result
+end
+
+:has_next?(resource)
+    BLZINTERNALSCANNERHASNEXT resource
+end
+
+:next(resource)
+    BLZINTERNALSCANNERREADNEXT resource
+end
+
+:write(resource, message)
+    BLZINTERNALWRITETORESOURCE resource, message
+end
+
+:read_lines(resource)
+    resource.read_all().split_on_token({text.newline})
+end
+
+:close(resource)
+    BLZINTERNALCLOSERESOURCE resource
+    BLZINTERNALREBIND resource, {blz.nil}
+end

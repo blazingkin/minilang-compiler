@@ -1,0 +1,53 @@
+:file_resource(name)
+    BLZINTERNALBLZGETFILEATPATH name
+end
+
+:http_resource(name)
+    name = "http://" + name
+    BLZINTERNALCREATERESOURCE name
+end
+
+:https_resource(name)
+    name = "https://" + name
+    BLZINTERNALCREATERESOURCE name
+end
+
+:resource_from_url(name)
+    BLZINTERNALCREATERESOURCE name
+end
+
+:open_resource(resource, mode)
+    BLZINTERNALOPENRESOURCE resource, mode
+end
+
+:open(filename, mode)
+    if mode == {blz.nil}
+        mode = "r"
+    end
+    open_resource(file_resource(filename), mode)
+end
+
+:open_http(path, mode)
+    if mode == {blz.nil}
+        mode = "r"
+    end
+    open_resource(http_resource(path), mode)
+end
+
+:open_https(path, mode)
+    if mode == {blz.nil}
+        mode = "r"
+    end
+    open_resource(https_resource(path), mode)
+end
+
+:open_url(url, mode)
+    if mode == {blz.nil}
+        mode = "r"
+    end
+    open_resource(resource_from_url(url), mode)
+end
+
+:close(scanner)
+    scanner.close()
+end

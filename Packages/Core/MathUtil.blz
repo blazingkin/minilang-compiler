@@ -1,0 +1,54 @@
+
+ # Math Utilities
+ #
+ #
+ #
+ #
+
+:abs(x)
+	if x < 0
+		0 - x
+	else
+		x
+	end
+end
+
+:ceil(x)
+	if x % 1 == 0
+		x
+	else
+		x + (1 - (x % 1))
+	end
+end
+
+:distance(x_1, y_1, x_2, y_2)
+	(((x_2 - x_1) ** 2) + ((y_2 - y_1) ** 2)) ** 0.5 
+end
+
+:floor(x)
+	(x - (x % 1))
+end
+
+:max(x, y)
+	if x > y
+		x
+	else
+		y
+	end
+end
+
+:min(x, y)
+	if x < y
+		x
+	else
+		y
+	end
+end
+
+:random(range, max)
+	if max == {blz.nil}
+		RAND range
+	else
+		RAND range, max
+	end
+end
