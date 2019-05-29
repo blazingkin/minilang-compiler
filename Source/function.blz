@@ -98,7 +98,9 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         # Get all of the blocks in the function
         function_blocks = blocks_in_function(function_exit_cfg).values()
 
+
         if {arguments}.contains?("-constant-prop")
+            used_registers = used_llvm_registers(function_blocks).values()
             sparse_simple_constant_propogation!(used_registers)
         end
         if {arguments}.contains?("-dead-code")
@@ -184,7 +186,14 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             block = function_blocks[i]
             for j = 0; j < block.instructions.length(); j++
                 instruction = block.instructions[j]
-                result = result.union(Set(instruction.destination_registers))
+                dest_registers = instruction.destinations.filter(x -> x.type == "VirtualRegister")
+                src_registers = instruction.sources.filter(x -> x.type == "VirtualRegister")
+                result = result.union(Set(dest_registers))
+                result = result.union(Set(src_registers))
+            end
+            for j = 0; j < block.phis.length(); j++
+                phi = block.phis[j]
+                result = result.union(Set(phi.destinations))
             end
         end
         return result
@@ -192,7 +201,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
 
     top = "TOP"
     bottom = "BOTTOM"
-    :spare_simple_constant_propogation(registers)
+    :sparse_simple_constant_propogation(registers)
         worklist = Set()
         values = {}
         
@@ -203,22 +212,28 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             if registers[i].place == "global"
                 values[registers[i]] = bottom
             else
-                values[registers[i]] = registers[i].source.evaluate()
-                if (values[registers[i]] == top).negate()
-                    worklist.add(registers[i])
+                if registers[i].source != {blz.nil}
+                    values[registers[i]] = registers[i].source.evaluate(values)
+                    if (values[registers[i]] == top).negate()
+                        worklist.add(registers[i])
+                    end
                 end
             end
         end
         while worklist.size() > 0
-            reg = worklist.pop()
+            reg = worklist.pick()
+            worklist.remove(reg)
             uses = reg.uses
             for i = 0; i < uses.length(); i++
-                dest = uses[i].destinations
-                if (values[dest] != bottom)
-                    temp = values[dest]
-                    values[dest] = uses[i].evaluate()
-                    if (values[dest] != temp)
-                        worklist.add(dest)
+                dests = uses[i].destinations
+                for j = 0; j < dests.length(); j++
+                    dest = dests[j]
+                    if (values[dest] != bottom)
+                        temp = values[dest]
+                        values[dest] = uses[i].evaluate(values)
+                        if (values[dest] != temp)
+                            worklist.add(dest)
+                        end
                     end
                 end
             end
@@ -396,6 +411,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_blocks = blocks_in_function(function_exit_cfg).values()
 
         if {arguments}.contains?("-constant-prop")
+            used_registers = used_llvm_registers(function_blocks).values()
             sparse_simple_constant_propogation!(used_registers)
         end
         if {arguments}.contains?("-dead-code")

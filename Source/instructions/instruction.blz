@@ -67,6 +67,95 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         end
     end
 
+    top = "TOP"
+    bottom = "BOTTOM"
+    binary_instructions = {}
+    binary_instructions["add"] = (x,y -> x + y)
+    binary_instructions["sub"] = (x,y -> x - y)
+    binary_instructions["mul"] = (x,y -> x * y)
+    binary_instructions["and"] = (x,y -> x & y)
+    :or_binary(x, y)
+        if x == 1 || y == 1
+            1
+        else
+            0
+        end
+    end
+    binary_instructions["or"] = or_binary
+    binary_instructions["xor"] = (x,y -> x ^ y)
+
+    :evaluate(values)
+        # Certain instruction types will always return bottom
+        if ["FunctionCall", "Load", "Store", "GetElement", "bitcast", "zext", "trunc", "Return", "Branch", "Allocation", "Comparison"].contains?(instruction_type)
+            return bottom
+        end
+
+
+        for i = 0; i < sources.length(); i++
+            src = sources[i]
+            if src.type == "VirtualRegister" && values.has_key?(src) && values[src] == bottom
+                return bottom
+            end
+        end
+
+        # Resolve the value references if they are present in the map
+        fully_resolved = sources.copy()
+        for i = 0; i < fully_resolved.length(); i++
+            if values.has_key?(fully_resolved[i])
+                fully_resolved[i] = values[fully_resolved[i]]
+            end
+        end
+
+        # Do abstract evaluation of binary instructions
+        if binary_instructions.has_key?(instruction_type)
+            if fully_resolved[0].type == "Integer" && fully_resolved[1].type == "Integer"
+                return binary_instructions[instruction_type](fully_resolved[0], fully_resolved[1])
+            else
+                return top
+            end
+        end 
+
+        if instruction_type == "NegateInteger"
+            if fully_resolved[0].type == "Integer"
+                return -1 * fully_resolved[0]
+            else
+                return top
+            end
+        end
+        if instruction_type == "NegateBoolean"
+            if fully_resolved[0].type == "Integer"
+                return 1 ^ fully_resolved[0]
+            else
+                return top
+            end
+        end
+
+        if instruction_type == "Phi"
+            values = []
+            for i = 0; i < fully_resolved.length(); i = i + 2
+                values.add!(fully_resolved[i])
+            end
+            return meet(values)
+        end
+        throw "Unknown instruction type (constant propogation evaluate) " + instruction_type
+    end
+
+    :meet(values)
+        non_top = values.filter(x -> x != top)
+        if non_top.empty?()
+            return top
+        end
+        all_same = true
+        for i = 0; i < non_top.length(); i++
+            all_same = all_same && (non_top[i] == non_top[0])
+        end
+        if all_same
+            return non_top[0]
+        else
+            return bottom
+        end
+    end
+
     :emit_llvm
         # "Label", label_name
         if instruction_type == "Label"
