@@ -101,7 +101,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
 
         if {arguments}.contains?("-constant-prop")
             used_registers = used_llvm_registers(function_blocks).values()
-            sparse_simple_constant_propogation!(used_registers)
+            sparse_simple_constant_propogation!(used_registers, function_blocks)
         end
         if {arguments}.contains?("-dead-code")
             mark_dead_code!(function_blocks)
@@ -201,7 +201,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
 
     top = "TOP"
     bottom = "BOTTOM"
-    :sparse_simple_constant_propogation(registers)
+    :sparse_simple_constant_propogation(registers, function_blocks)
         worklist = Set()
         values = {}
         
@@ -209,12 +209,12 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             values[registers[i]] = top
         end
         for i = 0; i < registers.length(); i++
-            if registers[i].place == "global"
+            if registers[i].place == "global" || registers[i].place == "stack"
                 values[registers[i]] = bottom
             else
                 if registers[i].source != {blz.nil}
                     values[registers[i]] = registers[i].source.evaluate(values)
-                    if (values[registers[i]] == top).negate()
+                    if values[registers[i]] != top
                         worklist.add(registers[i])
                     end
                 end
@@ -228,16 +228,33 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 dests = uses[i].destinations
                 for j = 0; j < dests.length(); j++
                     dest = dests[j]
-                    if (values[dest] != bottom)
+                    if values[dest] != bottom
                         temp = values[dest]
                         values[dest] = uses[i].evaluate(values)
-                        if (values[dest] != temp)
+                        if values[dest] != temp
                             worklist.add(dest)
                         end
                     end
                 end
             end
-        end    
+        end
+        rewrite_uses(function_blocks, values)    
+    end
+
+    :rewrite_uses(function_blocks, values)
+        for i = 0; i < function_blocks.size(); i++
+            block = function_blocks[i]
+            new_instrs = []
+            for j = 0; j < block.instructions.length(); j++
+                instr = block.instructions[j]
+                for k = 0; k < instr.sources.length(); k++
+                    src = instr.sources[k]
+                    if values.has_key?(src) && values[src] != bottom && values[src] != top
+                        instr.set_n_source(k, values[src])
+                    end
+                end
+            end
+        end
     end
 
     spill_count = 0
@@ -376,7 +393,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             if i != 0
                 llvm = llvm + ", "
             end
-            param_registers[i] = VirtualRegister(parameters[i].typ, "_P_"+parameters[i].id, "parameters")
+            param_registers[i] = VirtualRegister(parameters[i].typ, "_P_"+parameters[i].id, "stack")
             llvm = llvm + parameters[i].typ + " " + param_registers[i].emit_llvm()
         end
         llvm = llvm + ")\n{"
@@ -388,7 +405,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             for i = 0; i < parameters.length!(); i++
                 local_register = VirtualRegister(parameters[i].typ, parameters[i].id, "stack")
                 function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], parameters[i].typ))
-                function_entry_cfg.add_instruction(Instruction("Store", [param_registers[i]], [local_register], parameters[i].typ))
+                function_entry_cfg.add_instruction(Instruction("Store", [param_registers[i], local_register], [], parameters[i].typ))
             end
             for i = 0; i < declarations.length(); i++
                 local_register = VirtualRegister(declarations[i].typ, declarations[i].id, "stack")
@@ -412,7 +429,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
 
         if {arguments}.contains?("-constant-prop")
             used_registers = used_llvm_registers(function_blocks).values()
-            sparse_simple_constant_propogation!(used_registers)
+            sparse_simple_constant_propogation!(used_registers, function_blocks)
         end
         if {arguments}.contains?("-dead-code")
             mark_dead_code!(function_blocks)

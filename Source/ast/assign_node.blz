@@ -33,14 +33,14 @@ constructor AssignNode(target, right, line)
                 # Get the destination register from the target
                 dest_register = target.translate_right(current_block)
                 # There is no dot, simply generate a store instruction
-                current_block.add_instruction(Instruction("Store", [right_val], [dest_register], target.this.symbol_type))
+                current_block.add_instruction(Instruction("Store", [right_val, dest_register], [], target.this.symbol_type))
             else
                 current_block.write_variable(target.id, right_val)
             end
         else
             # There is a dot
             dest_register = target.translate_right(current_block)
-            current_block.add_instruction(Instruction("Store", [right_val], [dest_register], target.this.right_type))
+            current_block.add_instruction(Instruction("Store", [right_val, dest_register], [], target.this.right_type))
         end
         current_block
     end

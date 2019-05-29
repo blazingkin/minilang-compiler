@@ -41,6 +41,17 @@ constructor Instruction(instruction_type, sources, destinations, typ)
 
     destination_registers = destinations.filter(register_filter)
 
+
+    :set_n_destination(n, val)
+        destinations[n] = val
+        destination_registers = destinations.filter(register_filter)
+    end
+
+    :set_n_source(n, val)
+        sources[n] = val
+        source_registers = sources.filter(register_filter)
+    end
+
     :show
         "<" + instruction_type + " from " + sources + " to " + destinations + ">"
     end
@@ -81,6 +92,15 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             0
         end
     end
+    :sdiv(x, y)
+        result = 0
+        while x > y
+            x = x - y
+            result++
+        end
+        result
+    end
+    binary_instructions["sdiv"] = sdiv
     binary_instructions["or"] = or_binary
     binary_instructions["xor"] = (x,y -> x ^ y)
 
@@ -186,7 +206,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         else if instruction_type == "Load"
             return val_to_llvm(destinations [0]) + " = load " + typ + ", " + typ + "* " + val_to_llvm(sources [0])
         else if instruction_type == "Store"
-            return "store " + typ + " " + val_to_llvm(sources [0]) + ", " + typ + "* " + val_to_llvm(destinations [0])
+            return "store " + typ + " " + val_to_llvm(sources [0]) + ", " + typ + "* " + val_to_llvm(sources[1])
         else if instruction_type == "GetElement"
             return val_to_llvm(destinations [0]) + " = getelementptr " + typ.llvm_no_pointer() + ", " + typ + " " + val_to_llvm(sources [0]) + ", i1 0, i32 " + val_to_llvm(sources [1])
         # Needs to be resoved
@@ -347,7 +367,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             result = []
             
             # Figure out where the destination should be, could be a global
-            store_to = destinations[0]
+            store_to = sources[1]
             if store_to.type == "VirtualRegister" && store_to.place == "global"
                 scratch = VirtualRegister()
                 result.add!(ARMInstruction("movw", ["\#:lower16: " + store_to.name], [scratch]))

@@ -47,6 +47,12 @@ constructor CFGNode()
                 phi_src.add!(predecessors[j])
             end
             incomplete_phis[i].sources = phi_src
+            for j = 0; j < phi_src.length(); j++
+                possibly_register = phi_src[j]
+                if possibly_register.type == "VirtualRegister"
+                    possibly_register.add_use(incomplete_phis[i])
+                end
+            end
             phis.add!(incomplete_phis[i])
         end
         incomplete_phis = []

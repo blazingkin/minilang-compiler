@@ -1,16 +1,51 @@
 require types/primitive_type
 require declaration
+import DataStructures
 
 constructor Program(types, functions, declarations)
+
+    :emit_function_llvm(function)
+        result = function.emit_llvm()
+        print_queue.push(result)
+        waiting_on[function.id] = false
+    end
 
     :emit_llvm
         types.each(x -> print(x.emit_llvm()))
         declarations.each(x -> print(x.emit_llvm()))
         for i = 0; i < functions.length(); i++
-            print(functions[i].emit_llvm())
+            waiting_on[functions[i].id] = true
+            function = functions[i]
+            async emit_function_llvm(function)
+            sleep(500)
+        end
+        while waiting_on.values().any?() || print_queue.size() > 0
+            sleep(1000)
+            while print_queue.size() > 0
+                print(print_queue.pop())
+            end
         end
         print("\ndeclare i8* @malloc(i32)\ndeclare void @free(i8*)\ndeclare void @print(i32)\ndeclare void @printl(i32)\ndeclare i32 @readchar()\n")
     end
+
+
+    :emit_function_arm(function)
+        try
+            result = ""
+            result = result + ".text\n"
+            result = result + ".align 2\n"
+            result = result + ".global " + function.id + "\n"
+            result = result + function.emit_arm() + "\n"
+            result = result + ".size " + function.id + ", .-"+function.id
+            print_queue.push(result)
+            waiting_on[function.id] = false
+        catch err
+            throw "ERR in async"
+        end
+    end
+
+    print_queue = Stack()
+    waiting_on = {}
 
     :emit_arm
         # Print the program prologue
@@ -20,13 +55,21 @@ constructor Program(types, functions, declarations)
         for i = 0; i < declarations.length(); i++
             print(".comm " +declarations[i].id + " 4,4")
         end
-        for i = 0; i < functions.length!(); i++
+        length = functions.length()
+        for unique_index = 0; unique_index < length; unique_index++
             # Print the function setup
-            print(".text")
-            print(".align 2")
-            print(".global " + functions[i].id)
-            print(functions[i].emit_arm())
-            print(".size " + functions[i].id + ", .-"+functions[i].id)
+            waiting_on[functions[unique_index].id] = true
+            function = functions[unique_index]
+            if unique_index < length
+                async emit_function_arm(function)
+            end
+            sleep(500)
+        end
+        while waiting_on.values().any?() || print_queue.size() > 0
+            sleep(1000)
+            while print_queue.size() > 0
+                print(print_queue.pop())
+            end
         end
     end
 
