@@ -94,6 +94,9 @@ constructor Instruction(instruction_type, sources, destinations, typ)
     end
     :sdiv(x, y)
         result = 0
+        if y == 0
+            return bottom
+        end
         while x > y
             x = x - y
             result++
@@ -106,9 +109,11 @@ constructor Instruction(instruction_type, sources, destinations, typ)
 
     :evaluate(values)
         # Certain instruction types will always return bottom
-        if ["FunctionCall", "Load", "Store", "GetElement", "bitcast", "zext", "trunc", "Return", "Branch", "Allocation", "Comparison"].contains?(instruction_type)
+        if ["FunctionCall", "Load", "Store", "GetElement", "Return", "Branch", "Allocation", "Comparison"].contains?(instruction_type)
             return bottom
         end
+
+
 
 
         for i = 0; i < sources.length(); i++
@@ -118,12 +123,22 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             end
         end
 
+
+
         # Resolve the value references if they are present in the map
         fully_resolved = sources.copy()
         for i = 0; i < fully_resolved.length(); i++
             if values.has_key?(fully_resolved[i])
                 fully_resolved[i] = values[fully_resolved[i]]
             end
+        end
+
+        if ["bitcast", "trunc", "zext"].contains?(instruction_type)
+            return fully_resolved[0]    
+        end
+
+        if ["Comparison"].contains?(instruction_type)
+            # TODO propogate constants through comparison
         end
 
         # Do abstract evaluation of binary instructions
@@ -295,7 +310,12 @@ constructor Instruction(instruction_type, sources, destinations, typ)
                 if src == "null"
                     src = 0
                 end
-                result.add!(ARMInstruction("mov", [src], [ARMRegister(0)]))
+                if src.type == "Integer" && (src > MAX_THAT_CAN_FIT_IN_OP_TWO || src < 0)
+                    result.add!(ARMInstruction("movw", ["\#:lower16:" + src], [ARMRegister(0)]))
+                    result.add!(ARMInstruction("movt", ["\#:upper16:" + src], [ARMRegister(0)]))
+                else
+                    result.add!(ARMInstruction("mov", [src], [ARMRegister(0)]))
+                end
                 return result
             end
         else if instruction_type == "Comparison"
@@ -461,7 +481,12 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             # Call the function
             result.add!(ARMInstruction("bl", [ARMRegister(0), ARMRegister(1), ARMRegister(2), ARMRegister(3)], [sources[0]+""].append(used_registers)))
             if destinations != []
-                result.add!(ARMInstruction("mov", [ARMRegister(0)], [destinations[0]]))
+                if destinations[0].type == "Integer" && (destinations[0] > MAX_THAT_CAN_FIT_IN_OP_TWO || destinations[0] < 0)
+                    result.add!(ARMInstruction("movw", ["\#:lower16: " + ARMRegister(0)], [destinations[0]]))
+                    result.add!(ARMInstruction("movt", ["\#:upper16: " + ARMRegister(0)], [destinations[0]]))
+                else
+                    result.add!(ARMInstruction("mov", [ARMRegister(0)], [destinations[0]]))
+                end
             end
             return result
         else if instruction_type == "Phi"

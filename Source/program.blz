@@ -40,7 +40,7 @@ constructor Program(types, functions, declarations)
             print_queue.push(result)
             waiting_on[function.id] = false
         catch err
-            throw "ERR in async"
+            throw "ERR in async " + err
         end
     end
 
