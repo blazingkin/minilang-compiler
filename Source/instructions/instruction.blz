@@ -107,6 +107,13 @@ constructor Instruction(instruction_type, sources, destinations, typ)
     binary_instructions["or"] = or_binary
     binary_instructions["xor"] = (x,y -> x ^ y)
 
+    comparisons = {}
+    comparison["eq"] = (x,y -> x == y)
+    comparison["neq"] = (x,y -> x != y)
+    comparison["sgt"] = (x,y -> x > y)
+    comparison["sge"] = (x,y -> x >= y)
+    comparison["slt"] = (x,y -> x < y)
+    comparison["sle"] = (x,y -> x <= y)
     :evaluate(values)
         # Certain instruction types will always return bottom
         if ["FunctionCall", "Load", "Store", "GetElement", "Return", "Branch", "Allocation", "Comparison"].contains?(instruction_type)
@@ -139,6 +146,18 @@ constructor Instruction(instruction_type, sources, destinations, typ)
 
         if ["Comparison"].contains?(instruction_type)
             # TODO propogate constants through comparison
+            left = fully_resolved[1]
+            right = fully_resolved[2]
+            compare = comparisons[sources[0]]
+            if left.type == "Integer" && right.type == "Integer"
+                if compare(left, right)
+                    return 1
+                else
+                    return 0
+                end
+            else
+                return top
+            end        
         end
 
         # Do abstract evaluation of binary instructions
