@@ -46,15 +46,16 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         this
     end
 
-    :blocks_in_function(ext)
-        result = Set([ext])
+    :blocks_in_function(ent)
+        result = Set([ent])
         result_length = 0
         while result_length != result.size()
             result_length = result.size()
             entries = result.values()
             for i = 0; i < entries.length!(); i++
-                for j = 0; j < entries[i].predecessors.length(); j++
-                    result.add(entries[i].predecessors[j])
+                all_successors = entries[i].get_successors()
+                for j = 0; j < all_successors.length(); j++
+                    result.add(all_successors[j])
                 end
             end
         end
@@ -65,6 +66,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_entry_cfg = CFGNode()
         function_entry_cfg.sealed = true
         function_exit_cfg = CFGNode()
+        function_exit_cfg.exit_block = true
         param_registers = []
         # Move variables from registers / stack to 
         # Emit the stack if we are using it
@@ -96,19 +98,25 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         end
 
         # Get all of the blocks in the function
-        function_blocks = blocks_in_function(function_exit_cfg).values()
+        function_blocks = blocks_in_function(function_entry_cfg).values()
 
         for i = 0; i < function_blocks.length(); i++
             function_blocks[i].make_branch()
         end
 
-        if {arguments}.contains?("-constant-prop")
+        if {arguments}.contains?("-constant-prop") || {arguments}.contains?("-cp")
             used_registers = used_llvm_registers(function_blocks).values()
             sparse_simple_constant_propogation!(used_registers, function_blocks)
         end
-        if {arguments}.contains?("-dead-code")
+        if {arguments}.contains?("-dead-code") || {arguments}.contains?("-dc")
             mark_dead_code!(function_blocks)
             eliminate_dead_code!(function_blocks)
+        end
+
+        if {arguments}.contains?("-simplify-cfg") || {arguments}.contains?("-sc")
+            simplify_cfg(function_blocks)
+            function_blocks = blocks_in_function(function_entry_cfg).values()
+            function_exit_cfg = function_blocks.filter(x -> x.exit_block)[0]
         end
 
         # Translate phi instructions into psuedo-phis
@@ -132,6 +140,10 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_exit_cfg.add_arm_instruction_at_beginning(ARMInstruction("pop", [], ["{r4-r10}"]))
 
         return id + ":\n" + function_entry_cfg.emit_arm() + "\n"
+    end
+
+    :simplify_cfg(function_blocks)
+        function_blocks.each(x -> x.cfg_simplification())
     end
 
     :mark_dead_code(function_blocks)
@@ -397,6 +409,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_entry_cfg = CFGNode()
         function_entry_cfg.sealed = true
         function_exit_cfg = CFGNode()
+        function_exit_cfg.exit_block = true
         if stack_based?()
             # Emit the stack if we are using it
             for i = 0; i < parameters.length!(); i++
@@ -422,19 +435,25 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         function_exit_cfg.add_instruction(Instruction("Return", [return_type.default_value()], [], return_type))
         
                 # Get all of the blocks in the function
-        function_blocks = blocks_in_function(function_exit_cfg).values()
+        function_blocks = blocks_in_function(function_entry_cfg).values()
 
         for i = 0; i < function_blocks.length(); i++
             function_blocks[i].make_branch()
         end
 
-        if {arguments}.contains?("-constant-prop")
+        if {arguments}.contains?("-constant-prop") || {arguments}.contains?("-cp")
             used_registers = used_llvm_registers(function_blocks).values()
             sparse_simple_constant_propogation!(used_registers, function_blocks)
         end
-        if {arguments}.contains?("-dead-code")
+        if {arguments}.contains?("-dead-code") || {arguments}.contains?("-dc")
             mark_dead_code!(function_blocks)
             eliminate_dead_code!(function_blocks)
+        end
+
+        if {arguments}.contains?("-simplify-cfg") || {arguments}.contains?("-sc")
+            simplify_cfg(function_blocks)
+            function_blocks = blocks_in_function(function_entry_cfg).values()
+            function_exit_cfg = function_blocks.filter(x -> x.exit_block)[0]
         end
         
         llvm = llvm + function_entry_cfg.emit_llvm() + "\n}"

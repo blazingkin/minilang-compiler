@@ -185,3 +185,15 @@ fun main() int
 {
    return 0;
 }
+
+fun simple () void
+{
+   int a;
+   if (true) {
+      a = 1;
+   }else {
+      a = 3;
+   }
+   a = 2;
+   print a endl;
+}

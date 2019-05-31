@@ -18,6 +18,7 @@ constructor CFGNode()
     false_successor = {blz.nil}
     conditional_register = VirtualRegister("i1")
     printed = false
+    exit_block = false
 
     # Milestone 3
     sealed = false
@@ -76,6 +77,20 @@ constructor CFGNode()
             predecessors[i].print_predecessors(depth + 1)
         end
         printing_predecessors = false
+    end
+
+    :get_successors
+        all_successors = []
+        if true_successor != {blz.nil}
+            all_successors.add!(true_successor)
+        end
+        if false_successor != {blz.nil}
+            all_successors.add!(false_successor)
+        end
+        if successor != {blz.nil}
+            all_successors.add!(successor)
+        end
+        all_successors
     end
 
     :write_variable(id, val)
@@ -145,7 +160,9 @@ constructor CFGNode()
         if true_successor != {blz.nil}
             true_successor.remove_predecessor(this)
         end
-        node.add_predecessor(this)
+        if node != {blz.nil}
+            node.add_predecessor(this)
+        end
         true_successor = node
     end
 
@@ -153,7 +170,9 @@ constructor CFGNode()
         if false_successor != {blz.nil}
             false_successor.remove_predecessor(this)
         end
-        node.add_predecessor(this)
+        if node != {blz.nil}
+            node.add_predecessor(this)
+        end
         false_successor = node
     end
 
@@ -161,7 +180,9 @@ constructor CFGNode()
         if successor != {blz.nil}
             successor.remove_predecessor(this)
         end
-        node.add_predecessor(this)
+        if node != {blz.nil}
+            node.add_predecessor(this)
+        end
         successor = node
     end
 
@@ -310,5 +331,69 @@ constructor CFGNode()
         end
         return live_out_copy == live_out
     end
+
+    :cfg_simplification
+
+        if exit_block
+            return ""
+        end
+        conditional_same_destination()
+        straight_through()
+
+        instr = instructions[instructions.length() - 1]
+        if instr.instruction_type == "Branch"
+            instructions.slice!(0, instructions.length()-1)
+            make_branch()
+        end
+    end
+
+    :conditional_same_destination
+        if is_conditional?() && true_successor == false_successor
+            set_successor(true_successor)
+            set_true_successor({blz.nil})
+            set_false_successor({blz.nil})
+        else
+            instr = instructions[instructions.length()-1]
+            if instr.instruction_type == "Branch" && instr.sources != [] && instr.sources[0].type == "Integer"
+                if instr.sources[0] == 0
+                    set_successor(false_successor)
+                else
+                    set_successor(true_successor)
+                end
+                set_true_successor({blz.nil})
+                set_false_successor({blz.nil})
+            end
+        end
+    end
+
+
+
+    #This should be last
+    :straight_through
+        if is_conditional?().negate() && successor != {blz.nil} && successor.predecessors.length() == 1
+            if successor.exit_block
+                exit_block = true
+            end
+            #Remove the branch
+            instructions.slice!(0, instructions.length()-1)
+            #Add the successor's instructions
+            instructions.append!(successor.instructions)
+            successor.remove_predecessor(this)
+            if successor.is_conditional?()
+                successor.true_successor.remove_predecessor(successor)
+                successor.false_successor.remove_predecessor(successor)
+                set_true_successor(successor.true_successor)
+                set_false_successor(successor.false_successor)
+            else
+                if successor.successor != {blz.nil}
+                    successor.successor.remove_predecessor(successor)
+                    set_successor(successor.successor)
+                else
+                    successor = {blz.nil}
+                end
+            end
+        end
+    end
+
 
 end
