@@ -181,12 +181,15 @@ constructor CFGNode()
         emit_instr = []
         printed_counters.add!(label)
         emit_instr.concatenate!(instructions)
-        if is_conditional?()
-            emit_instr.add!(Instruction("Branch", [conditional_register], [true_successor.label, false_successor.label]))
-        else if successor != {blz.nil}
-            emit_instr.add!(Instruction("Branch", [], [successor.label]))
-        end
         emit_instr
+    end
+
+    :make_branch
+        if is_conditional?()
+            instructions.add!(Instruction("Branch", [conditional_register], [true_successor.label, false_successor.label]))
+        else if successor != {blz.nil}
+            instructions.add!(Instruction("Branch", [], [successor.label]))
+        end
     end
 
     :append_newlines(a, b)

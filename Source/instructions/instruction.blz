@@ -48,6 +48,12 @@ constructor Instruction(instruction_type, sources, destinations, typ)
     end
 
     :set_n_source(n, val)
+        if sources[n].type == "VirtualRegister"
+            sources[n].remove_use(this)
+        end
+        if val.type == "VirtualRegister"
+            sources[n].add_source(this)
+        end
         sources[n] = val
         source_registers = sources.filter(register_filter)
     end
@@ -109,14 +115,14 @@ constructor Instruction(instruction_type, sources, destinations, typ)
 
     comparisons = {}
     comparisons["eq"] = (x,y -> x == y)
-    comparisons["neq"] = (x,y -> x != y)
+    comparisons["ne"] = (x,y -> x != y)
     comparisons["sgt"] = (x,y -> x > y)
     comparisons["sge"] = (x,y -> x >= y)
     comparisons["slt"] = (x,y -> x < y)
     comparisons["sle"] = (x,y -> x <= y)
     :evaluate(values)
         # Certain instruction types will always return bottom
-        if ["FunctionCall", "Load", "Store", "GetElement", "Return", "Branch", "Allocation", "Comparison"].contains?(instruction_type)
+        if ["FunctionCall", "Load", "Store", "GetElement", "Return", "Branch", "Allocation"].contains?(instruction_type)
             return bottom
         end
 
@@ -149,7 +155,9 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             left = fully_resolved[1]
             right = fully_resolved[2]
             compare = comparisons[sources[0]]
+            #print("left" + left.type + " right " + right.type)
             if left.type == "Integer" && right.type == "Integer"
+                #print("left" + left + " right " + right)
                 if compare(left, right)
                     return 1
                 else

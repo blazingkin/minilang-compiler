@@ -98,6 +98,9 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         # Get all of the blocks in the function
         function_blocks = blocks_in_function(function_exit_cfg).values()
 
+        for i = 0; i < function_blocks.length(); i++
+            function_blocks[i].make_branch()
+        end
 
         if {arguments}.contains?("-constant-prop")
             used_registers = used_llvm_registers(function_blocks).values()
@@ -142,12 +145,6 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 if instruction.marked
                     work_list.add(instruction)
                 end
-            end
-            conditional_register = block.conditional_register
-            if conditional_register.source != {blz.nil}
-                instruction = conditional_register.source
-                instruction.marked = true
-                work_list.add(instruction)
             end
         end
         while work_list.size() > 0
@@ -228,7 +225,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 dests = uses[i].destinations
                 for j = 0; j < dests.length(); j++
                     dest = dests[j]
-                    if values[dest] != bottom
+                    if values.has_key?(dest) && values[dest] != bottom
                         temp = values[dest]
                         values[dest] = uses[i].evaluate(values)
                         if values[dest] != temp
@@ -426,6 +423,10 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         
                 # Get all of the blocks in the function
         function_blocks = blocks_in_function(function_exit_cfg).values()
+
+        for i = 0; i < function_blocks.length(); i++
+            function_blocks[i].make_branch()
+        end
 
         if {arguments}.contains?("-constant-prop")
             used_registers = used_llvm_registers(function_blocks).values()

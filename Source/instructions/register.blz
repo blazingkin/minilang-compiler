@@ -19,6 +19,10 @@ constructor VirtualRegister(content_type, name, place)
         uses.add!(instruction)
     end
 
+    :remove_use(instruction)
+        uses.filter!(x -> x != instruction)
+    end
+
     :copy
         this
     end

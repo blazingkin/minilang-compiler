@@ -15,8 +15,7 @@ define i32 @blergh()
 {
 LU37:
 
-%v120 = icmp slt i32 1, 2
-br i1 %v120, label %LU39, label %LU41
+br i1 1, label %LU39, label %LU41
 
 LU39:
 
@@ -80,22 +79,14 @@ LU30:
 %v90 = phi i32 [ 1, %LU29 ], [ 1, %LU31 ]
 %v91 = phi i32 [ %v87, %LU29 ], [ 2, %LU31 ]
 
-%v92 = icmp eq i32 1, 2
-call void @fbool(i32 %v92)
-%v94 = icmp ne i32 1, 2
-call void @fbool(i32 %v94)
-%v96 = icmp slt i32 1, 2
-call void @fbool(i32 %v96)
-%v98 = icmp sle i32 1, 2
-call void @fbool(i32 %v98)
-%v100 = icmp sgt i32 1, 2
-call void @fbool(i32 %v100)
-%v102 = icmp sge i32 1, 2
-call void @fbool(i32 %v102)
-%v104 = icmp sge i32 2, 2
-call void @fbool(i32 %v104)
-%v106 = icmp sle i32 2, 2
-call void @fbool(i32 %v106)
+call void @fbool(i32 0)
+call void @fbool(i32 1)
+call void @fbool(i32 1)
+call void @fbool(i32 1)
+call void @fbool(i32 0)
+call void @fbool(i32 0)
+call void @fbool(i32 1)
+call void @fbool(i32 1)
 ret i32 0
 br label %LU28
 
@@ -124,22 +115,14 @@ LU25:
 %v63 = phi i32 [ 1, %LU24 ], [ 1, %LU26 ]
 %v64 = phi i32 [ 2, %LU24 ], [ 2, %LU26 ]
 
-%v65 = icmp eq i32 1, 2
-call void @fbool(i32 %v65)
-%v67 = icmp ne i32 1, 2
-call void @fbool(i32 %v67)
-%v69 = icmp slt i32 1, 2
-call void @fbool(i32 %v69)
-%v71 = icmp sle i32 1, 2
-call void @fbool(i32 %v71)
-%v73 = icmp sgt i32 1, 2
-call void @fbool(i32 %v73)
-%v75 = icmp sge i32 1, 2
-call void @fbool(i32 %v75)
-%v77 = icmp sge i32 2, 2
-call void @fbool(i32 %v77)
-%v79 = icmp sle i32 2, 2
-call void @fbool(i32 %v79)
+call void @fbool(i32 0)
+call void @fbool(i32 1)
+call void @fbool(i32 1)
+call void @fbool(i32 1)
+call void @fbool(i32 0)
+call void @fbool(i32 0)
+call void @fbool(i32 1)
+call void @fbool(i32 1)
 ret i32 0
 br label %LU23
 
@@ -178,8 +161,7 @@ LU12:
 %v34 = phi i32 [ 1, %LU11 ], [ 1, %LU13 ]
 %v35 = phi i32 [ 0, %LU11 ], [ 0, %LU13 ]
 
-%v37 = trunc i32 1 to i1
-br i1 %v37, label %LU14, label %LU16
+br i1 1, label %LU14, label %LU16
 
 LU14:
 
@@ -190,8 +172,7 @@ LU15:
 %v41 = phi i32 [ %v34, %LU14 ], [ %v34, %LU16 ]
 %v49 = phi i32 [ %v35, %LU14 ], [ %v35, %LU16 ]
 
-%v43 = trunc i32 0 to i1
-br i1 %v43, label %LU17, label %LU19
+br i1 0, label %LU17, label %LU19
 
 LU17:
 
