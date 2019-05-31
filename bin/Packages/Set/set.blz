@@ -1,0 +1,92 @@
+
+constructor Set(items)
+    set_items = {}
+    if items.type == "Array"
+        for i = 0; i < items.length!(); i++
+            set_items[items[i]] = true
+        end
+    end
+
+    :==(other)
+        return other.type == "Set" && values() == other.values()
+    end
+
+    :of(arr)
+        for i = 0; i < arr.length!(); i++
+            set_items[arr[i]] = true
+        end
+    end
+
+    :show
+        "<Set " + values() + ">"
+    end
+
+    :count
+        set_items.values().filter(x -> x).length()
+    end
+
+    :size
+        count()
+    end
+
+    :pick
+        val = values()
+        if val.length() > 0
+            val[0]
+        else
+            throw "Tried to pick from an empty set"
+        end
+    end
+
+    :length
+        count()
+    end
+
+    :add(item)
+        set_items[item] = true
+        this
+    end
+
+    :remove(item)
+        set_items[item] = false
+        this
+    end
+
+    :contains?(item)
+        if set_items.has_key?(item)
+            set_items[item]
+        else
+            false
+        end
+    end
+
+    :union(other)
+        # Get all the keys in this where the key is set to true
+        this_items = this.values()
+        other_items = other.values()
+        Set(this_items.append(other_items))
+    end
+
+    :intersect(other)
+        # Get all the keys in this where the key is set to true
+        this_items = this.values()
+        other_items = other.values()
+        Set(this_items.filter(x -> other_items.contains?(x)))
+    end
+
+    :minus(other)
+        this_items = this.values()
+        other_items = other.values()
+        Set(this_items.filter(x -> other_items.contains?(x).negate()))
+    end
+
+    :entries
+        this.values()
+    end
+
+    :values
+        set_items.keys().filter(x -> set_items.get(x))
+    end
+
+
+end

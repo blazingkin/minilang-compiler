@@ -1,0 +1,59 @@
+:sqrt(x)
+    return x ** (1 / 2)
+end
+
+# Factorial - Calculates factorial using an efficient loop
+:factorial(x)
+    result = 1
+    for i = 2; i <= x; i++
+        result = result * i
+    end
+    return result
+end
+
+
+# Calculate the sine of a number
+# Optional parameter series_terms, for the number of terms in the Taylor Series to use
+:sin(x, series_terms)
+    # The approximation is only good around the origin
+    x = x % (2 * {pi})
+    if series_terms == {blz.nil}
+        series_terms = 10
+    end
+    result = 0
+    for i = 0; i < series_terms; i++
+        exp = (2 * i) + 1
+        sign = (-1) ** i
+        denominator = factorial(exp)
+        result = result + (sign * (x ** exp) / denominator)
+    end
+    return result
+end
+
+:sine(x, series_terms)
+    sin(x, series_terms)
+end
+
+:cos(x, series_terms)
+    sin(x + ({pi} / 2), series_terms)
+end
+
+:cosine(x, series_terms)
+    cos(x, series_terms)
+end
+
+:tan(x, series_terms)
+    sin(x, series_terms) / cos(x, series_terms)
+end
+
+:tangent(x, series_terms)
+    tan(x, series_terms)
+end
+
+:cot(x, series_terms)
+    1 / tan(x, series_terms)
+end
+
+:cotangent(x, series_terms)
+    cot(x, series_terms)
+end

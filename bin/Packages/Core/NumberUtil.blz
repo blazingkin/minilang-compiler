@@ -1,0 +1,51 @@
+:nil?
+	return false
+end
+
+:multiply(a, b)
+	a * b
+end
+
+# Forces a number to be a double
+:to_double(a)
+	a * 1.0
+end
+
+:to_decimal(a)
+	a * 1.0
+end
+
+:floor(a)
+	return a - (a % 1)
+end
+
+:ceil(a)
+	if a % 1 == 0
+		return a + 1
+	end
+	return a + (1 - (a % 1))
+end
+
+:to_string(a)
+	a + ""
+end
+
+:show(a)
+	a
+end
+
+:to_json(num)
+	num
+end
+
+:ordinal(num)
+	if num == 1
+		"1st"
+	else if num == 2
+		"2nd"
+	else if num == 3
+		"3rd"
+	else
+		num + "th"
+	end
+end

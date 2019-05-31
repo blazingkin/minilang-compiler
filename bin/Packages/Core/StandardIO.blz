@@ -1,0 +1,31 @@
+:print(x)
+	echo x
+end
+
+:print_no_newline(x)
+	secho x
+end
+
+:number_input
+	nin
+end
+
+:string_input
+	STRIN
+end
+
+:write_file_lines(path, contents)
+	print(contents)
+end
+
+:exit(code)
+	BLZINTERNALEXIT code
+end
+
+:raw_print(char)
+	BLZINTERNALRAWECHO char
+end
+
+:sleep(milliseconds)
+	WAIT milliseconds
+end

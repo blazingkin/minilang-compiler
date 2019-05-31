@@ -1,0 +1,11 @@
+:nil?
+	return true
+end
+
+:to_string
+	return "nil"
+end
+
+:to_json
+	"null"
+end

@@ -1,0 +1,25 @@
+constructor Iterator(list)
+	size = list.length()
+	i = 0
+	:has_next?
+		i < size
+	end
+	
+	:next
+		i++
+		this.list[i - 1]
+	end
+	
+	:remaining
+		this.list.slice(i, size)
+	end
+
+	:each(function)
+		remaining().each(function)
+	end
+
+	:show
+		"Iterator(" + list + ")"
+	end
+
+end
