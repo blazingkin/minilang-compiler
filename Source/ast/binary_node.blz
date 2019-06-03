@@ -97,6 +97,9 @@ constructor BinaryNode(operator, left, right, line)
         if operator == "!=" || operator == "==" || operator == "<=" || operator == ">=" || operator == "<" || operator == ">"
             result_register = VirtualRegister("i1")
             current_block.add_instruction(Instruction("Comparison", [binary_op_to_instruction_op[operator], t_left, t_right], [result_register], this.types))
+        else if operator == "||" || operator == "&&"
+            result_register = VirtualRegister("i1")
+            current_block.add_instruction(Instruction(binary_op_to_instruction_op[operator], [t_left, t_right], [result_register], "i1"))
         else
             result_register = VirtualRegister("i32")
             current_block.add_instruction(Instruction(binary_op_to_instruction_op[operator], [t_left, t_right], [result_register], "i32"))

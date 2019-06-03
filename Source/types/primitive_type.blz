@@ -27,6 +27,8 @@ constructor PrimitiveType(typ)
     :show
         if typ == "void"
             "void"
+        else if typ == "bool"
+            "i1"
         else
             "i32"
         end

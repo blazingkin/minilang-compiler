@@ -1,5 +1,17 @@
 int y;
 
+fun blah() void {
+   int a;
+      a = 1;
+      print a;
+   if (true) {
+      a = 3;
+   } else {
+      a = 4;
+   }
+   print a endl;
+}
+
 fun foo(int x) void
 {
    int a, b, c, d;

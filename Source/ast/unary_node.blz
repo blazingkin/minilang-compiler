@@ -61,8 +61,8 @@ constructor UnaryNode(op, left, line)
                     current_block.add_instruction(Instruction("zext", [left_translate, "i32"], [extended], "i1"))
                     left_translate = extended
                 end
-                result_register = VirtualRegister("i32")
-                current_block.add_instruction(Instruction("NegateBoolean", [left_translate], [result_register], "i32"))
+                result_register = VirtualRegister("i1")
+                current_block.add_instruction(Instruction("NegateBoolean", [left_translate], [result_register], "i1"))
                 return result_register
             end
         end

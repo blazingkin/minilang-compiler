@@ -332,18 +332,33 @@ constructor CFGNode()
         return live_out_copy == live_out
     end
 
-    :cfg_simplification
+    :cfg_simplification(changed_edges)
 
         if exit_block
             return ""
         end
         conditional_same_destination()
-        straight_through()
+        straight_through!(changed_edges)
 
         instr = instructions[instructions.length() - 1]
         if instr.instruction_type == "Branch"
             instructions.slice!(0, instructions.length()-1)
             make_branch()
+        end
+    end
+
+    :remove_block_from_phis(block)
+        for i = 0; i < phis.length(); i++
+            phi_instr = phis[i]
+            new_sources = []
+            for src_num = 0; src_num < phi_instr.sources.length(); src_num = src_num + 2
+                src_block = phi_instr.sources[src_num + 1]
+                if src_block != block
+                    new_sources.add!(phi_instr.sources[src_num])
+                    new_sources.add!(phi_instr.sources[src_num + 1])
+                end
+            end
+            phi_instr.set_sources(new_sources)
         end
     end
 
@@ -355,13 +370,15 @@ constructor CFGNode()
         else
             instr = instructions[instructions.length()-1]
             if instr.instruction_type == "Branch" && instr.sources != [] && instr.sources[0].type == "Integer"
-                if instr.sources[0] == 0
-                    set_successor(false_successor)
-                else
-                    set_successor(true_successor)
-                end
+                old_true_successor = true_successor
+                old_false_successor = false_successor
                 set_true_successor({blz.nil})
                 set_false_successor({blz.nil})
+                if instr.sources[0] == 0
+                    set_successor(old_false_successor)
+                else
+                    set_successor(old_true_successor)
+                end
             end
         end
     end
@@ -369,7 +386,7 @@ constructor CFGNode()
 
 
     #This should be last
-    :straight_through
+    :straight_through(changed_edges)
         if is_conditional?().negate() && successor != {blz.nil} && successor.predecessors.length() == 1
             if successor.exit_block
                 exit_block = true
@@ -380,12 +397,20 @@ constructor CFGNode()
             instructions.append!(successor.instructions)
             successor.remove_predecessor(this)
             if successor.is_conditional?()
+                old_edge = BlockEdge(this, successor)
+                new_true_edge = BlockEdge(this, successor.true_successor)
+                new_false_edge = BlockEdge(this, successor.false_successor)
+                changed_edges[new_true_edge] = old_edge
+                changed_edges[new_false_edge] = old_edge
                 successor.true_successor.remove_predecessor(successor)
                 successor.false_successor.remove_predecessor(successor)
                 set_true_successor(successor.true_successor)
                 set_false_successor(successor.false_successor)
             else
                 if successor.successor != {blz.nil}
+                    old_edge = BlockEdge(this, successor)
+                    new_edge = BlockEdge(this, successor.successor)
+                    changed_edges[new_edge] = old_edge
                     successor.successor.remove_predecessor(successor)
                     set_successor(successor.successor)
                 else
@@ -395,5 +420,41 @@ constructor CFGNode()
         end
     end
 
+    :recalculate_phis(changed_edges, function_blocks)
+        # find any of the edges where this was set to be a new destination
+        relevant_edges = changed_edges.keys().filter(x -> x.dest == this)
+        for i = 0; i < phis.size(); i++
+            new_phi_srcs = []
+            phi = phis[i]
+            for j = 0; j < phi.sources.size(); j = j + 2
+                new_incoming_edge = phi.sources[j + 1]
+                old_incoming_edge = phi.sources[j + 1]
+                for k = 0; k < relevant_edges.size(); k++
+                    old_edge = changed_edges[relevant_edges[k]]
+                    if old_incoming_edge == old_edge.dest
+                        new_incoming_edge = old_edge.src
+                    end
+                end
+                if function_blocks.contains?(new_incoming_edge)
+                    new_phi_srcs.add!(phi.sources[j])
+                    new_phi_srcs.add!(new_incoming_edge)
+                end
+            end
+            # Change the sources of the phis
+            phi.set_sources(new_phi_srcs)
+        end
+    end
 
+
+end
+
+
+constructor BlockEdge(src, dest)
+    :show
+        src + " -> " + dest
+    end
+
+    :==(other)
+        other.type == "BlockEdge" && src == other.src && dest == other.dest
+    end
 end

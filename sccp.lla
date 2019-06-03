@@ -1,4 +1,28 @@
 @y = common global i32 0, align 4
+define void @simple()
+{
+LU44:
+
+br i1 1, label %LU46, label %LU48
+
+LU46:
+
+br label %LU47
+
+LU47:
+
+call void @printl(i32 2)
+br label %LU45
+
+LU45:
+
+ret void 
+
+LU48:
+
+br label %LU47
+
+}
 define i32 @main()
 {
 LU42:

@@ -58,6 +58,10 @@ constructor Instruction(instruction_type, sources, destinations, typ)
         source_registers = sources.filter(register_filter)
     end
 
+    :set_sources(val)
+        sources = val
+    end
+
     :show
         "<" + instruction_type + " from " + sources + " to " + destinations + ">"
     end
@@ -256,7 +260,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             val_to_llvm(destinations[0]) + " = sub i32 0, " + val_to_llvm(sources[0])
         else if instruction_type == "NegateBoolean"
             # Negate by XORing with 1
-            val_to_llvm(destinations[0]) + " = xor i32 1, " + val_to_llvm(sources[0])
+            val_to_llvm(destinations[0]) + " = xor i1 1, " + val_to_llvm(sources[0])
         else if instruction_type == "FunctionCall"
             if destinations != []
                 llvm = val_to_llvm(destinations[0]) + " = "

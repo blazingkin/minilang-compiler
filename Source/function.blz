@@ -114,8 +114,9 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         end
 
         if {arguments}.contains?("-simplify-cfg") || {arguments}.contains?("-sc")
-            simplify_cfg(function_blocks)
+            changed_edges = simplify_cfg(function_blocks)
             function_blocks = blocks_in_function(function_entry_cfg).values()
+            recalculate_phis(changed_edges, function_blocks)
             function_exit_cfg = function_blocks.filter(x -> x.exit_block)[0]
         end
 
@@ -143,7 +144,15 @@ constructor Function(line, id, return_type, body, parameters, declarations)
     end
 
     :simplify_cfg(function_blocks)
-        function_blocks.each(x -> x.cfg_simplification())
+        changed_edges = {}
+        function_blocks.each(x -> x.cfg_simplification!(changed_edges))
+        changed_edges
+    end
+
+    :recalculate_phis(changed_edges, function_blocks)
+        for i = 0; i < function_blocks.length(); i++
+            function_blocks[i].recalculate_phis(changed_edges, function_blocks)
+        end
     end
 
     :mark_dead_code(function_blocks)
@@ -451,8 +460,9 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         end
 
         if {arguments}.contains?("-simplify-cfg") || {arguments}.contains?("-sc")
-            simplify_cfg(function_blocks)
+            changed_edges = simplify_cfg(function_blocks)
             function_blocks = blocks_in_function(function_entry_cfg).values()
+            recalculate_phis(changed_edges, function_blocks)
             function_exit_cfg = function_blocks.filter(x -> x.exit_block)[0]
         end
         
