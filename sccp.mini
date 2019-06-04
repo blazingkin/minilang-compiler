@@ -209,3 +209,32 @@ fun simple () void
    a = 2;
    print a endl;
 }
+
+fun iFeelemptyInside() void {
+   if (true) {
+      if (false) {
+
+      } else {
+         if (true) {
+            print 2 endl;
+         }
+      }
+   } else {
+
+   }
+}
+
+fun boolParam(bool a) void {
+   int c;
+   c = 0;
+   if (a) {
+      if (a) {
+         c = 4;
+      }else {
+         c = 5;
+      }
+   }else {
+
+   }
+   print c endl;
+}

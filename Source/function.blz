@@ -145,12 +145,16 @@ constructor Function(line, id, return_type, body, parameters, declarations)
 
     :simplify_cfg(function_blocks)
         changed_edges = {}
-        function_blocks.each(x -> x.cfg_simplification!(changed_edges))
+        for i = 0; i < function_blocks.size(); i++
+            node = function_blocks[i]
+            node.cfg_simplification!(changed_edges)
+        end
         changed_edges
     end
 
     :recalculate_phis(changed_edges, function_blocks)
         for i = 0; i < function_blocks.length(); i++
+            function_blocks[i].regen_branch()
             function_blocks[i].recalculate_phis(changed_edges, function_blocks)
         end
     end
@@ -411,7 +415,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             if i != 0
                 llvm = llvm + ", "
             end
-            param_registers[i] = VirtualRegister(parameters[i].typ, "_P_"+parameters[i].id, "stack")
+            param_registers[i] = VirtualRegister(parameters[i].typ.show(), "_P_"+parameters[i].id, "stack")
             llvm = llvm + parameters[i].typ + " " + param_registers[i].emit_llvm()
         end
         llvm = llvm + ")\n{"
@@ -422,12 +426,12 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         if stack_based?()
             # Emit the stack if we are using it
             for i = 0; i < parameters.length!(); i++
-                local_register = VirtualRegister(parameters[i].typ, parameters[i].id, "stack")
+                local_register = VirtualRegister(parameters[i].typ.show(), parameters[i].id, "stack")
                 function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], parameters[i].typ))
                 function_entry_cfg.add_instruction(Instruction("Store", [param_registers[i], local_register], [], parameters[i].typ))
             end
             for i = 0; i < declarations.length(); i++
-                local_register = VirtualRegister(declarations[i].typ, declarations[i].id, "stack")
+                local_register = VirtualRegister(declarations[i].typ.show(), declarations[i].id, "stack")
                 function_entry_cfg.add_instruction(Instruction("Allocation", [], [local_register], declarations[i].typ))
             end
         else

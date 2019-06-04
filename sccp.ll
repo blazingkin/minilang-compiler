@@ -1,4 +1,67 @@
 @y = common global i32 0, align 4
+define void @boolParam(i1 %_P_a)
+{
+LU64:
+
+br i1 %_P_a, label %LU66, label %LU71
+
+LU66:
+
+br i1 %_P_a, label %LU68, label %LU70
+
+LU68:
+
+br label %LU69
+
+LU69:
+%v156 = phi i32 [ 4, %LU68 ], [ 5, %LU70 ]
+
+br label %LU67
+
+LU67:
+%v155 = phi i32 [ 0, %LU66 ], [ %v156, %LU69 ], [ 0, %LU71 ]
+
+call void @printl(i32 %v155)
+ret void 
+
+LU70:
+
+br label %LU69
+
+
+LU71:
+
+br label %LU67
+
+}
+define void @iFeelemptyInside()
+{
+LU54:
+
+br i1 1, label %LU58, label %LU60
+
+LU58:
+
+br label %LU59
+
+LU59:
+
+br label %LU57
+
+LU57:
+
+ret void 
+
+LU60:
+
+call void @printl(i32 2)
+br label %LU62
+
+LU62:
+
+br label %LU59
+
+}
 define void @simple()
 {
 LU49:

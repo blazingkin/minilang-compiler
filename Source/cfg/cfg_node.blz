@@ -234,6 +234,10 @@ constructor CFGNode()
         instr
     end
 
+    :empty?
+        instructions.size() == 1 && instructions[0].instruction_type == "Branch" && phis.empty?()
+    end
+
     :resolve_phis_arm
         for i = 0; i < phis.length!(); i++
             temporary_for_phi = VirtualRegister()
@@ -339,7 +343,11 @@ constructor CFGNode()
         end
         conditional_same_destination()
         straight_through!(changed_edges)
+        #remove_empty!(changed_edges)
+        
+    end
 
+    :regen_branch
         instr = instructions[instructions.length() - 1]
         if instr.instruction_type == "Branch"
             instructions.slice!(0, instructions.length()-1)
@@ -415,6 +423,26 @@ constructor CFGNode()
                     set_successor(successor.successor)
                 else
                     successor = {blz.nil}
+                end
+            end
+        end
+    end
+
+    :remove_empty(changed_edges)
+        if empty?() && successor != {blz.nil}
+            for i = 0; i < predecessors.size(); i++
+                pred = predecessors[i]
+                old_edge = BlockEdge(pred, this)
+                new_edge = BlockEdge(pred, successor)
+                changed_edges[new_edge] = old_edge
+                if pred.successor == this
+                    pred.set_successor(successor)
+                end
+                if pred.true_successor == this
+                    pred.set_true_successor(successor)
+                end
+                if pred.false_successor == this
+                    pred.set_false_successor(successor)
                 end
             end
         end
