@@ -32,7 +32,7 @@ constructor IfNode(cond, main, line, els)
     :translate_stmt(current_node, return_node)
         # generate condition
         val = cond.translate(current_node)
-        if val.type == "VirtualRegister" && val.content_type != "i1"
+        if val.type == "VirtualRegister" && val.content_type.show() != "i1"
             truncated = VirtualRegister("i1")
             current_node.add_instruction(Instruction("trunc", [val, "i1"], [truncated], val.content_type))
             current_node.conditional_register = truncated

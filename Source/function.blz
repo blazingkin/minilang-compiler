@@ -189,15 +189,11 @@ constructor Function(line, id, return_type, body, parameters, declarations)
 
     :eliminate_dead_code(function_blocks)
         for i = 0; i < function_blocks.length(); i++
-            result = []
             block = function_blocks[i]
-            for j = 0; j < block.instructions.length(); j++
-                instr = block.instructions[j]
-                if instr.marked
-                    result.add!(instr)
-                end
-            end
+            result = block.instructions.filter(x -> x.marked)
             block.set_instructions(result)
+            result = block.phis.filter(x -> x.marked)
+            block.set_phis(result)
         end
     end
 
@@ -266,13 +262,21 @@ constructor Function(line, id, return_type, body, parameters, declarations)
     :rewrite_uses(function_blocks, values)
         for i = 0; i < function_blocks.size(); i++
             block = function_blocks[i]
-            new_instrs = []
             for j = 0; j < block.instructions.length(); j++
                 instr = block.instructions[j]
                 for k = 0; k < instr.sources.length(); k++
                     src = instr.sources[k]
-                    if values.has_key?(src) && values[src] != bottom && values[src] != top
+                    if values.has_key?(src) && values[src].type == "Integer"
                         instr.set_n_source(k, values[src])
+                    end
+                end
+            end
+            for j = 0; j < block.phis.size(); j++
+                phi = block.phis[j]
+                for k = 0; k < phi.sources.size(); k++
+                    src = phi.sources[k]
+                    if values.has_key?(src) && values[src].type == "Integer"
+                        phi.set_n_source(k, values[src])
                     end
                 end
             end

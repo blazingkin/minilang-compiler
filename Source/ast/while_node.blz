@@ -26,7 +26,7 @@ constructor WhileNode(guard, block, line)
         # Add guard instruction to condition_node
         result = guard.translate(condition_node)
 
-        if result.type == "VirtualRegister" && result.content_type != "i1"
+        if result.type == "VirtualRegister" && result.content_type.show() != "i1"
             truncated = VirtualRegister("i1")
             condition_node.add_instruction(Instruction("trunc", [result, "i1"], [truncated], result.content_type))
             condition_node.conditional_register = truncated

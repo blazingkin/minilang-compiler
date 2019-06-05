@@ -84,16 +84,7 @@ constructor BinaryNode(operator, left, right, line)
         t_left = left.translate(current_block)
         t_right = right.translate(current_block)
 
-        if t_left.type == "VirtualRegister" && t_left.content_type == "i1"
-            extended = VirtualRegister("i32")
-            current_block.add_instruction(Instruction("zext", [t_left, "i32"], [extended], "i1"))
-            t_left = extended
-        end
-        if t_right.type == "VirtualRegister" && t_right.content_type == "i1"
-            extended = VirtualRegister("i32")
-            current_block.add_instruction(Instruction("zext", [t_right, "i32"], [extended], "i1"))
-            t_right = extended
-        end
+
         if operator == "!=" || operator == "==" || operator == "<=" || operator == ">=" || operator == "<" || operator == ">"
             result_register = VirtualRegister("i1")
             current_block.add_instruction(Instruction("Comparison", [binary_op_to_instruction_op[operator], t_left, t_right], [result_register], this.types))
@@ -101,6 +92,16 @@ constructor BinaryNode(operator, left, right, line)
             result_register = VirtualRegister("i1")
             current_block.add_instruction(Instruction(binary_op_to_instruction_op[operator], [t_left, t_right], [result_register], "i1"))
         else
+            if t_left.type == "VirtualRegister" && t_left.content_type == "i1"
+                extended = VirtualRegister("i32")
+                current_block.add_instruction(Instruction("zext", [t_left, "i32"], [extended], "i1"))
+                t_left = extended
+            end
+            if t_right.type == "VirtualRegister" && t_right.content_type == "i1"
+                extended = VirtualRegister("i32")
+                current_block.add_instruction(Instruction("zext", [t_right, "i32"], [extended], "i1"))
+                t_right = extended
+            end
             result_register = VirtualRegister("i32")
             current_block.add_instruction(Instruction(binary_op_to_instruction_op[operator], [t_left, t_right], [result_register], "i32"))
         end

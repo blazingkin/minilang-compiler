@@ -33,6 +33,10 @@ constructor CFGNode()
         instructions = to
     end
 
+    :set_phis(to)
+        phis = to
+    end
+
     gen = Set()
     kill = Set()
     live_out = Set()
@@ -343,7 +347,7 @@ constructor CFGNode()
         end
         conditional_same_destination()
         straight_through!(changed_edges)
-        #remove_empty!(changed_edges)
+        remove_empty!(changed_edges)
         
     end
 
