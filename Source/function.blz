@@ -146,8 +146,26 @@ constructor Function(line, id, return_type, body, parameters, declarations)
     :simplify_cfg(function_blocks)
         changed_edges = {}
         for i = 0; i < function_blocks.size(); i++
-            node = function_blocks[i]
-            node.cfg_simplification!(changed_edges)
+            function_blocks[i].conditional_same_destination()
+        end
+        size = -1
+        while changed_edges.keys().size() != size
+            size = changed_edges.keys().size()
+            for i = 0; i < function_blocks.size(); i++
+                node = function_blocks[i]
+                node.straight_through!(changed_edges)
+            end
+        end
+        size = -1
+        while changed_edges.keys().size() != size
+            size = changed_edges.keys().size()
+            for i = 0; i < function_blocks.size(); i++
+                node = function_blocks[i]
+                node.remove_empty!(changed_edges)
+            end
+        end
+        for i = 0; i < function_blocks.size(); i++
+            function_blocks[i].conditional_same_destination()
         end
         changed_edges
     end

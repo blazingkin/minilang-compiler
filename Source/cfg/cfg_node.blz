@@ -180,6 +180,14 @@ constructor CFGNode()
         false_successor = node
     end
 
+    :get_true_successor()
+        true_successor
+    end
+
+    :get_false_successor()
+        false_successor
+    end
+
     :set_successor(node)
         if successor != {blz.nil}
             successor.remove_predecessor(this)
@@ -226,9 +234,15 @@ constructor CFGNode()
             return ""
         end
         printed_llvm_counters.add!(label)
-        instr = "\n" + text_label + ":"
-        instr = instr + (phis.map!(x -> x.emit_llvm())).fold_left("", append_newlines)
-        instr = instr + "\n" + (emit_instructions().map!(x -> x.emit_llvm()).fold_left("", append_newlines))
+        instr = "\n" + text_label + ":\n"
+        for i = 0; i < phis.length(); i++
+            instr = instr + "\n" + phis[i].emit_llvm()
+        end
+        emitted_instructions = emit_instructions()
+        instr = instr + "\n"
+        for i = 0; i < emitted_instructions.length(); i++
+            instr = instr + "\n" + emitted_instructions[i].emit_llvm()
+        end
         if is_conditional?()
             instr = instr + "\n" + true_successor.emit_llvm()
             instr = instr + "\n" + false_successor.emit_llvm()
@@ -345,8 +359,6 @@ constructor CFGNode()
         if exit_block
             return ""
         end
-        conditional_same_destination()
-        straight_through!(changed_edges)
         remove_empty!(changed_edges)
         
     end
@@ -381,12 +393,13 @@ constructor CFGNode()
             set_false_successor({blz.nil})
         else
             instr = instructions[instructions.length()-1]
-            if instr.instruction_type == "Branch" && instr.sources != [] && instr.sources[0].type == "Integer"
+            sources = instr.sources
+            if instr.instruction_type == "Branch" && sources != [] && (sources[0].type == "Integer" || sources[0].type == "Boolean" || sources[0].type == "String")
                 old_true_successor = true_successor
                 old_false_successor = false_successor
                 set_true_successor({blz.nil})
                 set_false_successor({blz.nil})
-                if instr.sources[0] == 0
+                if sources[0] == 0 || sources[0] == false || sources[0] == "false"
                     set_successor(old_false_successor)
                 else
                     set_successor(old_true_successor)
@@ -418,6 +431,7 @@ constructor CFGNode()
                 successor.false_successor.remove_predecessor(successor)
                 set_true_successor(successor.true_successor)
                 set_false_successor(successor.false_successor)
+                set_successor({blz.nil})
             else
                 if successor.successor != {blz.nil}
                     old_edge = BlockEdge(this, successor)
@@ -428,12 +442,14 @@ constructor CFGNode()
                 else
                     successor = {blz.nil}
                 end
+                set_true_successor({blz.nil})
+                set_false_successor({blz.nil})
             end
         end
     end
 
     :remove_empty(changed_edges)
-        if empty?() && successor != {blz.nil}
+        if empty?() && successor != {blz.nil} && is_conditional?().negate()
             for i = 0; i < predecessors.size(); i++
                 pred = predecessors[i]
                 old_edge = BlockEdge(pred, this)
