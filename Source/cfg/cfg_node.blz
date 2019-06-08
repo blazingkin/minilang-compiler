@@ -416,12 +416,13 @@ constructor CFGNode()
             if successor.exit_block
                 exit_block = true
             end
-            #Remove the branch
-            instructions.slice!(0, instructions.length()-1)
-            #Add the successor's instructions
-            instructions.append!(successor.instructions)
-            successor.remove_predecessor(this)
             if successor.is_conditional?()
+                #Remove the branch
+                instructions.slice!(0, instructions.length()-1)
+                #Add the successor's instructions
+                instructions.append!(successor.instructions)
+                conditional_register = successor.conditional_register
+                successor.remove_predecessor(this)
                 old_edge = BlockEdge(this, successor)
                 new_true_edge = BlockEdge(this, successor.true_successor)
                 new_false_edge = BlockEdge(this, successor.false_successor)
@@ -433,17 +434,31 @@ constructor CFGNode()
                 set_false_successor(successor.false_successor)
                 set_successor({blz.nil})
             else
-                if successor.successor != {blz.nil}
+                if successor.successor != {blz.nil} && successor.successor.exit_block != true
+                    #Remove the branch
+                    instructions.slice!(0, instructions.length()-1)
+                    #Add the successor's instructions
+                    instructions.append!(successor.instructions)
+                    conditional_register = successor.conditional_register
+                    successor.remove_predecessor(this)
                     old_edge = BlockEdge(this, successor)
                     new_edge = BlockEdge(this, successor.successor)
                     changed_edges[new_edge] = old_edge
                     successor.successor.remove_predecessor(successor)
                     set_successor(successor.successor)
+                    set_true_successor({blz.nil})
+                    set_false_successor({blz.nil})
                 else
+                    #Remove the branch
+                    instructions.slice!(0, instructions.length()-1)
+                    #Add the successor's instructions
+                    instructions.append!(successor.instructions)
+                    conditional_register = successor.conditional_register
+                    successor.remove_predecessor(this)
                     successor = {blz.nil}
+                    set_true_successor({blz.nil})
+                    set_false_successor({blz.nil})
                 end
-                set_true_successor({blz.nil})
-                set_false_successor({blz.nil})
             end
         end
     end

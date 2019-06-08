@@ -114,7 +114,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         end
 
         if {arguments}.contains?("-simplify-cfg") || {arguments}.contains?("-sc")
-            changed_edges = simplify_cfg(function_blocks)
+            changed_edges = simplify_cfg(function_blocks, function_entry_cfg)
             function_blocks = blocks_in_function(function_entry_cfg).values()
             recalculate_phis(changed_edges, function_blocks)
             function_exit_cfg = function_blocks.filter(x -> x.exit_block)[0]
@@ -143,26 +143,40 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         return id + ":\n" + function_entry_cfg.emit_arm() + "\n"
     end
 
-    :simplify_cfg(function_blocks)
+    :simplify_cfg(function_blocks, function_entry_cfg)
         changed_edges = {}
         for i = 0; i < function_blocks.size(); i++
             function_blocks[i].conditional_same_destination()
         end
+        function_blocks = blocks_in_function(function_entry_cfg).values()
         size = -1
         while changed_edges.keys().size() != size
             size = changed_edges.keys().size()
+            new_function_blocks = function_blocks
             for i = 0; i < function_blocks.size(); i++
                 node = function_blocks[i]
-                node.straight_through!(changed_edges)
+                if new_function_blocks.contains?(node)
+                    node.straight_through!(changed_edges)
+                    new_function_blocks = blocks_in_function(function_entry_cfg).values()
+                    recalculate_phis(changed_edges, new_function_blocks)
+                end 
             end
+            function_blocks = new_function_blocks
         end
         size = -1
         while changed_edges.keys().size() != size
             size = changed_edges.keys().size()
+            new_function_blocks = function_blocks
             for i = 0; i < function_blocks.size(); i++
                 node = function_blocks[i]
-                node.remove_empty!(changed_edges)
+                if new_function_blocks.contains?(node)
+                    node.remove_empty!(changed_edges)
+                    new_function_blocks = blocks_in_function(function_entry_cfg).values()
+                    recalculate_phis(changed_edges, new_function_blocks)
+                end
             end
+            function_blocks = new_function_blocks
+            function_blocks = blocks_in_function(function_entry_cfg).values()
         end
         for i = 0; i < function_blocks.size(); i++
             function_blocks[i].conditional_same_destination()
@@ -230,6 +244,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             for j = 0; j < block.phis.length(); j++
                 phi = block.phis[j]
                 result = result.union(Set(phi.destinations))
+                result = result.union(Set(phi.sources.filter(x -> x.type == "VirtualRegister")))
             end
         end
         return result
@@ -247,9 +262,10 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         for i = 0; i < registers.length(); i++
             if registers[i].place == "global" || registers[i].place == "stack"
                 values[registers[i]] = bottom
+                worklist.add(registers[i])
             else
                 if registers[i].source != {blz.nil}
-                    values[registers[i]] = registers[i].source.evaluate(values)
+                    values[registers[i]] = registers[i].source.evaluate!(values)
                     if values[registers[i]] != top
                         worklist.add(registers[i])
                     end
@@ -264,9 +280,9 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 dests = uses[i].destinations
                 for j = 0; j < dests.length(); j++
                     dest = dests[j]
-                    if values.has_key?(dest) && values[dest] != bottom
+                    if dest.type == "VirtualRegister" && values[dest] != bottom
                         temp = values[dest]
-                        values[dest] = uses[i].evaluate(values)
+                        values[dest] = uses[i].evaluate!(values)
                         if values[dest] != temp
                             worklist.add(dest)
                         end
@@ -486,10 +502,9 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         end
 
         if {arguments}.contains?("-simplify-cfg") || {arguments}.contains?("-sc")
-            changed_edges = simplify_cfg(function_blocks)
+            changed_edges = simplify_cfg(function_blocks, function_entry_cfg)
             function_blocks = blocks_in_function(function_entry_cfg).values()
             recalculate_phis(changed_edges, function_blocks)
-            function_exit_cfg = function_blocks.filter(x -> x.exit_block)[0]
         end
         
         llvm = llvm + function_entry_cfg.emit_llvm() + "\n}"
