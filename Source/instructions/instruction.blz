@@ -468,7 +468,7 @@ constructor Instruction(instruction_type, sources, destinations, typ)
             return result
         else if instruction_type == "NegateBoolean"
             result = []
-            if sources[0].type != VirtualRegister
+            if sources[0].type != "VirtualRegister"
                 result.add!(ARMInstruction("mov", [val_to_arm(sources[0])], [destinations[0]]))
             else
                 result.add!(ARMInstruction("eor", [sources[0], "\#1"], [destinations[0]]))

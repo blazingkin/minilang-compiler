@@ -15,7 +15,7 @@ if __name__ == "__main__":
         for bench in os.listdir("benchmarks"):
             subprocess.call(["cp", "benchmarks/{0}/{0}.mini".format(bench), "."])
             print("Compiling {}.mini".format(bench))
-            os.system("./run.sh {0}.mini {} -compile".format(bench, " ".join(flags)))
+            os.system("./run.sh {0}.mini {1} -compile".format(bench, " ".join(flags)))
             subprocess.call(["rm", "{0}.mini".format(bench)])
     elif to_do == "test_all":
         for bench in os.listdir("benchmarks"):
