@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os, sys, time, statistics
-import matplotlib as plt
 import subprocess
 from subprocess import Popen, PIPE
 
