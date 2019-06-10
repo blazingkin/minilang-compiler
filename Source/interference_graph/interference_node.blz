@@ -24,18 +24,15 @@ constructor InterferenceNode(register)
     end
 
     :<(other)
-        if other.type != "InterferenceNode"
-            throw "Tried to compare interference node with " + other
-        end
         if register.type == "VirtualRegister" 
-            if edges.size() < NUM_COLORS
+            if edges.size!() < 9
                 return true
             else
                 if other.register.type == "VirtualRegister"
-                    if other.edges.size() < NUM_COLORS
+                    if other.edges.size!() < 9
                         return false
                     else
-                        return edges.size() > other.edges.size()
+                        return edges.size!() > other.edges.size!()
                     end
                 else
                     return true

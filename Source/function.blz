@@ -133,7 +133,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         end
 
         # Generate gen and kill sets for register allocation
-        allocate_registers_arm(function_blocks)
+        allocate_registers_arm!(function_blocks)
 
         function_entry_cfg.add_arm_instruction_at_beginning(ARMInstruction("push", [], ["{r4-r10}"]))
         function_entry_cfg.add_arm_instruction_at_beginning(ARMInstruction("add", [ARMRegister(13), 4 + (spill_count * 4)], [ARMRegister(11)]))
@@ -263,29 +263,29 @@ constructor Function(line, id, return_type, body, parameters, declarations)
         for i = 0; i < registers.length(); i++
             if registers[i].place == "global" || registers[i].place == "stack"
                 values[registers[i]] = bottom
-                worklist.add(registers[i])
+                worklist.add!(registers[i])
             else
                 if registers[i].source != {blz.nil}
                     values[registers[i]] = registers[i].source.evaluate!(values)
                     if values[registers[i]] != top
-                        worklist.add(registers[i])
+                        worklist.add!(registers[i])
                     end
                 end
             end
         end
         while worklist.size() > 0
             reg = worklist.pick()
-            worklist.remove(reg)
+            worklist.remove!(reg)
             uses = reg.uses
-            for i = 0; i < uses.length(); i++
+            for i = 0; i < uses.length!(); i++
                 dests = uses[i].destinations
-                for j = 0; j < dests.length(); j++
+                for j = 0; j < dests.length!(); j++
                     dest = dests[j]
                     if dest.type == "VirtualRegister" && values[dest] != bottom
                         temp = values[dest]
                         values[dest] = uses[i].evaluate!(values)
                         if values[dest] != temp
-                            worklist.add(dest)
+                            worklist.add!(dest)
                         end
                     end
                 end
@@ -302,7 +302,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 for k = 0; k < instr.sources.length(); k++
                     src = instr.sources[k]
                     if values.has_key?(src) && values[src].type == "Integer"
-                        instr.set_n_source(k, values[src])
+                        instr.set_n_source!(k, values[src])
                     end
                 end
             end
@@ -311,7 +311,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 for k = 0; k < phi.sources.size(); k++
                     src = phi.sources[k]
                     if values.has_key?(src) && values[src].type == "Integer"
-                        phi.set_n_source(k, values[src])
+                        phi.set_n_source!(k, values[src])
                     end
                 end
             end
@@ -396,14 +396,14 @@ constructor Function(line, id, return_type, body, parameters, declarations)
     # Graph -> Stack of registers + edges
     :deconstruct_graph(graph)
         result = Stack()
-        while graph.size() > 0
+        while graph.size!() > 0
             # Order lists for removal, highest priority to remove is the first
-            node = graph.least()
-            position = graph.index_of(node)
-            result.push(node)
-            neighbors = node.edges.values()
-            for i = 0; i < neighbors.length(); i++
-                neighbors[i].remove_edge_from_this(node)
+            node = graph.least!()
+            position = graph.index_of!(node)
+            result.push!(node)
+            neighbors = node.edges.values!()
+            for i = 0; i < neighbors.length!(); i++
+                neighbors[i].remove_edge_from_this!(node)
             end
             graph.remove!(position)
         end
@@ -412,7 +412,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
 
     # Stack of registers + edges -> Colored Graph
     :reconstruct_graph(stack)
-        possible_registers = range(9).map(x -> ARMRegister(x))
+        possible_registers = range(9).map!(x -> ARMRegister(x))
         spilling = false
         new_graph = []
         while stack.size() > 0
@@ -424,12 +424,12 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 # Try to color the node
                 not_found = true
                 for i = possible_registers.length() - 1; i >= 0 && not_found; i--
-                    neighbors = node.edges.values()
+                    neighbors = node.edges.values!()
                     color = possible_registers[i]
                     can_color = true
-                    for j = 0; j < neighbors.length(); j++
+                    for j = 0; j < neighbors.length!(); j++
                         # If any of the neighbors are not compatible, then we can not color
-                        if neighbors[j].is_compatible?(color).negate()
+                        if neighbors[j].is_compatible?!(color).negate()
                             can_color = false
                         end
                     end
@@ -520,13 +520,13 @@ constructor Function(line, id, return_type, body, parameters, declarations)
             for i = 0; i < cur_block.arm_instruction_list.length(); i++
                 cur_instruction = cur_block.arm_instruction_list[i]
                 for j = 0; j < cur_instruction.destination_registers.length(); j++
-                    if (interference_graph.has_key? (cur_instruction.destination_registers[j])).negate()
-                        interference_graph [cur_instruction.destination_registers[j]] = InterferenceNode(cur_instruction.destination_registers[j])
+                    if (interference_graph.has_key?!(cur_instruction.destination_registers[j])).negate()
+                        interference_graph [cur_instruction.destination_registers[j]] = InterferenceNode!(cur_instruction.destination_registers[j])
                     end
                 end
                 for j = 0; j < cur_instruction.source_registers.length(); j++ 
                     if (interference_graph.has_key? (cur_instruction.source_registers[j])).negate()
-                        interference_graph [cur_instruction.source_registers[j]] = InterferenceNode(cur_instruction.source_registers[j])
+                        interference_graph [cur_instruction.source_registers[j]] = InterferenceNode!(cur_instruction.source_registers[j])
                     end
                 end
             end
@@ -538,7 +538,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                 cur_instruction = cur_block.arm_instruction_list[i]
                 for j = 0; j < cur_instruction.destination_registers.length(); j++
                     cur_target = cur_instruction.destination_registers[j]
-                    cur_live_set.remove(cur_target)
+                    cur_live_set.remove!(cur_target)
                     cur_live_set_values = cur_live_set.values()
                     for k = 0; k < cur_live_set_values.length(); k++
                         e = cur_live_set_values[k]
@@ -547,7 +547,7 @@ constructor Function(line, id, return_type, body, parameters, declarations)
                     end
                 end
                 for j = 0; j < cur_instruction.source_registers.length(); j++ 
-                    cur_live_set.add(cur_instruction.source_registers[j])
+                    cur_live_set.add!(cur_instruction.source_registers[j])
                 end
             end
         end
